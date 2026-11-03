@@ -2,24 +2,19 @@ name: build
 on: [push, workflow_dispatch]
 jobs:
   build:
-    strategy:
-      matrix: { os: [windows-latest, macos-latest, ubuntu-22.04] }
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - uses: dtolnay/rust-toolchain@stable
-      - if: matrix.os == 'ubuntu-22.04'
-        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: Swatinem/rust-cache@v2
       - run: npm ci
         working-directory: ui
-      - run: npx tauri build
-        working-directory: ui
+      - run: ui/node_modules/.bin/tauri build
       - uses: actions/upload-artifact@v4
         with:
-          name: adb-manager-${{ matrix.os }}
+          name: adb-manager-windows
           path: |
             target/release/bundle/**/*
-            target/release/adb-manager
             target/release/adb-manager.exe
