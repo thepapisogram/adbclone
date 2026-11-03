@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ipc } from "../../lib/ipc";
 import type { HealthSample } from "../../lib/types";
+import { isWarm } from "../../lib/history";
 
 interface Point { t: number; batt: number | null; hot: number | null; hotName: string | null; status: number | null }
 const MAX_POINTS = 120;
@@ -35,9 +36,9 @@ function StatusBadge({ s }: { s: HealthSample }) {
   return <span className={`pill thermal-${level}`} title="Android's thermal status. Above 'light' the phone is slowing itself down to cool.">{text}</span>;
 }
 
-interface Props { serial: string; wireless?: boolean; active: boolean; onShowRunning: () => void }
+interface Props { serial: string; wireless?: boolean; active: boolean; onShowRunning: () => void; onShowTune?: () => void }
 
-export function Health({ serial, wireless, active, onShowRunning }: Props) {
+export function Health({ serial, wireless, active, onShowRunning, onShowTune }: Props) {
   const [points, setPoints] = useState<Point[]>([]);
   const [last, setLast] = useState<HealthSample | null>(null);
   const [error, setError] = useState("");
@@ -71,6 +72,11 @@ export function Health({ serial, wireless, active, onShowRunning }: Props) {
 
   return (
     <div className="health">
+      {last && isWarm(last.hottest?.tempC ?? null, last.battery?.tempC ?? null, last.thermalStatus) && (
+        <div className="notice" role="status">
+          Your phone is warm. Nothing has been changed. {onShowTune && <button className="linklike" onClick={onShowTune}>Open Tune to cool it down</button>} or <button className="linklike" onClick={onShowRunning}>see which apps are busy</button>.
+        </div>
+      )}
       <div className="actions">
         {last ? <StatusBadge s={last} /> : <span className="muted">Loading…</span>}
         {last?.battery && (

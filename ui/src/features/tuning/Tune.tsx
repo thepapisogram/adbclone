@@ -3,6 +3,8 @@ import { ipc } from "../../lib/ipc";
 import { AppIcon } from "../../components/AppIcon";
 import { useSettings } from "../../lib/settings";
 import { AnimationSpeeds } from "./AnimationSpeeds";
+import { PROFILES, profileOps, type Profile } from "./profiles";
+import { addHistory, clearHistory, drainPerHour, loadHistory, type Entry } from "../../lib/history";
 import type { AppInfo, HealthSample, RunningRow, StepResult, TuningInfo } from "../../lib/types";
 
 const errText = (e: unknown) => String(e instanceof Error ? e.message : e);
@@ -33,6 +35,23 @@ export function Tune({ serial, apps, active }: Props) {
   const [before, setBefore] = useState<Reading | null>(null);
   const [after, setAfter] = useState<Reading | null>(null);
   const [cleanMsg, setCleanMsg] = useState("");
+
+  const [history, setHistory] = useState<Entry[]>([]);
+  useEffect(() => { setHistory(serial ? loadHistory(serial) : []); }, [serial]);
+  const takeReading = async (label: string) => {
+    const h = await ipc.healthSample(serial).catch(() => null);
+    const r = await ipc.listRunning(serial).catch(() => null);
+    setHistory(addHistory(serial, { t: Date.now(), label, hot: h?.hottest?.tempC ?? null, batt: h?.battery?.tempC ?? null, level: h?.battery?.level ?? null, charging: h?.battery ? h.battery.charging : null, availKb: r?.memAvailableKb ?? availKb }));
+  };
+  const applyProfile = (p: Profile) => run(async () => {
+    await takeReading(`Before ${p.title}`);
+    const out: StepResult[] = [];
+    for (const op of profileOps(p, !!info?.refreshSupported)) {
+      out.push(...(op.kind === "animations" ? await ipc.tuning.animations(serial, op.mix.window, op.mix.transition, op.mix.animator) : await ipc.tuning.toggle(serial, op.id, op.on)));
+    }
+    await takeReading(`Just applied ${p.title}`);
+    return out;
+  });
 
   const byName = useMemo(() => new Map(apps.map((a) => [a.name, a])), [apps]);
   const reload = useCallback(() => ipc.tuning.status(serial).then(setInfo).catch((e) => setError(errText(e))), [serial]);
@@ -111,6 +130,40 @@ export function Tune({ serial, apps, active }: Props) {
             <span><b>{t.title}</b><br /><span className="muted small">{t.text}</span></span>
           </label>
         ))}
+      </section>
+
+      <section className="block" aria-label="Profiles">
+        <h3>Profiles</h3>
+        <p className="muted small">One click sets several of the switches on this page together. Each is reversible with "Undo all changes", and a reading is saved before and after so you can compare.</p>
+        <div className="presetgrid">
+          {PROFILES.map((p) => (
+            <button key={p.id} className="presetcard" disabled={busy || !info} onClick={() => applyProfile(p)} aria-label={`Apply ${p.title} profile`}>
+              <b>{p.title}</b><span className="muted small">{p.text}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="block" aria-label="History">
+        <h3>Before and after</h3>
+        <p className="muted small">Readings saved on this computer. Take one now, make a change, wait a while, and take another. Battery use is only compared when the phone was not charging.</p>
+        <div className="row">
+          <button disabled={busy || !info} onClick={() => run(async () => { await takeReading("Reading"); return []; })}>Take a reading now</button>
+          <button disabled={!history.length} onClick={() => setHistory(clearHistory(serial))}>Clear history</button>
+        </div>
+        {history.length > 0 && (
+          <table className="storagetable">
+            <thead><tr><th>When</th><th>What</th><th className="num">Hottest</th><th className="num">Battery temp</th><th className="num">Battery</th><th className="num">Free RAM</th><th className="num">Drain</th></tr></thead>
+            <tbody>
+              {history.map((e, i) => { const d = i > 0 ? drainPerHour(history[i - 1], e) : null; return (
+                <tr key={e.t} className="static">
+                  <td>{new Date(e.t).toLocaleTimeString()}</td><td>{e.label}</td><td className="num">{deg(e.hot)}</td><td className="num">{deg(e.batt)}</td>
+                  <td className="num">{e.level == null ? "—" : `${e.level}%${e.charging ? " ⚡" : ""}`}</td><td className="num">{e.availKb == null ? "—" : mb(e.availKb)}</td>
+                  <td className="num">{d == null ? "—" : `${d.toFixed(1)}%/h`}</td>
+                </tr>); })}
+            </tbody>
+          </table>
+        )}
       </section>
 
       <AnimationSpeeds status={info?.status} busy={busy} changed={has("animations")} onApply={(m) => run(() => ipc.tuning.animations(serial, m.window, m.transition, m.animator))} onReset={() => toggle("animations", false)} />

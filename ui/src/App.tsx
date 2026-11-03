@@ -272,7 +272,7 @@ export default function App() {
         <Running serial={serial} wireless={isWireless(serial)} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
       )}
 
-      {tab === "health" && <Health serial={serial} wireless={isWireless(serial)} active onShowRunning={() => setTab("running")} />}
+      {tab === "health" && <Health serial={serial} wireless={isWireless(serial)} active onShowRunning={() => setTab("running")} onShowTune={() => setTab("tune")} />}
 
       {tab === "debloat" && <Debloat serial={serial} apps={apps} busy={busy} protections={protections.map} protectionsKnown={protections.known} onApply={(action, names) => setPending({ action, names })} />}
 

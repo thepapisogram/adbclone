@@ -1,0 +1,24 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto(process.env.BASE || 'http://localhost:4173');
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  await p.getByRole('button', { name: 'Tune', exact: true }).click();
+  const hist = p.getByRole('region', { name: 'History' });
+  await hist.waitFor();
+  await p.getByRole('button', { name: 'Apply Battery saver profile' }).click();
+  await p.waitForFunction(() => document.querySelectorAll('[aria-label="History"] tbody tr').length >= 2, null, { timeout: 15000 });
+  const t = await hist.innerText();
+  console.log('before and after readings saved:', t.includes('Before Battery saver') && t.includes('Just applied Battery saver'));
+  await p.waitForFunction(() => document.querySelector('[role=switch][aria-label="Battery saver"]')?.checked, null, { timeout: 10000 });
+  console.log('profile switched things on:', true);
+  await p.getByRole('button', { name: 'Apply Gaming profile' }).click();
+  await p.waitForFunction(() => !document.querySelector('.tune [aria-label="Profiles"] button:disabled'), null, { timeout: 15000 });
+  await p.waitForTimeout(500);
+  console.log('gaming removes the limits:', !(await p.getByRole('switch', { name: /Battery saver/ }).isChecked()));
+  await p.getByRole('button', { name: 'Clear history' }).click();
+  console.log('history cleared:', await p.locator('[aria-label="History"] tbody tr').count() === 0);
+  console.log('errors', errs); await b.close();
+})();
