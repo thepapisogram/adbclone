@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{storage, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{storage, wakelocks, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1289,6 +1289,39 @@ async fn usage_report(serial: String) -> Result<UsageReport, String> {
     Ok(UsageReport { available: !entries.is_empty(), entries })
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct WakeLockRow {
+    package: Option<String>,
+    uid: u32,
+    kind: String,
+    tag: String,
+    held_secs: Option<u64>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct WakeReport {
+    available: bool,
+    locks: Vec<WakeLockRow>,
+    wakeups: Vec<wakelocks::Wakeups>,
+}
+
+/// Held wake locks (matched to apps by user id) and the apps that wake the phone most.
+#[tauri::command]
+async fn wake_report(serial: String) -> Result<WakeReport, String> {
+    let a = adb().with_timeout(Duration::from_secs(60));
+    let data = wakelocks::read(&a, &serial).await.map_err(|e| e.to_string())?;
+    let pk = packages::list_packages(&a, &serial, Filter::All, false).await.unwrap_or_default();
+    let by_uid = |uid: u32| pk.iter().find(|p| p.uid == Some(uid)).map(|p| p.name.clone());
+    let locks = data
+        .locks
+        .into_iter()
+        .map(|l| WakeLockRow { package: by_uid(l.uid), uid: l.uid, kind: l.kind, tag: l.tag, held_secs: l.held_secs })
+        .collect::<Vec<_>>();
+    Ok(WakeReport { available: !locks.is_empty() || !data.wakeups.is_empty(), locks, wakeups: data.wakeups })
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1339,7 +1372,7 @@ fn main() {
             tuning_status, tuning_toggle, tuning_animations, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
             install_inspect, install_item, install_discard, backup_one,
-            storage_report, usage_report])
+            storage_report, usage_report, wake_report])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

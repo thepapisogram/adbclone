@@ -1,4 +1,4 @@
-import type { StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const IMPACT: Record<string, string> = {
   "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
@@ -423,6 +423,18 @@ export const mock = {
     await delay(300);
     const apps = this_apps().map((a, i) => ({ package: a.name, appBytes: (40 + ((i * 53) % 400)) * 1_048_576, dataBytes: ((i * 37) % 300) * 1_048_576, cacheBytes: ((i * 71) % 180) * 1_048_576 }));
     return { available: true, apps: apps.sort((a, b) => b.appBytes + b.dataBytes + b.cacheBytes - (a.appBytes + a.dataBytes + a.cacheBytes)) };
+  },
+  async wake(_serial: string): Promise<WakeReport> {
+    await delay(300);
+    return {
+      available: true,
+      locks: [
+        { package: "com.whatsapp", uid: 10101, kind: "PARTIAL_WAKE_LOCK", tag: "WhatsApp:sync", heldSecs: 340 },
+        { package: "com.facebook.katana", uid: 10102, kind: "PARTIAL_WAKE_LOCK", tag: "FacebookService", heldSecs: 95 },
+        { package: null, uid: 1001, kind: "PARTIAL_WAKE_LOCK", tag: "RILJ_ACK_WL", heldSecs: 4 },
+      ],
+      wakeups: [{ package: "com.facebook.katana", wakeups: 412, alarms: 900 }, { package: "com.whatsapp", wakeups: 120, alarms: 300 }, { package: "com.google.android.gms", wakeups: 90, alarms: 400 }],
+    };
   },
   async usage(_serial: string): Promise<UsageReport> {
     await delay(300);

@@ -118,6 +118,8 @@ elif args[:1] == ["shell"]:
             t["standby"][w[2]] = {"active": "10", "working_set": "20", "frequent": "30", "rare": "40", "restricted": "45"}[w[3]]; save_t()
         elif w[:2] == ["pm", "trim-caches"]:
             pass
+    elif "@@POWER" in cmd:
+        sys.stdout.write(read("wake.txt"))
     elif "@@USAGE" in cmd:
         sys.stdout.write(read("usage.txt"))
     elif cmd.strip() == "dumpsys diskstats":

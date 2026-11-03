@@ -141,3 +141,7 @@ export interface AppStorage { package: string; appBytes: number; dataBytes: numb
 export interface StorageReport { available: boolean; apps: AppStorage[] }
 export interface Usage { package: string; lastUsed: string; daysAgo: number; launches?: number | null }
 export interface UsageReport { available: boolean; entries: Usage[] }
+
+export interface WakeLockRow { package?: string | null; uid: number; kind: string; tag: string; heldSecs?: number | null }
+export interface Wakeups { package: string; wakeups: number; alarms: number }
+export interface WakeReport { available: boolean; locks: WakeLockRow[]; wakeups: Wakeups[] }

@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{storage, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{storage, wakelocks, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -553,4 +553,16 @@ async fn storage_and_last_opened_come_from_the_phone() {
     // A phone that prints nothing useful gives empty lists, not an error.
     fs::write(d.join("usage.txt"), "@@NOW\n2024-06-30 12:00:00\n@@USAGE\nSecurityException: denied\n").unwrap();
     assert!(storage::read_usage(&adb, "SER").await.unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn wake_locks_and_wakeups_come_from_the_phone() {
+    let (adb, d) = setup("wake", false);
+    fs::write(d.join("wake.txt"), "@@POWER\n  PARTIAL_WAKE_LOCK 'Sync' ACQ=-2m (uid=10123 pid=1)\n@@ALARM\n  u0a1:com.chat +1s running, 0ms active, 7 wakeups, 9 alarms:\n").unwrap();
+    let w = wakelocks::read(&adb, "SER").await.unwrap();
+    assert_eq!((w.locks[0].uid, w.locks[0].held_secs), (10123, Some(120)));
+    assert_eq!((w.wakeups[0].package.as_str(), w.wakeups[0].wakeups), ("com.chat", 7));
+    fs::write(d.join("wake.txt"), "@@POWER\nSecurityException\n@@ALARM\n").unwrap();
+    let w = wakelocks::read(&adb, "SER").await.unwrap();
+    assert!(w.locks.is_empty() && w.wakeups.is_empty());
 }
