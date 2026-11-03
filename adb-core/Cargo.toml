@@ -8,6 +8,8 @@ tokio = { version = "1", features = ["process", "time", "rt", "macros", "io-util
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 apk-info = "1.1"
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+getrandom = "0.4"
 zip = { version = "2", default-features = false }
 
 [dev-dependencies]

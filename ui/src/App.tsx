@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
+import { ConnectDialog } from "./features/connect/ConnectDialog";
+import { isWireless } from "./lib/types";
 import type { Action, AppInfo, Device, LabelProgress, PkgState, Risk } from "./lib/types";
 import { SafetyTag } from "./components/SafetyTag";
 import { Running } from "./features/running/Running";
@@ -29,17 +31,28 @@ export default function App() {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
   const [tab, setTab] = useState<"apps" | "running">("apps");
+  const [showConnect, setShowConnect] = useState(false);
+  const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
   const labelMap = useRef(new Map<string, string>());
 
-  const refreshDevices = useCallback(async () => {
+  /** Refresh the device list; `select` picks a just-connected device once it is ready. */
+  const refreshDevices = useCallback(async (select?: string) => {
     try {
       const d = await ipc.listDevices();
       setDevices(d);
-      setSerial((cur) => cur || d.find((x) => x.state === "device")?.serial || "");
+      const ready = (x: string) => d.some((y) => y.serial === x && y.state === "device");
+      setSerial((cur) => (select && ready(select) ? select : cur && ready(cur) ? cur : d.find((x) => x.state === "device")?.serial ?? ""));
       setError("");
     } catch (e) { setError(String(e)); }
   }, []);
+
+  /** After connecting wirelessly the device can take a moment to become ready. */
+  const onConnectionChanged = useCallback((select?: string) => {
+    refreshDevices(select);
+    setTimeout(() => refreshDevices(select), 1500);
+    setTimeout(() => refreshDevices(select), 3500);
+  }, [refreshDevices]);
 
   const loadApps = useCallback(async (s: string) => {
     if (!s) { setApps([]); return; }
@@ -55,6 +68,12 @@ export default function App() {
   }, []);
 
   useEffect(() => { refreshDevices(); }, [refreshDevices]);
+  useEffect(() => {
+    ipc.wireless.check().then((c) => setAdbWarning(c.ok ? "" : c.message)).catch(() => {});
+    // Notice phones being plugged in, unplugged or dropping off Wi-Fi.
+    const t = setInterval(() => { if (!document.hidden) refreshDevices(); }, 5000);
+    return () => clearInterval(t);
+  }, [refreshDevices]);
   useEffect(() => { loadApps(serial); }, [serial, loadApps]);
 
   // Real app names stream in from the backend after the list is shown.
@@ -132,18 +151,23 @@ export default function App() {
           <option value="">{devices.length ? "Select device…" : "No devices"}</option>
           {devices.map((d) => (
             <option key={d.serial} value={d.serial} disabled={d.state !== "device"}>
-              {d.model ?? d.serial} — {d.state === "device" ? d.serial : d.state}
+              {isWireless(d.serial) ? "Wi-Fi" : "USB"} · {d.model ?? d.serial} — {d.state === "device" ? d.serial : d.state}
             </option>
           ))}
         </select>
-        <button onClick={refreshDevices}>Refresh devices</button>
+        <button onClick={() => refreshDevices()}>Refresh</button>
+        {serial && isWireless(serial) && (
+          <button onClick={async () => { try { await ipc.wireless.disconnect(serial); } catch (e) { setError(String(e)); } refreshDevices(); }}>Disconnect</button>
+        )}
+        <button className="primary" onClick={() => setShowConnect(true)}>Connect…</button>
       </header>
 
       {error && <div className="error" role="alert">{error}</div>}
+      {adbWarning && <div className="error" role="alert">{adbWarning}</div>}
       {device?.state === "unauthorized" && <div className="error">Accept the USB debugging prompt on the phone.</div>}
 
       {tab === "running" && (
-        <Running serial={serial} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
+        <Running serial={serial} wireless={isWireless(serial)} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
       )}
 
       {tab === "apps" && <>
@@ -219,6 +243,8 @@ export default function App() {
         )}
       </div>
       </>}
+
+      {showConnect && <ConnectDialog devices={devices} onClose={() => setShowConnect(false)} onChanged={onConnectionChanged} />}
 
       {pending && (
         <div className="modal-bg" onClick={() => !busy && setPending(null)}>

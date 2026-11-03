@@ -9,15 +9,18 @@ const mb = (kb: number) => (kb >= 1_048_576 ? `${(kb / 1_048_576).toFixed(2)} GB
 
 interface Props {
   serial: string;
+  /** Wi-Fi connections are slower, so poll less often by default. */
+  wireless?: boolean;
   apps: AppInfo[];
   active: boolean;
   onRequest: (action: Action, names: string[]) => void;
 }
 
-export function Running({ serial, apps, active, onRequest }: Props) {
+export function Running({ serial, wireless, apps, active, onRequest }: Props) {
   const [data, setData] = useState<RunningResponse | null>(null);
   const [error, setError] = useState("");
-  const [interval, setIntervalSec] = useState(3);
+  const [interval, setIntervalSec] = useState(wireless ? 5 : 3);
+  useEffect(() => { setIntervalSec(wireless ? 5 : 3); }, [wireless]);
   const [hideSystem, setHideSystem] = useState(true);
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "rss", dir: -1 });
   const [selected, setSelected] = useState<Set<string>>(new Set());

@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AppInfo, Device, LabelItem, LabelProgress, RunningResponse, Safety } from "./types";
+import type { Action, ActionResult, AdbCheck, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -39,14 +39,19 @@ const apps: AppInfo[] = [
 apps[18].state = "disabled";
 
 const guess = (n: string) => { const l = n.split(".").pop() ?? n; return l.charAt(0).toUpperCase() + l.slice(1); };
+const wifi = new Set<string>();
+const savedList: SavedDevice[] = [];
+let qrCancelled = false;
+const fakeQr = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="200" height="200" shape-rendering="crispEdges"><rect width="8" height="8" fill="#fff"/><path d="M0 0h3v3H0zM5 0h3v3H5zM0 5h3v3H0zM4 4h1v1H4zM6 5h2v1H6zM5 7h1v1H5z" fill="#000"/></svg>';
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 
 export const mock = {
   async listDevices(): Promise<Device[]> {
-    await delay();
+    await delay(100);
     return [
       { serial: "R58M123ABC", state: "device", model: "Pixel 7 (mock)" },
-      { serial: "192.168.1.20:5555", state: "unauthorized", model: null },
+      { serial: "192.168.1.30:5555", state: "unauthorized", model: null },
+      ...[...wifi].map((serial) => ({ serial, state: "device", model: "Pixel 7 (mock, Wi-Fi)" })),
     ];
   },
   async listApps(_serial: string): Promise<AppInfo[]> {
@@ -103,5 +108,44 @@ export const mock = {
       a.state = action === "disable" ? "disabled" : action === "uninstall" ? "uninstalled" : "enabled";
       return { name, ok: true };
     });
+  },
+
+  wireless: {
+    async check(): Promise<AdbCheck> { await delay(100); return { major: 35, ok: true, message: "adb 35" }; },
+    async discover(): Promise<MdnsService[]> {
+      await delay(600);
+      return [
+        { name: "adb-R58M123ABC-AbCdEf", kind: "pairing", address: "192.168.1.20:37099" },
+        { name: "adb-R58M123ABC-AbCdEf", kind: "connect", address: "192.168.1.20:41231" },
+      ];
+    },
+    async pair(address: string, code: string): Promise<string> {
+      await delay(800);
+      if (code !== "123456") throw "Wrong pairing code, or the code expired. Reopen \"Pair device with pairing code\" on the phone and try again. (mock: use 123456)";
+      return `Successfully paired to ${address} [guid=adb-MOCK-xyz]`;
+    },
+    async connect(address: string): Promise<string> {
+      await delay(700);
+      if (address.endsWith(":1")) throw "Connection refused. Is Wireless debugging turned on? The port changes every time you toggle it: use the port shown on the phone (or the discovered one).";
+      wifi.add(address);
+      if (!savedList.some((d) => d.address === address)) savedList.unshift({ name: "Pixel 7 (mock)", address, mdnsName: "adb-R58M123ABC-AbCdEf" });
+      return `connected to ${address}`;
+    },
+    async disconnect(address: string): Promise<void> { await delay(200); wifi.delete(address); },
+    async usbToWireless(_serial: string): Promise<string> {
+      await delay(1500);
+      wifi.add("192.168.1.20:5555");
+      return "192.168.1.20:5555";
+    },
+    async qrStart(): Promise<QrStart> { qrCancelled = false; return { svg: fakeQr, name: "adbclone-mock", password: "mockpass12", id: 1 }; },
+    async qrWait(): Promise<string> {
+      for (let i = 0; i < 12; i++) { await delay(500); if (qrCancelled) throw "Cancelled."; }
+      wifi.add("192.168.1.20:41231");
+      return "connected to 192.168.1.20:41231";
+    },
+    async qrCancel(): Promise<void> { qrCancelled = true; },
+    async saved(): Promise<SavedDevice[]> { return savedList.map((d) => ({ ...d })); },
+    async forget(address: string): Promise<void> { const i = savedList.findIndex((d) => d.address === address); if (i >= 0) savedList.splice(i, 1); },
+    async reconnect(address: string): Promise<string> { await delay(600); wifi.add(address); return `connected to ${address}`; },
   },
 };

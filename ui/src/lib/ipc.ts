@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AppInfo, Device, LabelItem, LabelProgress, RunningResponse } from "./types";
+import type { Action, ActionResult, AdbCheck, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -29,5 +29,26 @@ export const ipc = {
     const offs = [await listen<LabelItem[]>("labels", onLabels), await listen<LabelProgress>("labels-progress", onProgress)];
     await call("load_labels", { serial });
     return () => offs.forEach((f) => f());
+  },
+
+  wireless: {
+    check: (): Promise<AdbCheck> => (inTauri ? call("adb_check") : mock.wireless.check()),
+    discover: (): Promise<MdnsService[]> => (inTauri ? call("wireless_discover") : mock.wireless.discover()),
+    pair: (address: string, code: string): Promise<string> =>
+      inTauri ? call("wireless_pair", { address, code }) : mock.wireless.pair(address, code),
+    connect: (address: string): Promise<string> =>
+      inTauri ? call("wireless_connect", { address }) : mock.wireless.connect(address),
+    disconnect: (address: string): Promise<void> =>
+      inTauri ? call("wireless_disconnect", { address }) : mock.wireless.disconnect(address),
+    usbToWireless: (serial: string): Promise<string> =>
+      inTauri ? call("wireless_usb_to_wireless", { serial }) : mock.wireless.usbToWireless(serial),
+    qrStart: (): Promise<QrStart> => (inTauri ? call("wireless_qr_start") : mock.wireless.qrStart()),
+    qrWait: (q: QrStart): Promise<string> =>
+      inTauri ? call("wireless_qr_wait", { name: q.name, password: q.password, id: q.id }) : mock.wireless.qrWait(),
+    qrCancel: (): Promise<void> => (inTauri ? call("wireless_qr_cancel") : mock.wireless.qrCancel()),
+    saved: (): Promise<SavedDevice[]> => (inTauri ? call("saved_devices") : mock.wireless.saved()),
+    forget: (address: string): Promise<void> => (inTauri ? call("forget_device", { address }) : mock.wireless.forget(address)),
+    reconnect: (address: string): Promise<string> =>
+      inTauri ? call("wireless_reconnect", { address }) : mock.wireless.reconnect(address),
   },
 };

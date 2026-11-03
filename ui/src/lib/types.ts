@@ -46,3 +46,11 @@ export interface RunningResponse {
 
 export interface LabelItem { name: string; label: string }
 export interface LabelProgress { done: number; total: number }
+
+export interface MdnsService { name: string; kind: "pairing" | "connect" | "other"; address: string }
+export interface SavedDevice { name: string; address: string; mdnsName?: string | null }
+export interface AdbCheck { major: number | null; ok: boolean; message: string }
+export interface QrStart { svg: string; name: string; password: string; id: number }
+
+/** Wireless devices have an ip:port serial, or an mDNS name like `adb-XXXX._adb-tls-connect._tcp`. */
+export const isWireless = (serial: string) => serial.includes(":") || serial.startsWith("adb-");

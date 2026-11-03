@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{devices, labels, packages, processes, AdbRunner};
+use adb_core::{devices, labels, packages, processes, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -41,6 +41,42 @@ struct AppState {
     /// path|size|mtime -> label, persisted as JSON in the app data dir.
     label_cache: Mutex<HashMap<String, String>>,
     cache_file: Mutex<Option<std::path::PathBuf>>,
+    /// Bumped to cancel a pending QR pairing.
+    qr_generation: AtomicU64,
+    saved: Mutex<Vec<SavedDevice>>,
+    saved_file: Mutex<Option<std::path::PathBuf>>,
+}
+
+#[derive(Serialize, serde::Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct SavedDevice {
+    name: String,
+    address: String,
+    /// mDNS instance name (`adb-<serial>-<id>`), stable across port changes.
+    mdns_name: Option<String>,
+}
+
+fn persist_saved(state: &AppState) {
+    let file = state.saved_file.lock().unwrap().clone();
+    if let Some(f) = file {
+        if let Some(dir) = f.parent() {
+            let _ = std::fs::create_dir_all(dir);
+        }
+        if let Ok(json) = serde_json::to_string_pretty(&*state.saved.lock().unwrap()) {
+            let _ = std::fs::write(f, json);
+        }
+    }
+}
+
+fn remember(state: &AppState, name: String, address: &str, mdns_name: Option<String>) {
+    {
+        let mut v = state.saved.lock().unwrap();
+        // Same phone (by mDNS name) or same address: update instead of duplicating.
+        v.retain(|d| d.address != address && (mdns_name.is_none() || d.mdns_name != mdns_name));
+        v.insert(0, SavedDevice { name, address: address.to_string(), mdns_name });
+        v.truncate(20);
+    }
+    persist_saved(state);
 }
 
 #[derive(Serialize)]
@@ -315,6 +351,166 @@ async fn load_labels(app: AppHandle, state: State<'_, AppState>, serial: String)
     Ok(())
 }
 
+// ---- wireless ADB ----
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AdbCheck {
+    major: Option<u32>,
+    ok: bool,
+    message: String,
+}
+
+#[tauri::command]
+async fn adb_check() -> Result<AdbCheck, String> {
+    match wireless::adb_major_version(&adb()).await {
+        Ok(m) if m >= 30 => Ok(AdbCheck { major: Some(m), ok: true, message: format!("adb {m}") }),
+        Ok(m) => Ok(AdbCheck {
+            major: Some(m),
+            ok: false,
+            message: format!("adb {m} is too old for wireless pairing; install platform-tools 30 or newer."),
+        }),
+        Err(e) => Err(format!("{e}. Install Android platform-tools and put `adb` on PATH (or set ADB_PATH).")),
+    }
+}
+
+#[tauri::command]
+async fn wireless_discover() -> Result<Vec<wireless::MdnsService>, String> {
+    wireless::mdns_services(&adb()).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn wireless_pair(address: String, code: String) -> Result<String, String> {
+    wireless::pair(&adb().with_timeout(Duration::from_secs(40)), &address, &code).await.map_err(|e| e.to_string())
+}
+
+/// Connect, and remember the phone (with its mDNS name when it can be found).
+async fn connect_and_remember(state: &AppState, address: &str, fallback_name: Option<&str>) -> Result<String, String> {
+    let a = adb().with_timeout(Duration::from_secs(25));
+    let msg = wireless::connect(&a, address).await.map_err(|e| e.to_string())?;
+    let mdns_name = wireless::mdns_services(&a)
+        .await
+        .ok()
+        .and_then(|v| v.into_iter().find(|s| s.kind == wireless::MdnsKind::Connect && s.address == address))
+        .map(|s| s.name);
+    let name = fallback_name.map(str::to_string).or_else(|| mdns_name.clone()).unwrap_or_else(|| address.to_string());
+    remember(state, name, address, mdns_name);
+    Ok(msg)
+}
+
+#[tauri::command]
+async fn wireless_connect(state: State<'_, AppState>, address: String) -> Result<String, String> {
+    connect_and_remember(&state, &address, None).await
+}
+
+#[tauri::command]
+async fn wireless_disconnect(address: String) -> Result<(), String> {
+    wireless::disconnect(&adb(), &address).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn wireless_usb_to_wireless(state: State<'_, AppState>, serial: String) -> Result<String, String> {
+    let a = adb().with_timeout(Duration::from_secs(25));
+    let address = wireless::usb_to_wireless(&a, &serial, 5555).await.map_err(|e| e.to_string())?;
+    remember(&state, format!("{serial} (Wi-Fi)"), &address, None);
+    Ok(address)
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct QrStart {
+    svg: String,
+    name: String,
+    password: String,
+    id: u64,
+}
+
+#[tauri::command]
+fn wireless_qr_start(state: State<'_, AppState>) -> Result<QrStart, String> {
+    let s = wireless::new_qr_session().ok_or("could not create the QR code")?;
+    let id = state.qr_generation.fetch_add(1, Ordering::SeqCst) + 1;
+    Ok(QrStart { svg: s.svg, name: s.name, password: s.password, id })
+}
+
+#[tauri::command]
+fn wireless_qr_cancel(state: State<'_, AppState>) {
+    state.qr_generation.fetch_add(1, Ordering::SeqCst);
+}
+
+/// Waits (up to 90 s) for the phone to scan the QR code, pairs, then connects.
+#[tauri::command]
+async fn wireless_qr_wait(state: State<'_, AppState>, name: String, password: String, id: u64) -> Result<String, String> {
+    let a = adb().with_timeout(Duration::from_secs(40));
+    let cancelled = || state.qr_generation.load(Ordering::SeqCst) != id;
+    let deadline = Instant::now() + Duration::from_secs(90);
+    let pairing = loop {
+        if cancelled() {
+            return Err("Cancelled.".into());
+        }
+        if Instant::now() > deadline {
+            return Err("Timed out waiting for the phone. On the phone choose Wireless debugging > Pair device with QR code, and scan the code.".into());
+        }
+        let found = wireless::mdns_services(&a)
+            .await
+            .ok()
+            .and_then(|v| v.into_iter().find(|s| s.name == name && s.kind == wireless::MdnsKind::Pairing));
+        if let Some(s) = found {
+            break s;
+        }
+        tokio::time::sleep(Duration::from_millis(1500)).await;
+    };
+    wireless::pair(&a, &pairing.address, &password).await.map_err(|e| e.to_string())?;
+    // After pairing the phone advertises its connect port on the same IP.
+    let ip = pairing.address.rsplit_once(':').map(|(h, _)| h.to_string()).unwrap_or_default();
+    for _ in 0..8 {
+        if cancelled() {
+            return Err("Cancelled.".into());
+        }
+        let svc = wireless::mdns_services(&a).await.ok().and_then(|v| {
+            v.into_iter().find(|s| s.kind == wireless::MdnsKind::Connect && s.address.starts_with(&format!("{ip}:")))
+        });
+        if let Some(s) = svc {
+            return connect_and_remember(&state, &s.address, None).await;
+        }
+        tokio::time::sleep(Duration::from_millis(1000)).await;
+    }
+    Ok("Paired. Now connect using the port shown under Wireless debugging.".into())
+}
+
+#[tauri::command]
+fn saved_devices(state: State<'_, AppState>) -> Vec<SavedDevice> {
+    state.saved.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn forget_device(state: State<'_, AppState>, address: String) {
+    state.saved.lock().unwrap().retain(|d| d.address != address);
+    persist_saved(&state);
+}
+
+/// Reconnect to a saved phone, re-discovering its port by mDNS name when it has changed.
+#[tauri::command]
+async fn wireless_reconnect(state: State<'_, AppState>, address: String) -> Result<String, String> {
+    let saved = state.saved.lock().unwrap().iter().find(|d| d.address == address).cloned();
+    let Some(saved) = saved else { return Err("Unknown saved device.".into()) };
+    let a = adb().with_timeout(Duration::from_secs(25));
+    let mut target = saved.address.clone();
+    if let Some(n) = &saved.mdns_name {
+        if let Ok(v) = wireless::mdns_services(&a).await {
+            if let Some(s) = v.into_iter().find(|s| s.kind == wireless::MdnsKind::Connect && &s.name == n) {
+                target = s.address;
+            }
+        }
+    }
+    let msg = connect_and_remember(&state, &target, Some(&saved.name)).await?;
+    if target != saved.address {
+        // Drop the stale entry that had the old port.
+        state.saved.lock().unwrap().retain(|d| d.address != saved.address);
+        persist_saved(&state);
+    }
+    Ok(msg)
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState::default())
@@ -333,10 +529,19 @@ fn main() {
                     }
                 }
                 *state.cache_file.lock().unwrap() = Some(file);
+                let saved_file = d.join("saved_devices.json");
+                if let Ok(text) = std::fs::read_to_string(&saved_file) {
+                    if let Ok(v) = serde_json::from_str(&text) {
+                        *state.saved.lock().unwrap() = v;
+                    }
+                }
+                *state.saved_file.lock().unwrap() = Some(saved_file);
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![list_devices, list_apps, apply_action, list_running, load_labels])
+        .invoke_handler(tauri::generate_handler![list_devices, list_apps, apply_action, list_running, load_labels,
+            adb_check, wireless_discover, wireless_pair, wireless_connect, wireless_disconnect, wireless_usb_to_wireless,
+            wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect])
         .run(tauri::generate_context!())
         .expect("error while running ADB Manager");
 }
