@@ -72,3 +72,24 @@ label.inline { display: inline-flex; align-items: center; gap: 4px; }
 tr.static { cursor: default; } tr.static:hover { background: transparent; }
 .rowbtns { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
 ul.changes { max-height: 220px; overflow: auto; padding-left: 18px; margin: 8px 0; }
+
+.devicecard { padding: 4px 14px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--panel); }
+.warn-inline { color: var(--warn); }
+button.linklike { background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
+button.small { padding: 1px 8px; font-size: 12px; margin-left: 8px; }
+.health, .debloat { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: auto; }
+.healthgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; padding: 12px 14px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--panel); }
+.card h3 { margin: 0 0 4px; font-size: 13px; } .card .big { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.spark { width: 100%; height: 70px; color: var(--accent); display: block; margin: 6px 0; }
+.spark.empty { display: grid; place-items: center; color: var(--muted); font-size: 12px; background: var(--bg); border-radius: 6px; }
+.small { font-size: 12px; }
+.pill.thermal-ok { color: var(--ok); } .pill.thermal-warn { color: var(--warn); font-weight: 600; } .pill.thermal-bad { color: var(--danger); font-weight: 700; }
+.cpubars { display: grid; gap: 3px; } .cpubar { display: grid; grid-template-columns: 44px 1fr 40px; gap: 6px; align-items: center; font-size: 12px; }
+.track { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); } .fill { height: 100%; background: var(--accent); }
+table.sensors { width: 100%; } table.sensors td { padding: 2px 6px; border: 0; font-size: 12px; }
+.presets { display: flex; } .presets button { border-radius: 0; margin-left: -1px; } .presets button:first-child { border-radius: 6px 0 0 6px; margin-left: 0; } .presets button:last-child { border-radius: 0 6px 6px 0; }
+.presets button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.summary { padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.group h3 { margin: 0; padding: 8px 14px; font-size: 13px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; }
+td.desc { max-width: 340px; font-size: 12px; }

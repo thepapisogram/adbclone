@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -20,6 +20,8 @@ const apps: AppInfo[] = [
   ["com.netflix.partner.activation", "Netflix Activation", true, "recommended", "Partner activation stub."],
   ["com.google.android.apps.photos", "Photos", true, "advanced", "Gallery and backup."],
   ["com.android.stk", "SIM Toolkit", true, "advanced", "Carrier SIM menu."],
+  ["com.vendor.unknownservice", "Vendor Service", true, "unknown", ""],
+  ["com.sec.android.app.randomthing", "Random Thing", true, "unknown", ""],
   ["org.mozilla.firefox", "Firefox", false, "unknown", ""],
   ["com.spotify.music", "Spotify", false, "unknown", ""],
   ["org.telegram.messenger", "Telegram", false, "unknown", ""],
@@ -36,7 +38,7 @@ const apps: AppInfo[] = [
   risk: risk as AppInfo["risk"],
   description: description as string,
 }));
-apps[18].state = "disabled";
+apps.find((a) => a.name === "com.android.stk")!.state = "disabled";
 
 const guess = (n: string) => { const l = n.split(".").pop() ?? n; return l.charAt(0).toUpperCase() + l.slice(1); };
 const wifi = new Set<string>();
@@ -202,4 +204,37 @@ export const mock = {
     },
   },
   history: { load: [] as unknown[] },
+
+  async deviceInfo(_serial: string): Promise<DeviceInfo> {
+    await delay(150);
+    return { manufacturer: "Google", model: "Pixel 7 (mock)", androidRelease: "14", sdk: 34, securityPatch: "2024-05-05",
+      storageTotalKb: 113_311_596, storageUsedKb: 71_000_000, storageFreeKb: 42_000_000, batteryLevel: 81 };
+  },
+  _ht: 0,
+  async healthSample(_serial: string): Promise<HealthSample> {
+    await delay(120);
+    this._ht++;
+    const t = this._ht;
+    const hot = 41 + Math.min(t, 40) * 0.25 + Math.sin(t / 4) * 2 + Math.random();
+    const batt = 31 + Math.min(t, 60) * 0.1 + Math.sin(t / 9);
+    const status = hot > 49 ? 2 : hot > 45 ? 1 : 0;
+    const sensors = [
+      { name: "cpu-1-0-usr", tempC: hot, source: "zone" },
+      { name: "gpuss-0", tempC: hot - 3.2, source: "zone" },
+      { name: "battery", tempC: batt, source: "hal" },
+      { name: "skin", tempC: batt + 2.1, source: "hal" },
+    ];
+    return {
+      battery: { level: 81, tempC: batt, status: "charging", health: "good", charging: true, powerSource: "usb", voltageMv: 4012 },
+      thermalStatus: status,
+      thermalStatusName: ["none", "light", "moderate"][status],
+      sensors, hottest: sensors[0],
+      cpu: Array.from({ length: 8 }, (_, i) => {
+        const max = i < 4 ? 1_800_000 : i < 7 ? 2_400_000 : 2_850_000;
+        const cur = Math.round(max * (status >= 2 ? 0.55 : 0.4 + 0.5 * Math.abs(Math.sin(t / 3 + i))));
+        return { core: `cpu${i}`, curKhz: cur, maxKhz: max };
+      }),
+      missing: [],
+    };
+  },
 };

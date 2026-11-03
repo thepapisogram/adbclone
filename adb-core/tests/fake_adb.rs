@@ -1,5 +1,5 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
-use adb_core::{labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -217,4 +217,30 @@ async fn failed_step_is_reported_and_others_continue() {
     assert!(out.iter().find(|o| o.name == "com.ok").unwrap().ok);
     let left = snapshot::plan_restore(&snap, &current(&adb).await);
     assert_eq!(left.changes.len(), 1, "only the failed package is still different");
+}
+
+// ---- device info and health ----
+
+#[tokio::test]
+async fn device_info_round_trip() {
+    let (adb, d) = setup("devinfo", false);
+    fs::write(d.join("deviceinfo.txt"), "@@PROPS\nSamsung\nSM-G973F\n12\n31\n2023-11-01\n@@DF\nFilesystem 1K-blocks Used Available Use% Mounted on\n/dev/x 100 40 60 40% /data\n@@BATT\n  level: 73\n").unwrap();
+    let i = deviceinfo::fetch(&adb, "SER").await.unwrap();
+    assert_eq!((i.vendor().as_deref(), i.sdk, i.battery_level, i.storage_free_kb), (Some("samsung"), Some(31), Some(73), Some(60)));
+}
+
+#[tokio::test]
+async fn health_sample_round_trip_and_blocked_sensors() {
+    let (adb, d) = setup("health", false);
+    fs::write(d.join("health.txt"), "@@BATT\n  status: 3\n  level: 50\n  temperature: 388\n@@THERMAL\nThermal Status: 2\nCurrent temperatures from HAL:\n\tTemperature{mValue=41.5, mType=0, mName=cpu0, mStatus=1}\n@@ZONES\nbattery 38800\n@@CPU\ncpu0 900000 2000000\n").unwrap();
+    let s = health::sample(&adb, "SER").await.unwrap();
+    assert_eq!(s.battery.as_ref().unwrap().temp_c, Some(38.8));
+    assert_eq!((s.thermal_status, s.thermal_status_name.as_deref()), (Some(2), Some("moderate")));
+    assert_eq!(s.hottest.as_ref().unwrap().name, "cpu0");
+    assert!(s.missing.is_empty());
+
+    // A phone that blocks everything still yields a sample, listing what is missing.
+    fs::write(d.join("health.txt"), "@@BATT\n@@THERMAL\n@@ZONES\n@@CPU\n").unwrap();
+    let blocked = health::sample(&adb, "SER").await.unwrap();
+    assert_eq!(blocked.missing.len(), 4);
 }

@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{devices, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -633,6 +633,18 @@ fn history_save(state: State<'_, AppState>, entries: Vec<serde_json::Value>) -> 
     std::fs::write(file, serde_json::to_string(&kept).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
 }
 
+// ---- device info and health ----
+
+#[tauri::command]
+async fn device_info(serial: String) -> Result<deviceinfo::DeviceInfo, String> {
+    deviceinfo::fetch(&adb(), &serial).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn health_sample(serial: String) -> Result<health::HealthSample, String> {
+    health::sample(&adb().with_timeout(Duration::from_secs(20)), &serial).await.map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -667,7 +679,7 @@ fn main() {
             adb_check, wireless_discover, wireless_pair, wireless_connect, wireless_disconnect, wireless_usb_to_wireless,
             wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect,
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
-            history_load, history_save])
+            history_load, history_save, device_info, health_sample])
         .run(tauri::generate_context!())
         .expect("error while running ADB Manager");
 }

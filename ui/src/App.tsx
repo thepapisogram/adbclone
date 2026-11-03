@@ -6,6 +6,9 @@ import type { Action, AppInfo, Device, LabelProgress, PkgState, Risk } from "./l
 import { SafetyTag } from "./components/SafetyTag";
 import { Running } from "./features/running/Running";
 import { Snapshots } from "./features/snapshots/Snapshots";
+import { Health } from "./features/health/Health";
+import { Debloat } from "./features/debloat/Debloat";
+import { DeviceCard } from "./features/deviceinfo/DeviceCard";
 
 type Scope = "all" | "system" | "user";
 type StateFilter = "any" | PkgState;
@@ -31,7 +34,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
-  const [tab, setTab] = useState<"apps" | "running" | "snapshots">("apps");
+  const [tab, setTab] = useState<"apps" | "running" | "health" | "debloat" | "snapshots">("apps");
   const [snapVersion, setSnapVersion] = useState(0);
   const [notice, setNotice] = useState("");
   const historyReady = useRef(false);
@@ -168,6 +171,8 @@ export default function App() {
         <nav className="tabs">
           <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>Apps</button>
           <button className={tab === "running" ? "active" : ""} onClick={() => setTab("running")}>Running</button>
+          <button className={tab === "health" ? "active" : ""} onClick={() => setTab("health")}>Temperature</button>
+          <button className={tab === "debloat" ? "active" : ""} onClick={() => setTab("debloat")}>Debloat</button>
           <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>Snapshots</button>
         </nav>
         <div className="spacer" />
@@ -188,12 +193,17 @@ export default function App() {
 
       {error && <div className="error" role="alert">{error}</div>}
       {adbWarning && <div className="error" role="alert">{adbWarning}</div>}
-      {notice && <div className="notice" role="status">{notice}</div>}
+      {notice && <div className="notice" role="status">{notice} <button className="linklike" onClick={() => setTab("snapshots")}>Open Snapshots</button></div>}
+      <DeviceCard serial={serial} />
       {device?.state === "unauthorized" && <div className="error">Accept the USB debugging prompt on the phone.</div>}
 
       {tab === "running" && (
         <Running serial={serial} wireless={isWireless(serial)} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
       )}
+
+      {tab === "health" && <Health serial={serial} wireless={isWireless(serial)} active onShowRunning={() => setTab("running")} />}
+
+      {tab === "debloat" && <Debloat serial={serial} apps={apps} busy={busy} onApply={(action, names) => setPending({ action, names })} />}
 
       {tab === "snapshots" && <Snapshots serial={serial} version={snapVersion} onRestored={() => loadApps(serial)} />}
 

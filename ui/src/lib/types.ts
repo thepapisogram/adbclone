@@ -66,3 +66,19 @@ export interface PlanResponse {
   snapshotName: string; snapshotModel?: string | null; deviceModel?: string | null;
 }
 export interface RestoreResponse { results: ActionResult[]; remaining: number; undoSnapshot?: SnapshotMeta | null }
+
+export interface DeviceInfo {
+  manufacturer?: string | null; model?: string | null; androidRelease?: string | null; sdk?: number | null;
+  securityPatch?: string | null; storageTotalKb?: number | null; storageUsedKb?: number | null; storageFreeKb?: number | null;
+  batteryLevel?: number | null;
+}
+export interface Battery {
+  level: number | null; tempC: number | null; status: string; health: string; charging: boolean;
+  powerSource: string; voltageMv: number | null;
+}
+export interface Sensor { name: string; tempC: number; source: string }
+export interface CpuFreq { core: string; curKhz: number; maxKhz: number }
+export interface HealthSample {
+  battery: Battery | null; thermalStatus: number | null; thermalStatusName: string | null;
+  sensors: Sensor[]; hottest: Sensor | null; cpu: CpuFreq[]; missing: string[];
+}

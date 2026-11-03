@@ -59,7 +59,11 @@ elif args[:1] == ["pull"]:
     print("1 file pulled")
 elif args[:1] == ["shell"]:
     cmd = " ".join(args[1:])
-    if cmd.startswith("pm ") or cmd.startswith("cmd package "):
+    if "@@PROPS" in cmd:
+        sys.stdout.write(read("deviceinfo.txt"))
+    elif "@@THERMAL" in cmd:
+        sys.stdout.write(read("health.txt"))
+    elif cmd.startswith("pm ") or cmd.startswith("cmd package "):
         import json
         db_path = os.path.join(d, "pkgdb.json")
         db = json.load(open(db_path))
