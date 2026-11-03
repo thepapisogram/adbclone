@@ -20,8 +20,15 @@ pub fn fnv_hex(bytes: &[u8]) -> String {
     format!("{h:016x}")
 }
 
+/// Base name on the phone for this helper version.
 pub fn remote_path() -> String {
     format!("/data/local/tmp/adbclone-helper-{}.jar", &fnv_hex(HELPER_JAR)[..12])
+}
+
+/// A name no other push can share: two things (say, loading names and saving a report) may use the helper
+/// at the same moment, and one must not delete or overwrite the other's copy.
+fn unique_remote_path() -> String {
+    format!("/data/local/tmp/adbclone-helper-{}-{}.jar", &fnv_hex(HELPER_JAR)[..12], crate::wireless::random_token(8))
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -146,8 +153,8 @@ impl RunResult {
 
 /// Copy the helper to the phone. Returns the path on the phone.
 pub async fn push(adb: &AdbRunner, serial: &str) -> Result<String, AdbError> {
-    let remote = remote_path();
-    let local = std::env::temp_dir().join(format!("adbclone-helper-{}-{}.jar", std::process::id(), fnv_hex(HELPER_JAR)));
+    let remote = unique_remote_path();
+    let local = std::env::temp_dir().join(format!("adbclone-helper-{}-{}.jar", std::process::id(), crate::wireless::random_token(8)));
     std::fs::write(&local, HELPER_JAR)?;
     let local_s = local.to_string_lossy().into_owned();
     let out = adb.clone().with_timeout(Duration::from_secs(60)).run_full(&["-s", serial, "push", &local_s, &remote]).await;
@@ -197,6 +204,15 @@ mod tests {
         assert!(dex.starts_with(b"dex\n0"), "dex magic");
         assert!(dex.windows(MAIN_CLASS.len()).any(|w| w == MAIN_CLASS.replace('.', "/").as_bytes() || w == MAIN_CLASS.as_bytes()) || String::from_utf8_lossy(&dex).contains("dev/adbclone/helper/Main"));
         assert!(remote_path().starts_with("/data/local/tmp/adbclone-helper-") && remote_path().ends_with(".jar"));
+    }
+
+    #[test]
+    fn every_push_gets_its_own_files() {
+        let (a, b) = (unique_remote_path(), unique_remote_path());
+        assert_ne!(a, b);
+        for p in [&a, &b] {
+            assert!(p.starts_with("/data/local/tmp/adbclone-helper-") && p.ends_with(".jar") && !p.contains(' '), "{p}");
+        }
     }
 
     #[test]
