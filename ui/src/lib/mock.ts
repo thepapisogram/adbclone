@@ -277,10 +277,20 @@ export const mock = {
     async status(): Promise<TuningInfo> {
       await delay(150);
       const has = (g: string) => this.records.some((r) => r.group === g);
-      return { status: { animationScale: has("animations") ? "0.5" : "1.0", batterySaver: has("battery_saver") ? "1" : "0", peakRefresh: has("refresh") ? "60.0" : null, maxFps: 120 }, refreshSupported: true, records: this.records.map((r) => ({ ...r })) };
+      const sc = (i: number, d: string) => (has("animations") ? this.anim[i] : d);
+      return { status: { animationScale: sc(0, "1.0"), transitionScale: sc(1, "1.0"), animatorScale: sc(2, "1.0"), batterySaver: has("battery_saver") ? "1" : "0", peakRefresh: has("refresh") ? "60.0" : null, maxFps: 120 }, refreshSupported: true, records: this.records.map((r) => ({ ...r })) };
+    },
+    anim: ["0.5", "0.5", "0.5"],
+    async animations(_s: string, w: string, t: string, a: string): Promise<StepResult[]> {
+      await delay(300);
+      this.anim = [w, t, a];
+      this.records = this.records.filter((r) => r.group !== "animations");
+      this.add("animations", "Window animation speed", { kind: "setting", ns: "global", key: "window_animation_scale" }, w);
+      return [{ label: "Window animation speed", ok: true }, { label: "Transition animation speed", ok: true }, { label: "In-app animation speed", ok: true }];
     },
     async toggle(_s: string, id: string, on: boolean): Promise<StepResult[]> {
       await delay(400);
+      if (on && id === "animations") this.anim = ["0.5", "0.5", "0.5"];
       const labels: Record<string, string> = { animations: "Animations 0.5x", battery_saver: "Battery saver on", refresh: "Refresh rate capped at 60 Hz" };
       if (on) { this.add(id, labels[id], { kind: "setting", ns: "global", key: id }, "on"); return [{ label: labels[id], ok: true }]; }
       this.records = this.records.filter((r) => r.group !== id);

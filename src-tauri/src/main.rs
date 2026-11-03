@@ -967,6 +967,13 @@ async fn tuning_toggle(state: State<'_, AppState>, serial: String, id: String, o
     Ok(undo_matching(&state, &a, &serial, Some(&group), None, None).await)
 }
 
+/// Set the three animation speeds separately (window, transition, in-app). Undo restores the originals.
+#[tauri::command]
+async fn tuning_animations(state: State<'_, AppState>, serial: String, window: String, transition: String, animator: String) -> Result<Vec<StepResult>, String> {
+    let steps = tuning::animation_mix_steps(&window, &transition, &animator).ok_or("That animation speed is not one of the offered choices.")?;
+    Ok(apply_steps(&state, &adb(), &serial, steps).await)
+}
+
 async fn undo_matching(
     state: &AppState,
     a: &AdbRunner,
@@ -1329,7 +1336,7 @@ fn main() {
             wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect,
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
-            tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
+            tuning_status, tuning_toggle, tuning_animations, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
             install_inspect, install_item, install_discard, backup_one,
             storage_report, usage_report])

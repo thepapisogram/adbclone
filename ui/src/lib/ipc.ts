@@ -115,6 +115,8 @@ export const ipc = {
       inTauri ? call("tuning_restrict", { serial, names, restrict }) : mock.tuning.restrict(serial, names, restrict),
     undo: (serial: string, f: { group?: string; id?: string; package?: string }): Promise<StepResult[]> =>
       inTauri ? call("tuning_undo", { serial, group: f.group ?? null, id: f.id ?? null, package: f.package ?? null }) : mock.tuning.undo(serial, f),
+    animations: (serial: string, window: string, transition: string, animator: string): Promise<StepResult[]> =>
+      inTauri ? call("tuning_animations", { serial, window, transition, animator }) : mock.tuning.animations(serial, window, transition, animator),
     trimCaches: (serial: string): Promise<void> => (inTauri ? call("tuning_trim_caches", { serial }) : new Promise((r) => setTimeout(r, 600))),
     cooldown: (serial: string, apps: string[], stop: boolean): Promise<StepResult[]> =>
       inTauri ? call("tuning_cooldown", { serial, apps, stop }) : mock.tuning.cooldown(serial, apps, stop),

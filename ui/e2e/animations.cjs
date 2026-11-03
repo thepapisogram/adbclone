@@ -1,0 +1,25 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto(process.env.BASE || 'http://localhost:4173');
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  await p.getByRole('button', { name: 'Tune', exact: true }).click();
+  const sec = p.getByRole('region', { name: 'Animation speeds' });
+  await sec.waitFor();
+  await p.waitForFunction(() => /Now:/.test(document.querySelector('[aria-label="Animation speeds"]').innerText));
+  console.log('starts at normal:', (await sec.innerText()).includes('Now: Normal'));
+  await sec.getByRole('button', { name: 'Use Snappy' }).click();
+  await p.waitForFunction(() => document.querySelector('[aria-label="Use Snappy"]')?.getAttribute('aria-pressed') === 'true');
+  console.log('preset applied and shown as current:', true);
+  await sec.getByLabel('Windows opening and closing').selectOption('1.25');
+  await sec.getByLabel('Motion inside apps').selectOption('0.25');
+  await sec.getByRole('button', { name: 'Apply this mix' }).click();
+  await p.waitForFunction(() => /a custom mix/.test(document.querySelector('[aria-label="Animation speeds"]').innerText));
+  console.log('custom mix reported as custom:', true);
+  await sec.getByRole('button', { name: 'Back to normal' }).click();
+  await p.waitForFunction(() => /Now: Normal/.test(document.querySelector('[aria-label="Animation speeds"]').innerText));
+  console.log('back to normal:', await sec.getByRole('button', { name: 'Back to normal' }).isDisabled());
+  console.log('errors', errs); await b.close();
+})();

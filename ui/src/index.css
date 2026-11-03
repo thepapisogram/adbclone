@@ -146,3 +146,9 @@ table.installtable { width: 100%; margin-top: 10px; } table.installtable td { ve
 
 .storage { overflow: auto; flex: 1; min-height: 0; padding-bottom: 20px; }
 table.storagetable { width: 100%; margin-top: 8px; } table.storagetable td, table.storagetable th { padding: 5px 8px; }
+
+.presetgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.presetcard { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; text-align: left; padding: 10px; height: auto; }
+.presetcard.current { outline: 2px solid var(--accent, #4f7cff); }
+.mixgrid { display: grid; gap: 8px; margin: 8px 0; }
+.mixrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }

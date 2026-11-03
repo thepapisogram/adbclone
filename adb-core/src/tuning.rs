@@ -208,6 +208,23 @@ pub fn animation_steps() -> Vec<Step> {
         .collect()
 }
 
+/// The speeds offered for animations (1 = normal, lower = faster). Only these exact values are ever written.
+pub const ANIMATION_SCALES: &[&str] = &["0", "0.25", "0.5", "0.75", "1", "1.25", "1.5"];
+
+fn scale_str(v: &str) -> Option<&'static str> {
+    ANIMATION_SCALES.iter().find(|s| **s == v).copied()
+}
+
+/// A separate speed for window opening/closing, screen-to-screen transitions and in-app animators.
+/// `None` if any value is not one of the offered speeds.
+pub fn animation_mix_steps(window: &str, transition: &str, animator: &str) -> Option<Vec<Step>> {
+    Some(vec![
+        Step { target: setting("global", "window_animation_scale"), value: scale_str(window)?, group: "animations", label: "Window animation speed" },
+        Step { target: setting("global", "transition_animation_scale"), value: scale_str(transition)?, group: "animations", label: "Transition animation speed" },
+        Step { target: setting("global", "animator_duration_scale"), value: scale_str(animator)?, group: "animations", label: "In-app animation speed" },
+    ])
+}
+
 pub fn battery_saver_steps() -> Vec<Step> {
     vec![Step { target: setting("global", "low_power"), value: "1", group: "battery_saver", label: "Battery saver on" }]
 }
@@ -233,13 +250,15 @@ pub fn background_steps(pkg: &str) -> Vec<(Target, &'static str, &'static str)> 
 #[serde(rename_all = "camelCase")]
 pub struct Status {
     pub animation_scale: Option<String>,
+    pub transition_scale: Option<String>,
+    pub animator_scale: Option<String>,
     pub battery_saver: Option<String>,
     pub peak_refresh: Option<String>,
     /// Highest refresh rate the screen offers; the 60 Hz cap only makes sense above 60.
     pub max_fps: Option<f32>,
 }
 
-pub const STATUS_CMD: &str = "echo @@TUNE; for k in window_animation_scale low_power; do echo \"global.$k $(settings get global $k)\"; done; \
+pub const STATUS_CMD: &str = "echo @@TUNE; for k in window_animation_scale transition_animation_scale animator_duration_scale low_power; do echo \"global.$k $(settings get global $k)\"; done; \
 echo \"system.peak_refresh_rate $(settings get system peak_refresh_rate)\"; echo @@FPS; dumpsys display | grep -o 'fps=[0-9.]*'";
 
 pub fn parse_status(text: &str) -> Status {
@@ -249,6 +268,8 @@ pub fn parse_status(text: &str) -> Status {
         let (k, v) = (it.next().unwrap_or(""), parse_setting_value(it.next().unwrap_or("")));
         match k {
             "global.window_animation_scale" => st.animation_scale = v,
+            "global.transition_animation_scale" => st.transition_scale = v,
+            "global.animator_duration_scale" => st.animator_scale = v,
             "global.low_power" => st.battery_saver = v,
             "system.peak_refresh_rate" => st.peak_refresh = v,
             _ => {}
@@ -280,6 +301,28 @@ pub async fn trim_caches(adb: &AdbRunner, serial: &str) -> Result<(), AdbError> 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn animation_mix_accepts_only_offered_speeds() {
+        let steps = animation_mix_steps("1.25", "1", "0.5").unwrap();
+        assert_eq!(steps.len(), 3);
+        assert_eq!(steps.iter().map(|s| s.value).collect::<Vec<_>>(), ["1.25", "1", "0.5"]);
+        assert!(steps.iter().all(|s| s.group == "animations"));
+        for bad in ["", "2", "0.5; reboot", "-1", "abc", "0.50"] {
+            assert!(animation_mix_steps(bad, "1", "1").is_none(), "{bad}");
+            assert!(animation_mix_steps("1", bad, "1").is_none(), "{bad}");
+            assert!(animation_mix_steps("1", "1", bad).is_none(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn status_reads_all_three_animation_speeds() {
+        let t = "@@TUNE\nglobal.window_animation_scale 1.0\nglobal.transition_animation_scale 0.5\nglobal.animator_duration_scale null\nglobal.low_power 0\n@@FPS\n";
+        let s = parse_status(t);
+        assert_eq!(s.animation_scale.as_deref(), Some("1.0"));
+        assert_eq!(s.transition_scale.as_deref(), Some("0.5"));
+        assert_eq!(s.animator_scale, None);
+    }
 
     #[test]
     fn setting_values() {

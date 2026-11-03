@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ipc } from "../../lib/ipc";
 import { AppIcon } from "../../components/AppIcon";
 import { useSettings } from "../../lib/settings";
+import { AnimationSpeeds } from "./AnimationSpeeds";
 import type { AppInfo, HealthSample, RunningRow, StepResult, TuningInfo } from "../../lib/types";
 
 const errText = (e: unknown) => String(e instanceof Error ? e.message : e);
@@ -111,6 +112,8 @@ export function Tune({ serial, apps, active }: Props) {
           </label>
         ))}
       </section>
+
+      <AnimationSpeeds status={info?.status} busy={busy} changed={has("animations")} onApply={(m) => run(() => ipc.tuning.animations(serial, m.window, m.transition, m.animator))} onReset={() => toggle("animations", false)} />
 
       <section className="block">
         <h3>Cool-down mode</h3>
