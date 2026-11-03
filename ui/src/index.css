@@ -131,3 +131,8 @@ ul.checks { list-style: none; padding: 0; margin: 0 0 8px; } ul.checks li { padd
 ul.checks { list-style: none; padding: 0; margin: 0 0 8px; } ul.checks li { padding: 2px 0; }
 .makernote { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0; } .makernote ul { margin: 4px 0 0; padding-left: 18px; }
 ol.steps { padding-left: 20px; line-height: 1.5; }
+
+details.heldback { padding: 8px 14px; border-top: 1px solid var(--line); } details.heldback summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+details.heldback ul { margin: 8px 0 0; padding-left: 18px; line-height: 1.8; }
+ul.pendinglist { padding-left: 18px; max-height: 280px; overflow: auto; } ul.pendinglist li { margin-bottom: 6px; }
+td.desc { max-width: 420px; }

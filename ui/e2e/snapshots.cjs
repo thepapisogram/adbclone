@@ -18,7 +18,7 @@ const SHOT = process.argv[2];
   await p.waitForSelector('.notice');
   console.log('notice:', (await p.locator('.notice').innerText()).slice(0, 55));
   await p.selectOption('select[aria-label=Risk]', 'any');
-  await p.waitForFunction(() => /11 disabled/.test(document.body.innerText));
+  await p.waitForFunction(() => /14 disabled/.test(document.body.innerText));
   const disabledAfter = (await counts()).match(/(\d+) disabled/)[1];
   console.log('disabled after batch:', disabledAfter);
   // Snapshots tab: one auto snapshot; take a manual one of the debloated state.

@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{bridge, log as cmdlog, platform_tools, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1181,6 +1181,14 @@ async fn adb_download(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+// ---- apps you are using right now ----
+
+/// Apps the phone uses for its main jobs; the wizard never offers them.
+#[tauri::command]
+async fn get_protections(serial: String) -> Result<Vec<protect::Protection>, String> {
+    protect::detect(&adb().with_timeout(Duration::from_secs(20)), &serial).await.map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1229,7 +1237,7 @@ fn main() {
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
-            device_report, save_text_file, get_log, clear_log, adb_status, adb_download])
+            device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

@@ -1,6 +1,9 @@
 export type PkgState = "enabled" | "disabled" | "uninstalled";
 export type Risk = "recommended" | "advanced" | "unsafe" | "unknown";
 export type Action = "disable" | "enable" | "uninstall" | "restore" | "stop";
+export type Tier = "safe" | "balanced" | "aggressive" | "never" | "unrated";
+export type Confidence = "high" | "medium" | "low";
+export interface Protection { package: string; reason: string }
 export type Safety = "safe" | "caution" | "unsafe" | "unknown";
 
 export interface Device {
@@ -18,6 +21,15 @@ export interface AppInfo {
   disableSafety: Safety;
   uninstallSafety: Safety;
   description?: string | null;
+  /** How much you would miss it: safe, balanced, aggressive, never (not offered) or unrated. */
+  tier: Tier;
+  category?: string | null;
+  /** One line: what stops working if it is removed. */
+  impact?: string | null;
+  confidence: Confidence;
+  /** `store` (reinstall from an app store) or `rom-only` (restore from a snapshot). */
+  reinstall?: string | null;
+  duplicateOf?: string | null;
   /** Where the shown name came from; unset means it is only a guess from the package id. */
   nameSource?: NameSource;
   /** Facts reported by the on-device helper. */

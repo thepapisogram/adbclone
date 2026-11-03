@@ -1,42 +1,59 @@
-import type { Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
-const apps: AppInfo[] = [
-  ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
-  ["com.google.android.apps.maps", "Maps", true, "recommended", "Google Maps."],
-  ["com.google.android.gm", "Gmail", true, "advanced", "Email client."],
-  ["com.google.android.gms", "Google Play services", true, "unsafe", "Core services; many apps break without it."],
-  ["com.google.android.gsf", "Google Services Framework", true, "unsafe", "Required for Google account sync and push."],
-  ["com.android.vending", "Google Play Store", true, "advanced", "App store."],
-  ["com.android.systemui", "System UI", true, "unsafe", "Status bar, navigation and lock screen. Disabling bricks the UI."],
-  ["com.android.settings", "Settings", true, "unsafe", "Device settings."],
-  ["com.android.phone", "Phone Services", true, "unsafe", "Telephony stack."],
-  ["com.android.chrome", "Chrome", true, "advanced", "Default browser."],
-  ["com.facebook.appmanager", "Facebook App Manager", true, "recommended", "Preinstalled background updater."],
-  ["com.facebook.services", "Facebook Services", true, "recommended", "Preinstalled background service."],
-  ["com.facebook.system", "Facebook Installer", true, "recommended", "Preinstalled installer stub."],
-  ["com.samsung.android.bixby.agent", "Bixby Voice", true, "recommended", "Voice assistant."],
-  ["com.samsung.android.game.gamehome", "Game Launcher", true, "recommended", "Game launcher overlay."],
-  ["com.microsoft.office.officehubrow", "Microsoft 365", true, "recommended", "Preinstalled Office hub."],
-  ["com.netflix.partner.activation", "Netflix Activation", true, "recommended", "Partner activation stub."],
-  ["com.google.android.apps.photos", "Photos", true, "advanced", "Gallery and backup."],
-  ["com.android.stk", "SIM Toolkit", true, "advanced", "Carrier SIM menu."],
-  ["com.vendor.unknownservice", "Vendor Service", true, "unknown", ""],
-  ["com.sec.android.app.randomthing", "Random Thing", true, "unknown", ""],
-  ["org.mozilla.firefox", "Firefox", false, "unknown", ""],
-  ["com.spotify.music", "Spotify", false, "unknown", ""],
-  ["org.telegram.messenger", "Telegram", false, "unknown", ""],
-  ["com.whatsapp", "WhatsApp", false, "unknown", ""],
-  ["com.discord", "Discord", false, "unknown", ""],
-  ["com.instagram.android", "Instagram", false, "unknown", ""],
-].map(([name, label, system, risk, description]) => ({
-  name: name as string,
-  label: label as string,
-  disableSafety: ({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" } as Record<string, Safety>)[risk as string],
-  uninstallSafety: ({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" } as Record<string, Safety>)[risk as string],
-  system: system as boolean,
+const IMPACT: Record<string, string> = {
+  "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
+  "partner-stub": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled.",
+  "help-promo": "A tips, help or promotional app. Nothing else depends on it.",
+  "game-hub": "You lose the game launcher or its overlay. Games still run.",
+  "aosp-extra": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it.",
+  assistant: "The voice assistant and its wake word stop working.",
+  "google-app": "You lose this Google app. You can reinstall it from the Play Store.",
+  "preinstalled-app": "You lose this app. You can reinstall it from the store.",
+  store: "Installs and updates from this store stop. Apps you already have keep working.",
+  "system-service": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working.",
+  "core-app": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "core-system": "Can stop the phone from working properly. Never remove.",
+};
+type Row = [name: string, label: string, system: boolean, risk: AppInfo["risk"], tier: AppInfo["tier"], category: string | null, confidence: AppInfo["confidence"], description: string];
+const rows: Row[] = [
+  ["com.google.android.youtube", "YouTube", true, "recommended", "balanced", "google-app", "high", "Video app; reinstallable from Play Store."],
+  ["com.google.android.apps.maps", "Maps", true, "recommended", "balanced", "google-app", "medium", "Google Maps."],
+  ["com.google.android.gm", "Gmail", true, "advanced", "balanced", "google-app", "high", "Email client."],
+  ["com.google.android.gms", "Google Play services", true, "unsafe", "never", "core-system", "high", "Core services; many apps break without it."],
+  ["com.google.android.gsf", "Google Services Framework", true, "unsafe", "never", "core-system", "high", "Required for Google account sync and push."],
+  ["com.android.vending", "Google Play Store", true, "advanced", "aggressive", "store", "high", "App store."],
+  ["com.android.systemui", "System UI", true, "unsafe", "never", "core-system", "high", "Status bar, navigation and lock screen. Disabling bricks the UI."],
+  ["com.android.settings", "Settings", true, "unsafe", "never", "core-system", "high", "Device settings."],
+  ["com.android.phone", "Phone Services", true, "unsafe", "never", "core-system", "high", "Telephony stack."],
+  ["com.android.chrome", "Chrome", true, "advanced", "aggressive", "core-app", "high", "Default browser."],
+  ["com.facebook.appmanager", "Facebook App Manager", true, "recommended", "safe", "partner-stub", "high", "Preinstalled background updater."],
+  ["com.facebook.services", "Facebook Services", true, "recommended", "safe", "partner-stub", "high", "Preinstalled background service."],
+  ["com.facebook.system", "Facebook Installer", true, "recommended", "safe", "partner-stub", "high", "Preinstalled installer stub."],
+  ["com.samsung.android.bixby.agent", "Bixby Voice", true, "recommended", "balanced", "assistant", "high", "Voice assistant."],
+  ["com.samsung.android.game.gamehome", "Game Launcher", true, "recommended", "balanced", "game-hub", "medium", "Game launcher overlay."],
+  ["com.microsoft.office.officehubrow", "Microsoft 365", true, "recommended", "balanced", "preinstalled-app", "medium", "Preinstalled Office hub."],
+  ["com.netflix.partner.activation", "Netflix Activation", true, "recommended", "safe", "partner-stub", "high", "Partner activation stub."],
+  ["com.google.android.apps.photos", "Photos", true, "advanced", "balanced", "google-app", "medium", "Gallery and backup."],
+  ["com.android.stk", "SIM Toolkit", true, "advanced", "aggressive", "system-service", "medium", "Carrier SIM menu."],
+  ["com.android.egg", "Android Easter Egg", true, "recommended", "safe", "aosp-extra", "high", "A hidden game."],
+  ["com.samsung.android.app.tips", "Tips", true, "recommended", "safe", "help-promo", "high", "Tips and tutorials."],
+  ["com.vendor.analyticsservice", "Vendor Analytics", true, "recommended", "safe", "ads-telemetry", "medium", "Usage reports sent to the maker."],
+  ["com.vendor.unknownservice", "Vendor Service", true, "unknown", "unrated", null, "low", ""],
+  ["com.sec.android.app.randomthing", "Random Thing", true, "unknown", "unrated", null, "low", ""],
+  ["org.mozilla.firefox", "Firefox", false, "unknown", "unrated", null, "low", ""],
+  ["com.spotify.music", "Spotify", false, "unknown", "unrated", null, "low", ""],
+  ["org.telegram.messenger", "Telegram", false, "unknown", "unrated", null, "low", ""],
+  ["com.whatsapp", "WhatsApp", false, "unknown", "unrated", null, "low", ""],
+  ["com.discord", "Discord", false, "unknown", "unrated", null, "low", ""],
+  ["com.instagram.android", "Instagram", false, "unknown", "unrated", null, "low", ""],
+];
+const safetyOf = (risk: string): Safety => (({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" }) as Record<string, Safety>)[risk];
+const apps: AppInfo[] = rows.map(([name, label, system, risk, tier, category, confidence, description]) => ({
+  name, label, system, risk, tier, category, confidence, description,
+  impact: category ? IMPACT[category] ?? null : null,
+  disableSafety: safetyOf(risk),
+  uninstallSafety: safetyOf(risk),
   state: "enabled" as const,
-  risk: risk as AppInfo["risk"],
-  description: description as string,
 }));
 apps.find((a) => a.name === "com.android.stk")!.state = "disabled";
 
@@ -345,5 +362,10 @@ export const mock = {
         else { clearInterval(t); this.installed = true; on({ stage: "done", received: total, total }); }
       }, 250);
     },
+  },
+
+  async protections(_serial: string): Promise<Protection[]> {
+    await delay(100);
+    return [{ package: "com.android.chrome", reason: "your browser" }];
   },
 };

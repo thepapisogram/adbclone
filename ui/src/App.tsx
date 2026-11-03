@@ -7,7 +7,7 @@ import { SettingsDialog } from "./components/SettingsDialog";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
 import { pickSerial } from "./lib/pickSerial";
-import type { AdbStatus, Action, AppInfo, Device, LabelProgress, NamesStatusInfo, NameSource, PkgState, Risk } from "./lib/types";
+import type { Protection, AdbStatus, Action, AppInfo, Device, LabelProgress, NamesStatusInfo, NameSource, PkgState, Risk } from "./lib/types";
 import { addIcons, clearIcons } from "./lib/icons";
 import { AppIcon } from "./components/AppIcon";
 import { NamesStatus } from "./features/names/NamesStatus";
@@ -53,6 +53,8 @@ export default function App() {
   const connectOpen = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  // Apps the phone is using for main jobs (home screen, dialer, browser, keyboard...): never offered for removal.
+  const [protections, setProtections] = useState<{ map: Map<string, string>; known: boolean }>({ map: new Map(), known: false });
   const [adbStatus, setAdbStatus] = useState<AdbStatus | null>(null);
   const [showAdbSetup, setShowAdbSetup] = useState(false);
   const refreshAdbStatus = useCallback(() => { ipc.adb.status().then(setAdbStatus).catch(() => {}); }, []);
@@ -118,6 +120,15 @@ export default function App() {
     return () => clearInterval(t);
   }, [refreshDevices]);
   useEffect(() => { loadApps(serial); }, [serial, loadApps]);
+  useEffect(() => {
+    setProtections({ map: new Map(), known: false });
+    if (!serial) return;
+    let cancelled = false;
+    ipc.protections(serial)
+      .then((list: Protection[]) => !cancelled && setProtections({ map: new Map(list.map((p) => [p.package, p.reason])), known: list.length > 0 }))
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [serial]);
 
   // Real names, details and icons stream in from the backend after the list is shown.
   useEffect(() => {
@@ -252,7 +263,7 @@ export default function App() {
 
       {tab === "health" && <Health serial={serial} wireless={isWireless(serial)} active onShowRunning={() => setTab("running")} />}
 
-      {tab === "debloat" && <Debloat serial={serial} apps={apps} busy={busy} onApply={(action, names) => setPending({ action, names })} />}
+      {tab === "debloat" && <Debloat serial={serial} apps={apps} busy={busy} protections={protections.map} protectionsKnown={protections.known} onApply={(action, names) => setPending({ action, names })} />}
 
       {tab === "logs" && <Logs active />}
 
@@ -360,7 +371,22 @@ export default function App() {
             {unsafeCount(pending.names) > 0 && (pending.action === "disable" || pending.action === "uninstall") && (
               <p className="warn">⚠ {unsafeCount(pending.names)} selected app(s) are rated <b>unsafe</b>. Removing core system packages can cause a bootloop.</p>
             )}
-            <ul>{pending.names.slice(0, 8).map((n) => <li key={n} className={plain ? "" : "mono"}>{plain ? nameFor(n) : n}</li>)}{pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}</ul>
+            <ul className="pendinglist">
+              {pending.names.slice(0, 8).map((n) => {
+                const a = apps.find((x) => x.name === n);
+                const used = protections.map.get(n);
+                const removing = pending.action === "disable" || pending.action === "uninstall";
+                return (
+                  <li key={n} className={plain ? "" : "mono"}>
+                    {plain ? nameFor(n) : n}
+                    {removing && used && <div className="warn-inline">⚠ This is {used}. Make sure another one is set up first.</div>}
+                    {removing && a?.impact && <div className="reason">{a.impact}</div>}
+                    {removing && a && a.tier === "unrated" && <div className="reason">Nobody has rated this app yet. Only continue if you know what it is.</div>}
+                  </li>
+                );
+              })}
+              {pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}
+            </ul>
             <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : pending.action === "stop" ? "Stops the app now; it may restart on its own." : "Reversible from the History panel."}</p>
             <div className="modal-actions">
               <button onClick={() => setPending(null)} disabled={busy}>Cancel</button>

@@ -9,6 +9,7 @@ pub mod log;
 pub mod packages;
 pub mod platform_tools;
 pub mod processes;
+pub mod protect;
 pub mod report;
 pub mod runner;
 pub mod snapshot;

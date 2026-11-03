@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -450,4 +450,13 @@ async fn every_command_is_logged_and_pairing_codes_never_are() {
     for code in ["424242", "123456", "000000", "999999"] {
         assert!(!all.iter().any(|e| e.command.contains(&format!(" {code}"))), "{code} leaked into the log");
     }
+}
+
+#[tokio::test]
+async fn protections_come_from_the_phone() {
+    let (adb, d) = setup("protect", false);
+    fs::write(d.join("protect.txt"), "@@HOME\ncom.sec.android.app.launcher/.activities.LauncherActivity\n@@HOMEALL\ncom.sec.android.app.launcher/.activities.LauncherActivity\n@@IME\ncom.samsung.android.honeyboard/.service.HoneyBoardService\n@@ROLES\nandroid.app.role.SMS com.samsung.android.messaging\n").unwrap();
+    let p = protect::detect(&adb, "SER").await.unwrap();
+    let pkgs: Vec<_> = p.iter().map(|x| x.package.as_str()).collect();
+    assert!(pkgs.contains(&"com.sec.android.app.launcher") && pkgs.contains(&"com.samsung.android.honeyboard") && pkgs.contains(&"com.samsung.android.messaging"), "{p:?}");
 }
