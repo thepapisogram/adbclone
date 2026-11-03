@@ -1,5 +1,5 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
-use adb_core::{deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -243,4 +243,72 @@ async fn health_sample_round_trip_and_blocked_sensors() {
     fs::write(d.join("health.txt"), "@@BATT\n@@THERMAL\n@@ZONES\n@@CPU\n").unwrap();
     let blocked = health::sample(&adb, "SER").await.unwrap();
     assert_eq!(blocked.missing.len(), 4);
+}
+
+// ---- tuning: apply, verify, undo ----
+
+fn tune_db(dir: &PathBuf, json: &str) { fs::write(dir.join("tunedb.json"), json).unwrap(); }
+const EMPTY_TUNE: &str = r#"{"settings": {"global.window_animation_scale": "1.0"}, "appops": {}, "standby": {}, "fps": [60.0, 120.0]}"#;
+
+#[tokio::test]
+async fn status_reads_current_values() {
+    let (adb, d) = setup("tstatus", false);
+    tune_db(&d, EMPTY_TUNE);
+    let s = tuning::read_status(&adb, "SER").await.unwrap();
+    assert_eq!((s.animation_scale.as_deref(), s.battery_saver, s.max_fps), (Some("1.0"), None, Some(120.0)));
+}
+
+#[tokio::test]
+async fn animation_change_is_verified_and_undone() {
+    let (adb, d) = setup("tanim", false);
+    tune_db(&d, EMPTY_TUNE);
+    let mut records = Vec::new();
+    for step in tuning::animation_steps() {
+        records.push(tuning::apply(&adb, "SER", &step.target, step.value, step.group, step.label, 1).await.unwrap());
+    }
+    assert_eq!(tuning::read_status(&adb, "SER").await.unwrap().animation_scale.as_deref(), Some("0.5"));
+    assert_eq!(records[0].prev.as_deref(), Some("1.0"));
+    assert_eq!(records[1].prev, None, "a key that was never set remembers that");
+    for r in &records { tuning::undo(&adb, "SER", r).await.unwrap(); }
+    let after = fs::read_to_string(d.join("tunedb.json")).unwrap();
+    assert!(after.contains("\"global.window_animation_scale\": \"1.0\"") || after.contains("\"global.window_animation_scale\":\"1.0\""), "{after}");
+    assert!(!after.contains("transition_animation_scale"), "keys that did not exist are deleted again: {after}");
+}
+
+#[tokio::test]
+async fn ignored_write_is_reported_and_not_left_behind() {
+    let (adb, d) = setup("tignore", false);
+    tune_db(&d, r#"{"settings": {}, "appops": {}, "standby": {}, "ignore": ["low_power"]}"#);
+    let step = &tuning::battery_saver_steps()[0];
+    let e = tuning::apply(&adb, "SER", &step.target, step.value, step.group, step.label, 1).await.unwrap_err().to_string();
+    assert!(e.contains("ignored the change"), "{e}");
+    assert_eq!(tuning::read_status(&adb, "SER").await.unwrap().battery_saver, None);
+}
+
+#[tokio::test]
+async fn background_restriction_round_trip() {
+    let (adb, d) = setup("tbg", false);
+    tune_db(&d, EMPTY_TUNE);
+    let mut records = Vec::new();
+    for (t, v, label) in tuning::background_steps("com.noisy.app") {
+        records.push(tuning::apply(&adb, "SER", &t, v, "background", label, 1).await.unwrap());
+    }
+    let db = fs::read_to_string(d.join("tunedb.json")).unwrap();
+    assert!(db.contains("deny") && db.contains("\"45\""), "{db}");
+    assert_eq!(records[0].prev.as_deref(), Some("default"));
+    assert_eq!(records[1].prev.as_deref(), Some("active"));
+    for r in records.iter().rev() { tuning::undo(&adb, "SER", r).await.unwrap(); }
+    let db = fs::read_to_string(d.join("tunedb.json")).unwrap();
+    assert!(!db.contains("deny") && db.contains("\"10\""), "{db}");
+}
+
+#[tokio::test]
+async fn unsafe_names_never_reach_the_phone() {
+    let (adb, d) = setup("tinject", false);
+    tune_db(&d, EMPTY_TUNE);
+    let bad = tuning::Target::AppOp { pkg: "com.x; reboot".into(), op: "RUN_ANY_IN_BACKGROUND".into() };
+    assert!(tuning::apply(&adb, "SER", &bad, "deny", "g", "l", 1).await.is_err());
+    let bad2 = tuning::Target::Setting { ns: "secure".into(), key: "adb_enabled".into() };
+    assert!(tuning::apply(&adb, "SER", &bad2, "0", "g", "l", 1).await.is_err());
+    tuning::trim_caches(&adb, "SER").await.unwrap();
 }

@@ -59,7 +59,39 @@ elif args[:1] == ["pull"]:
     print("1 file pulled")
 elif args[:1] == ["shell"]:
     cmd = " ".join(args[1:])
-    if "@@PROPS" in cmd:
+    if cmd.startswith(("settings ", "cmd appops ", "am get-standby-bucket", "am set-standby-bucket", "pm trim-caches")) or "@@TUNE" in cmd:
+        import json
+        tp = os.path.join(d, "tunedb.json")
+        t = json.load(open(tp)) if os.path.exists(tp) else {"settings": {}, "appops": {}, "standby": {}}
+        w = cmd.split()
+        def save_t(): json.dump(t, open(tp, "w"))
+        if "@@TUNE" in cmd:
+            print("@@TUNE")
+            for k in ["global.window_animation_scale", "global.low_power", "system.peak_refresh_rate"]:
+                print(k, t["settings"].get(k, "null"))
+            print("@@FPS")
+            for f in t.get("fps", [60.0]): print(f"fps={f}")
+        elif w[0] == "settings" and w[1] == "get":
+            print(t["settings"].get(f"{w[2]}.{w[3]}", "null"))
+        elif w[0] == "settings" and w[1] == "put":
+            if t.get("ignore") and w[3] in t["ignore"]: pass  # a maker that silently ignores the write
+            else: t["settings"][f"{w[2]}.{w[3]}"] = w[4]; save_t()
+        elif w[0] == "settings" and w[1] == "delete":
+            t["settings"].pop(f"{w[2]}.{w[3]}", None); save_t(); print("Deleted 1 rows")
+        elif w[:3] == ["cmd", "appops", "get"]:
+            m = t["appops"].get(f"{w[3]}|{w[4]}")
+            print(f"{w[4]}: {m}" if m else "No operations.")
+        elif w[:3] == ["cmd", "appops", "set"]:
+            if w[5] == "default": t["appops"].pop(f"{w[3]}|{w[4]}", None)
+            else: t["appops"][f"{w[3]}|{w[4]}"] = w[5]
+            save_t()
+        elif w[:2] == ["am", "get-standby-bucket"]:
+            print(t["standby"].get(w[2], "10"))
+        elif w[:2] == ["am", "set-standby-bucket"]:
+            t["standby"][w[2]] = {"active": "10", "working_set": "20", "frequent": "30", "rare": "40", "restricted": "45"}[w[3]]; save_t()
+        elif w[:2] == ["pm", "trim-caches"]:
+            pass
+    elif "@@PROPS" in cmd:
         sys.stdout.write(read("deviceinfo.txt"))
     elif "@@THERMAL" in cmd:
         sys.stdout.write(read("health.txt"))

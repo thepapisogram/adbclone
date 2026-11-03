@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -236,5 +236,54 @@ export const mock = {
       }),
       missing: [],
     };
+  },
+
+  tuning: {
+    records: [] as TuningRecord[],
+    add(group: string, label: string, target: TuningRecord["target"], applied: string) {
+      this.records = this.records.filter((r) => JSON.stringify(r.target) !== JSON.stringify(target));
+      this.records.push({ id: Math.random().toString(36).slice(2, 10), serial: "R58M123ABC", group, label, target, prev: null, applied, time: Math.floor(Date.now() / 1000) });
+    },
+    async status(): Promise<TuningInfo> {
+      await delay(150);
+      const has = (g: string) => this.records.some((r) => r.group === g);
+      return { status: { animationScale: has("animations") ? "0.5" : "1.0", batterySaver: has("battery_saver") ? "1" : "0", peakRefresh: has("refresh") ? "60.0" : null, maxFps: 120 }, refreshSupported: true, records: this.records.map((r) => ({ ...r })) };
+    },
+    async toggle(_s: string, id: string, on: boolean): Promise<StepResult[]> {
+      await delay(400);
+      const labels: Record<string, string> = { animations: "Animations 0.5x", battery_saver: "Battery saver on", refresh: "Refresh rate capped at 60 Hz" };
+      if (on) { this.add(id, labels[id], { kind: "setting", ns: "global", key: id }, "on"); return [{ label: labels[id], ok: true }]; }
+      this.records = this.records.filter((r) => r.group !== id);
+      return [{ label: `Undone: ${labels[id]}`, ok: true }];
+    },
+    async restrict(_s: string, names: string[], restrict: boolean): Promise<StepResult[]> {
+      await delay(500);
+      return names.map((n) => {
+        if (restrict) {
+          if (n.startsWith("com.google.android.gms") || n === "com.android.systemui") return { label: `Restrict background: ${n}`, ok: false, message: "Rated unsafe: restricting it could break calls, notifications or sync." };
+          this.add("background", "Background activity blocked", { kind: "appOp", pkg: n, op: "RUN_ANY_IN_BACKGROUND" }, "deny");
+          return { label: `Restrict background: ${n}`, ok: true };
+        }
+        this.records = this.records.filter((r) => !(r.group === "background" && "pkg" in r.target && r.target.pkg === n));
+        return { label: `Undone: ${n}`, ok: true };
+      });
+    },
+    async undo(_s: string, f: { group?: string | null; id?: string | null; package?: string | null }): Promise<StepResult[]> {
+      await delay(400);
+      const hit = (r: TuningRecord) => (!f.group || r.group === f.group) && (!f.id || r.id === f.id) && (!f.package || ("pkg" in r.target && r.target.pkg === f.package));
+      const gone = this.records.filter(hit);
+      this.records = this.records.filter((r) => !hit(r));
+      return gone.map((r) => ({ label: `Undone: ${r.label}`, ok: true }));
+    },
+    async cooldown(_s: string, apps: string[], stop: boolean): Promise<StepResult[]> {
+      await delay(900);
+      this.add("battery_saver", "Battery saver on", { kind: "setting", ns: "global", key: "low_power" }, "1");
+      this.add("animations", "Animations 0.5x", { kind: "setting", ns: "global", key: "window_animation_scale" }, "0.5");
+      this.add("refresh", "Refresh rate capped at 60 Hz", { kind: "setting", ns: "system", key: "peak_refresh_rate" }, "60.0");
+      const out: StepResult[] = [{ label: "Battery saver on", ok: true }, { label: "Animations 0.5x", ok: true }, { label: "Refresh rate capped at 60 Hz", ok: true }];
+      out.push(...(await this.restrict("", apps, true)));
+      if (stop) out.push(...apps.map((n) => ({ label: `Stop ${n}`, ok: true })));
+      return out;
+    },
   },
 };

@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -97,5 +97,18 @@ export const ipc = {
   history: {
     load: (): Promise<unknown[]> => (inTauri ? call("history_load") : Promise.resolve(mock.history.load)),
     save: (entries: unknown[]): Promise<void> => (inTauri ? call("history_save", { entries }) : Promise.resolve()),
+  },
+
+  tuning: {
+    status: (serial: string): Promise<TuningInfo> => (inTauri ? call("tuning_status", { serial }) : mock.tuning.status()),
+    toggle: (serial: string, id: string, on: boolean): Promise<StepResult[]> =>
+      inTauri ? call("tuning_toggle", { serial, id, on }) : mock.tuning.toggle(serial, id, on),
+    restrict: (serial: string, names: string[], restrict: boolean): Promise<StepResult[]> =>
+      inTauri ? call("tuning_restrict", { serial, names, restrict }) : mock.tuning.restrict(serial, names, restrict),
+    undo: (serial: string, f: { group?: string; id?: string; package?: string }): Promise<StepResult[]> =>
+      inTauri ? call("tuning_undo", { serial, group: f.group ?? null, id: f.id ?? null, package: f.package ?? null }) : mock.tuning.undo(serial, f),
+    trimCaches: (serial: string): Promise<void> => (inTauri ? call("tuning_trim_caches", { serial }) : new Promise((r) => setTimeout(r, 600))),
+    cooldown: (serial: string, apps: string[], stop: boolean): Promise<StepResult[]> =>
+      inTauri ? call("tuning_cooldown", { serial, apps, stop }) : mock.tuning.cooldown(serial, apps, stop),
   },
 };

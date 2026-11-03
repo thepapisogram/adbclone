@@ -93,3 +93,10 @@ table.sensors { width: 100%; } table.sensors td { padding: 2px 6px; border: 0; f
 .summary { padding: 8px 14px; border-bottom: 1px solid var(--line); }
 .group h3 { margin: 0; padding: 8px 14px; font-size: 13px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; }
 td.desc { max-width: 340px; font-size: 12px; }
+
+.tune { overflow: auto; flex: 1; min-height: 0; padding-bottom: 20px; }
+.block { padding: 12px 14px; border-bottom: 1px solid var(--line); } .block h3 { margin: 0 0 8px; font-size: 14px; }
+.switchrow { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; } .switchrow.off { opacity: .55; cursor: default; }
+.switchrow input { margin-top: 4px; width: 18px; height: 18px; }
+.beforeafter { margin-top: 10px; padding: 8px 10px; background: var(--panel); border-radius: 8px; } .beforeafter p { margin: 0 0 6px; }
+ul.steps-list { list-style: none; padding: 0; margin: 10px 0 0; } .steps-list li { padding: 2px 0; } .steps-list .ok { color: var(--ok); } .steps-list .bad { color: var(--danger); }

@@ -82,3 +82,9 @@ export interface HealthSample {
   battery: Battery | null; thermalStatus: number | null; thermalStatusName: string | null;
   sensors: Sensor[]; hottest: Sensor | null; cpu: CpuFreq[]; missing: string[];
 }
+
+export interface TuningStatus { animationScale?: string | null; batterySaver?: string | null; peakRefresh?: string | null; maxFps?: number | null }
+export type TuningTarget = { kind: "setting"; ns: string; key: string } | { kind: "appOp"; pkg: string; op: string } | { kind: "standby"; pkg: string };
+export interface TuningRecord { id: string; serial: string; group: string; label: string; target: TuningTarget; prev?: string | null; applied: string; time: number }
+export interface TuningInfo { status: TuningStatus; refreshSupported: boolean; records: TuningRecord[] }
+export interface StepResult { label: string; ok: boolean; message?: string | null }

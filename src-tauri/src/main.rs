@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -46,6 +46,8 @@ struct AppState {
     saved: Mutex<Vec<SavedDevice>>,
     saved_file: Mutex<Option<std::path::PathBuf>>,
     data_dir: Mutex<Option<std::path::PathBuf>>,
+    /// Changes made by the tuning features, so they can be undone later (even after a restart).
+    tuning: Mutex<Vec<tuning::Record>>,
 }
 
 #[derive(Serialize, serde::Deserialize, Clone)]
@@ -645,6 +647,235 @@ async fn health_sample(serial: String) -> Result<health::HealthSample, String> {
     health::sample(&adb().with_timeout(Duration::from_secs(20)), &serial).await.map_err(|e| e.to_string())
 }
 
+// ---- tuning ----
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StepResult {
+    label: String,
+    ok: bool,
+    message: Option<String>,
+}
+
+fn persist_tuning(state: &AppState) {
+    if let Ok(file) = data_subdir(state, "tuning.json") {
+        if let Some(dir) = file.parent() {
+            let _ = std::fs::create_dir_all(dir);
+        }
+        if let Ok(json) = serde_json::to_string(&*state.tuning.lock().unwrap()) {
+            let _ = std::fs::write(file, json);
+        }
+    }
+}
+
+/// Keep the first-ever previous value for a target: applying twice must not make the "original" drift.
+fn store_record(state: &AppState, mut rec: tuning::Record) {
+    {
+        let mut all = state.tuning.lock().unwrap();
+        if let Some(old) = all.iter_mut().find(|r| r.serial == rec.serial && r.target == rec.target) {
+            rec.prev = old.prev.clone();
+            rec.id = old.id.clone();
+            *old = rec;
+        } else {
+            all.push(rec);
+        }
+    }
+    persist_tuning(state);
+}
+
+async fn apply_steps(state: &AppState, a: &AdbRunner, serial: &str, steps: Vec<tuning::Step>) -> Vec<StepResult> {
+    let mut out = Vec::new();
+    for st in steps {
+        match tuning::apply(a, serial, &st.target, st.value, st.group, st.label, now_secs()).await {
+            Ok(rec) => {
+                store_record(state, rec);
+                out.push(StepResult { label: st.label.to_string(), ok: true, message: None });
+            }
+            Err(e) => out.push(StepResult { label: st.label.to_string(), ok: false, message: Some(e.to_string()) }),
+        }
+    }
+    out
+}
+
+/// Restricting background work of core packages could break calls, notifications or sync.
+fn may_restrict(pkg: &str) -> Result<(), String> {
+    match ratings().lookup(pkg) {
+        Some(r) if r.risk == "unsafe" || r.disable == ratings::Safety::Unsafe => {
+            Err("Rated unsafe: restricting it could break calls, notifications or sync.".to_string())
+        }
+        _ => Ok(()),
+    }
+}
+
+async fn restrict_one(state: &AppState, a: &AdbRunner, serial: &str, pkg: &str) -> StepResult {
+    let label = format!("Restrict background: {pkg}");
+    if !packages::valid_name(pkg) {
+        return StepResult { label, ok: false, message: Some("Not a valid package name.".into()) };
+    }
+    if let Err(m) = may_restrict(pkg) {
+        return StepResult { label, ok: false, message: Some(m) };
+    }
+    let mut ok = false;
+    let mut notes = Vec::new();
+    for (i, (target, value, step_label)) in tuning::background_steps(pkg).into_iter().enumerate() {
+        match tuning::apply(a, serial, &target, value, "background", step_label, now_secs()).await {
+            Ok(rec) => {
+                store_record(state, rec);
+                if i == 0 {
+                    ok = true;
+                }
+            }
+            // The standby bucket needs Android 9; the app-op alone is still useful.
+            Err(e) if i == 1 && ok => notes.push(format!("standby bucket not set ({e})")),
+            Err(e) => return StepResult { label, ok: false, message: Some(e.to_string()) },
+        }
+    }
+    StepResult { label, ok, message: (!notes.is_empty()).then(|| notes.join("; ")) }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct TuningInfo {
+    status: tuning::Status,
+    /// The 60 Hz cap only makes sense when the screen can go above 60 Hz.
+    refresh_supported: bool,
+    records: Vec<tuning::Record>,
+}
+
+#[tauri::command]
+async fn tuning_status(state: State<'_, AppState>, serial: String) -> Result<TuningInfo, String> {
+    let status = tuning::read_status(&adb(), &serial).await.map_err(|e| e.to_string())?;
+    let records = state.tuning.lock().unwrap().iter().filter(|r| r.serial == serial).cloned().collect();
+    Ok(TuningInfo { refresh_supported: status.max_fps.map_or(false, |f| f > 61.0), status, records })
+}
+
+/// Turn one of the quick toggles (`animations`, `battery_saver`, `refresh`) on or off.
+#[tauri::command]
+async fn tuning_toggle(state: State<'_, AppState>, serial: String, id: String, on: bool) -> Result<Vec<StepResult>, String> {
+    let a = adb();
+    let group = match id.as_str() {
+        "animations" | "battery_saver" | "refresh" => id.clone(),
+        _ => return Err("Unknown setting.".into()),
+    };
+    if on {
+        let steps = match id.as_str() {
+            "animations" => tuning::animation_steps(),
+            "battery_saver" => tuning::battery_saver_steps(),
+            _ => {
+                let st = tuning::read_status(&a, &serial).await.map_err(|e| e.to_string())?;
+                if !st.max_fps.map_or(false, |f| f > 61.0) {
+                    return Err("This screen has no refresh rate above 60 Hz, so there is nothing to cap.".into());
+                }
+                tuning::refresh_steps()
+            }
+        };
+        return Ok(apply_steps(&state, &a, &serial, steps).await);
+    }
+    Ok(undo_matching(&state, &a, &serial, Some(&group), None, None).await)
+}
+
+async fn undo_matching(
+    state: &AppState,
+    a: &AdbRunner,
+    serial: &str,
+    group: Option<&str>,
+    id: Option<&str>,
+    package: Option<&str>,
+) -> Vec<StepResult> {
+    let todo: Vec<tuning::Record> = state
+        .tuning
+        .lock()
+        .unwrap()
+        .iter()
+        .filter(|r| r.serial == serial)
+        .filter(|r| group.map_or(true, |g| r.group == g))
+        .filter(|r| id.map_or(true, |i| r.id == i))
+        .filter(|r| {
+            package.map_or(true, |p| match &r.target {
+                tuning::Target::AppOp { pkg, .. } | tuning::Target::Standby { pkg } => pkg == p,
+                _ => false,
+            })
+        })
+        .cloned()
+        .collect();
+    let mut out = Vec::new();
+    // Undo newest first, mirroring how the changes were made.
+    for r in todo.iter().rev() {
+        match tuning::undo(a, serial, r).await {
+            Ok(()) => {
+                state.tuning.lock().unwrap().retain(|x| x.id != r.id);
+                out.push(StepResult { label: format!("Undone: {}", r.label), ok: true, message: None });
+            }
+            Err(e) => out.push(StepResult { label: format!("Undo: {}", r.label), ok: false, message: Some(e.to_string()) }),
+        }
+    }
+    persist_tuning(state);
+    out
+}
+
+#[tauri::command]
+async fn tuning_undo(
+    state: State<'_, AppState>,
+    serial: String,
+    group: Option<String>,
+    id: Option<String>,
+    package: Option<String>,
+) -> Result<Vec<StepResult>, String> {
+    Ok(undo_matching(&state, &adb(), &serial, group.as_deref(), id.as_deref(), package.as_deref()).await)
+}
+
+#[tauri::command]
+async fn tuning_restrict(state: State<'_, AppState>, serial: String, names: Vec<String>, restrict: bool) -> Result<Vec<StepResult>, String> {
+    let a = adb();
+    let mut out = Vec::new();
+    for n in names {
+        if restrict {
+            out.push(restrict_one(&state, &a, &serial, &n).await);
+        } else {
+            if !packages::valid_name(&n) {
+                out.push(StepResult { label: format!("Allow background: {n}"), ok: false, message: Some("Not a valid package name.".into()) });
+                continue;
+            }
+            let mut r = undo_matching(&state, &a, &serial, Some("background"), None, Some(&n)).await;
+            if r.is_empty() {
+                r.push(StepResult { label: format!("Allow background: {n}"), ok: true, message: Some("It had no saved restriction from this app.".into()) });
+            }
+            out.extend(r);
+        }
+    }
+    Ok(out)
+}
+
+#[tauri::command]
+async fn tuning_trim_caches(serial: String) -> Result<(), String> {
+    tuning::trim_caches(&adb().with_timeout(Duration::from_secs(60)), &serial).await.map_err(|e| e.to_string())
+}
+
+/// The one-click cool-down: battery saver, calmer animations, 60 Hz when the screen allows more,
+/// and background restrictions (and optionally a stop) for the chosen apps. Every step is reversible.
+#[tauri::command]
+async fn tuning_cooldown(state: State<'_, AppState>, serial: String, apps: Vec<String>, stop: bool) -> Result<Vec<StepResult>, String> {
+    let a = adb();
+    let mut out = Vec::new();
+    out.extend(apply_steps(&state, &a, &serial, tuning::battery_saver_steps()).await);
+    out.extend(apply_steps(&state, &a, &serial, tuning::animation_steps()).await);
+    if let Ok(st) = tuning::read_status(&a, &serial).await {
+        if st.max_fps.map_or(false, |f| f > 61.0) {
+            out.extend(apply_steps(&state, &a, &serial, tuning::refresh_steps()).await);
+        }
+    }
+    for n in &apps {
+        out.push(restrict_one(&state, &a, &serial, n).await);
+    }
+    if stop {
+        for n in &apps {
+            let r = if may_restrict(n).is_ok() { packages::force_stop(&a, &serial, n).await.map_err(|e| e.to_string()) } else { Err("skipped (rated unsafe)".into()) };
+            out.push(StepResult { label: format!("Stop {n}"), ok: r.is_ok(), message: r.err() });
+        }
+    }
+    Ok(out)
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -652,6 +883,13 @@ fn main() {
         .setup(|app| {
             let data = app.path().app_data_dir().ok();
             *app.state::<AppState>().data_dir.lock().unwrap() = data.clone();
+            if let Some(f) = data.as_ref().map(|d| d.join("tuning.json")) {
+                if let Ok(t) = std::fs::read_to_string(f) {
+                    if let Ok(v) = serde_json::from_str(&t) {
+                        *app.state::<AppState>().tuning.lock().unwrap() = v;
+                    }
+                }
+            }
             // Optional user rating files: <app-data>/ratings/*.json override built-ins.
             let dir = data.as_ref().map(|d| d.join("ratings"));
             let _ = RATINGS.set(ratings::Ratings::load(dir.as_deref()));
@@ -679,7 +917,8 @@ fn main() {
             adb_check, wireless_discover, wireless_pair, wireless_connect, wireless_disconnect, wireless_usb_to_wireless,
             wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect,
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
-            history_load, history_save, device_info, health_sample])
+            history_load, history_save, device_info, health_sample,
+            tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown])
         .run(tauri::generate_context!())
         .expect("error while running ADB Manager");
 }
