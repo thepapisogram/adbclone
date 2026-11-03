@@ -1,0 +1,28 @@
+const { chromium } = require('playwright');
+const SHOT = process.argv[2];
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 800 } });
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto((process.env.BASE || 'http://localhost:4173'));
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  const guessed = await p.locator('tbody td .guess').count();
+  console.log('guessed names shown muted at first:', guessed > 5);
+  await p.waitForFunction(() => /Names: \d+ from the phone/.test(document.body.innerText), null, { timeout: 15000 });
+  console.log('status line:', (await p.getByRole('button', { name: /^Names:/ }).innerText()));
+  await p.waitForFunction(() => document.querySelectorAll('img.appicon').length > 20, null, { timeout: 15000 });
+  console.log('icons shown:', await p.locator('img.appicon').count() > 20);
+  console.log('only the unnamed app stays muted:', await p.locator('tbody td .guess').allTextContents());
+  await p.screenshot({ path: SHOT });
+  await p.getByRole('button', { name: /^Names:/ }).click();
+  const dlg = p.getByRole('dialog', { name: 'App names' });
+  console.log('panel summary:', (await dlg.locator('p').nth(1).innerText()).slice(0, 90));
+  console.log('unknown listed with reason:', (await dlg.getByLabel('Apps without a name').innerText()).replace(/\s+/g, ' '));
+  await dlg.getByRole('button', { name: 'Find names again' }).click();
+  await p.waitForFunction(() => !document.querySelector('.modal'));
+  await p.waitForFunction(() => /Names: \d+ from the phone/.test(document.body.innerText), null, { timeout: 15000 });
+  console.log('retry finished: true');
+  await p.getByRole('button', { name: 'Debloat' }).click();
+  await p.waitForFunction(() => document.querySelectorAll('.debloat img.appicon').length > 3, null, { timeout: 10000 });
+  console.log('icons in the wizard: true');
+  console.log('errors', errs); await b.close();
+})();

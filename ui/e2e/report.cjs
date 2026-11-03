@@ -1,0 +1,26 @@
+const { chromium } = require('playwright');
+const SHOT = process.argv[2];
+(async () => {
+  const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1150, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  const p = await ctx.newPage();
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto((process.env.BASE || 'http://localhost:4173'));
+  await p.waitForSelector('.devicecard');
+  await p.getByRole('button', { name: 'Save device report' }).click();
+  const dlg = p.getByRole('dialog', { name: 'Device report' });
+  console.log('shows collecting:', await dlg.getByText(/Collecting/).count() === 1);
+  await dlg.getByLabel('Report text').waitFor();
+  console.log('summary:', (await dlg.locator('p').nth(1).innerText()).slice(0, 50));
+  const text = await dlg.getByLabel('Report text').inputValue();
+  console.log('preview starts:', JSON.stringify(text.split('\n')[0]), '| sections shown:', (text.match(/^=== /gm) || []).length);
+  await p.screenshot({ path: SHOT });
+  await dlg.getByRole('button', { name: 'Copy' }).click();
+  await dlg.locator('.status').waitFor();
+  console.log('copy message:', await dlg.locator('.status').innerText());
+  console.log('clipboard matches:', (await p.evaluate(() => navigator.clipboard.readText())) === text);
+  const [dl] = await Promise.all([p.waitForEvent('download'), dlg.getByRole('button', { name: 'Save as file…' }).click()]);
+  console.log('download:', dl.suggestedFilename());
+  await dlg.getByRole('button', { name: 'Close' }).click();
+  console.log('closed:', await p.getByRole('dialog').count() === 0);
+  console.log('errors', errs); await b.close();
+})();
