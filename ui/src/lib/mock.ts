@@ -1,4 +1,4 @@
-import type { WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { RatingsOverview, ImportOut, UserRating, CommunityFile, WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const IMPACT: Record<string, string> = {
   "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
@@ -423,6 +423,27 @@ export const mock = {
     await delay(300);
     const apps = this_apps().map((a, i) => ({ package: a.name, appBytes: (40 + ((i * 53) % 400)) * 1_048_576, dataBytes: ((i * 37) % 300) * 1_048_576, cacheBytes: ((i * 71) % 180) * 1_048_576 }));
     return { available: true, apps: apps.sort((a, b) => b.appBytes + b.dataBytes + b.cacheBytes - (a.appBytes + a.dataBytes + a.cacheBytes)) };
+  },
+  ratings: {
+    community: [] as CommunityFile[],
+    user: [] as UserRating[],
+    async overview(): Promise<RatingsOverview> { return { community: [...this.community], user: [...this.user] }; },
+    async importJson(name: string, text: string): Promise<ImportOut> {
+      let v: unknown;
+      try { v = JSON.parse(text); } catch { throw "That is not a Coolant ratings file (expected a list of ratings)."; }
+      if (!Array.isArray(v)) throw "That is not a Coolant ratings file (expected a list of ratings).";
+      const ok = v.filter((e) => e && typeof e.id === "string" && /^[A-Za-z0-9._]+$/.test(e.id) && !e.prefix && ["recommended", "advanced", "unsafe"].includes(e.risk) && !["com.android.systemui", "android"].includes(e.id));
+      if (!ok.length) throw "No usable ratings were found in that file.";
+      const file = name.replace(/[^\w-]+/g, "_").replace(/_json$/, "") + ".json";
+      this.community = this.community.filter((c) => c.file !== file).concat({ file, entries: ok.length });
+      return { file, accepted: ok.length, skipped: v.length - ok.length };
+    },
+    async removeCommunity(file: string) { this.community = this.community.filter((c) => c.file !== file); },
+    async setUser(id: string, risk: string, desc: string) {
+      if (["android", "com.android.systemui", "com.android.phone"].includes(id)) throw "This package cannot be rated: it is a core system package, or the name is not valid.";
+      this.user = this.user.filter((u) => u.id !== id).concat({ id, risk: risk as UserRating["risk"], desc });
+    },
+    async removeUser(id: string) { this.user = this.user.filter((u) => u.id !== id); },
   },
   async wake(_serial: string): Promise<WakeReport> {
     await delay(300);

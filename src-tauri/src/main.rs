@@ -30,10 +30,20 @@ struct AppInfo {
     duplicate_of: Option<String>,
 }
 
-static RATINGS: OnceLock<ratings::Ratings> = OnceLock::new();
+/// The current ratings. Replaced (and the old set deliberately leaked, a few hundred KB each time) when the
+/// user imports or edits ratings, so already-running code keeps a valid `&'static` reference.
+static RATINGS: std::sync::RwLock<Option<&'static ratings::Ratings>> = std::sync::RwLock::new(None);
+
+fn set_ratings(r: ratings::Ratings) {
+    *RATINGS.write().unwrap() = Some(Box::leak(Box::new(r)));
+}
 
 fn ratings() -> &'static ratings::Ratings {
-    RATINGS.get_or_init(|| ratings::Ratings::load(None))
+    if let Some(r) = *RATINGS.read().unwrap() {
+        return r;
+    }
+    set_ratings(ratings::Ratings::load(None));
+    RATINGS.read().unwrap().unwrap()
 }
 
 #[derive(Default)]
@@ -1322,6 +1332,117 @@ async fn wake_report(serial: String) -> Result<WakeReport, String> {
     Ok(WakeReport { available: !locks.is_empty() || !data.wakeups.is_empty(), locks, wakeups: data.wakeups })
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CommunityFile {
+    file: String,
+    entries: usize,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RatingsOverview {
+    community: Vec<CommunityFile>,
+    user: Vec<ratings::UserRating>,
+}
+
+fn ratings_dir(state: &AppState) -> Result<std::path::PathBuf, String> {
+    data_subdir(state, "ratings")
+}
+
+fn safe_file_name(name: &str) -> bool {
+    !name.is_empty() && name.len() <= 100 && name.ends_with(".json") && name.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'))
+}
+
+fn overview(state: &AppState) -> Result<RatingsOverview, String> {
+    let dir = ratings_dir(state)?;
+    let mut community = Vec::new();
+    if let Ok(rd) = std::fs::read_dir(dir.join(ratings::COMMUNITY_DIR)) {
+        for f in rd.flatten() {
+            let name = f.file_name().to_string_lossy().to_string();
+            if safe_file_name(&name) {
+                let n = std::fs::read_to_string(f.path()).ok().and_then(|t| serde_json::from_str::<Vec<serde_json::Value>>(&t).ok()).map_or(0, |v| v.len());
+                community.push(CommunityFile { file: name, entries: n });
+            }
+        }
+    }
+    community.sort_by(|a, b| a.file.cmp(&b.file));
+    Ok(RatingsOverview { community, user: ratings::read_user_ratings(&dir) })
+}
+
+fn reload_ratings(state: &AppState) {
+    set_ratings(ratings::Ratings::load(ratings_dir(state).ok().as_deref()));
+}
+
+#[tauri::command]
+fn ratings_overview(state: State<'_, AppState>) -> Result<RatingsOverview, String> {
+    overview(&state)
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ImportOut {
+    file: String,
+    accepted: usize,
+    skipped: usize,
+}
+
+#[tauri::command]
+fn ratings_import(state: State<'_, AppState>, path: String) -> Result<ImportOut, String> {
+    let meta = std::fs::metadata(&path).map_err(|e| format!("Could not open the file: {e}"))?;
+    if meta.len() > 2_000_000 {
+        return Err("That file is too large to be a ratings file.".into());
+    }
+    let text = std::fs::read_to_string(&path).map_err(|e| format!("Could not read the file: {e}"))?;
+    let (clean, accepted, skipped) = ratings::clean_community(&text)?;
+    let stem: String = std::path::Path::new(&path)
+        .file_stem()
+        .map(|s| s.to_string_lossy().chars().filter(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-')).take(60).collect())
+        .unwrap_or_default();
+    let file = format!("{}.json", if stem.is_empty() { "shared".to_string() } else { stem });
+    let dir = ratings_dir(&state)?.join(ratings::COMMUNITY_DIR);
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    std::fs::write(dir.join(&file), clean).map_err(|e| format!("Could not save the ratings: {e}"))?;
+    reload_ratings(&state);
+    Ok(ImportOut { file, accepted, skipped })
+}
+
+#[tauri::command]
+fn ratings_community_remove(state: State<'_, AppState>, file: String) -> Result<(), String> {
+    if !safe_file_name(&file) {
+        return Err("Not a valid file name.".into());
+    }
+    let _ = std::fs::remove_file(ratings_dir(&state)?.join(ratings::COMMUNITY_DIR).join(&file));
+    reload_ratings(&state);
+    Ok(())
+}
+
+#[tauri::command]
+fn ratings_user_set(state: State<'_, AppState>, package: String, risk: String, desc: String) -> Result<(), String> {
+    ratings::set_user_rating(&ratings_dir(&state)?, &package, &risk, &desc)?;
+    reload_ratings(&state);
+    Ok(())
+}
+
+#[tauri::command]
+fn ratings_user_remove(state: State<'_, AppState>, package: String) -> Result<(), String> {
+    ratings::remove_user_rating(&ratings_dir(&state)?, &package)?;
+    reload_ratings(&state);
+    Ok(())
+}
+
+/// Write the user's own ratings to a file they can share.
+#[tauri::command]
+fn ratings_user_export(state: State<'_, AppState>, path: String) -> Result<usize, String> {
+    let src = ratings_dir(&state)?.join(ratings::USER_FILE);
+    let list = ratings::read_user_ratings(&ratings_dir(&state)?);
+    if list.is_empty() {
+        return Err("You have not rated any apps yet.".into());
+    }
+    std::fs::copy(&src, &path).map_err(|e| format!("Could not write {path}: {e}"))?;
+    Ok(list.len())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1343,7 +1464,7 @@ fn main() {
             }
             // Optional user rating files: <app-data>/ratings/*.json override built-ins.
             let dir = data.as_ref().map(|d| d.join("ratings"));
-            let _ = RATINGS.set(ratings::Ratings::load(dir.as_deref()));
+            set_ratings(ratings::Ratings::load(dir.as_deref()));
             // Persistent label cache.
             if let Some(d) = data {
                 let file = d.join("labels.json");
@@ -1372,7 +1493,8 @@ fn main() {
             tuning_status, tuning_toggle, tuning_animations, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
             install_inspect, install_item, install_discard, backup_one,
-            storage_report, usage_report, wake_report])
+            storage_report, usage_report, wake_report,
+            ratings_overview, ratings_import, ratings_community_remove, ratings_user_set, ratings_user_remove, ratings_user_export])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

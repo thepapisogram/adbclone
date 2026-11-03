@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { ipc } from "../../lib/ipc";
+import { SAFE_MODE, RESCUE_NOTE, latestSnapshot } from "./rescue";
 import type { PlanResponse, RestoreResponse, SnapshotMeta } from "../../lib/types";
 
 const errText = (e: unknown) => String(e instanceof Error ? e.message : e);
@@ -21,6 +22,7 @@ export function Snapshots({ serial, version, onRestored }: Props) {
   const [restoring, setRestoring] = useState<SnapshotMeta | null>(null);
   const [confirmDelete, setConfirmDelete] = useState("");
 
+  const latest = latestSnapshot(list);
   const load = useCallback(() => ipc.snapshots.list().then(setList).catch((e) => setMsg({ kind: "error", text: errText(e) })), []);
   useEffect(() => { load(); }, [load, version]);
 
@@ -52,6 +54,22 @@ export function Snapshots({ serial, version, onRestored }: Props) {
         <button disabled={busy} onClick={doImport}>Import file…</button>
       </div>
       {msg && <div className={`status ${msg.kind}`} role={msg.kind === "error" ? "alert" : "status"} style={{ margin: "8px 14px" }}>{msg.text}</div>}
+      <details className="rescue" aria-label="Rescue mode">
+        <summary><b>Phone acting up after removing apps? Rescue mode</b></summary>
+        <ol>
+          <li>
+            <b>Put it back:</b>{" "}
+            {latest ? <>the newest snapshot is "{latest.name}" ({when(latest.created)}).{" "}
+              <button className="primary" disabled={!serial || busy} onClick={() => setRestoring(latest)}>Restore it…</button>
+              {!serial && <span className="muted small"> Connect the phone first.</span>}</>
+              : <span className="muted">no snapshot exists yet.</span>}
+          </li>
+          <li><b>If the phone is unusable or keeps restarting</b>, Safe Mode switches off apps you installed. Then connect it and restore as above.
+            {SAFE_MODE.map((s) => (<div key={s.maker} className="saferow"><b>{s.maker}</b><ol>{s.steps.map((t, i) => <li key={i}>{t}</li>)}</ol></div>))}
+          </li>
+          <li className="muted small">{RESCUE_NOTE}</li>
+        </ol>
+      </details>
       <p className="note top">
         A snapshot records which apps are enabled, disabled or uninstalled. The app takes one automatically before every disable or uninstall batch
         (the newest 20 are kept), so you can always go back. Restoring never touches apps that are not in the snapshot.

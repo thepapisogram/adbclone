@@ -1,4 +1,4 @@
-import type { WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { RatingsOverview, ImportOut, WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -63,6 +63,42 @@ export const ipc = {
       inTauri ? call("wireless_reconnect", { address }) : mock.wireless.reconnect(address),
   },
 
+  ratings: {
+    overview: (): Promise<RatingsOverview> => (inTauri ? call("ratings_overview") : mock.ratings.overview()),
+    /** Asks for a ratings file. Resolves null if cancelled. */
+    import: async (): Promise<ImportOut | null> => {
+      if (inTauri) {
+        const { open } = await import("@tauri-apps/plugin-dialog");
+        const path = await open({ multiple: false, filters: [{ name: "Ratings", extensions: ["json"] }] });
+        if (!path || Array.isArray(path)) return null;
+        return call("ratings_import", { path });
+      }
+      const file = await new Promise<File | null>((res) => {
+        const i = Object.assign(document.createElement("input"), { type: "file", accept: ".json" });
+        i.onchange = () => res(i.files?.[0] ?? null);
+        i.click();
+      });
+      return file ? mock.ratings.importJson(file.name, await file.text()) : null;
+    },
+    removeCommunity: (file: string): Promise<void> => (inTauri ? call("ratings_community_remove", { file }) : mock.ratings.removeCommunity(file)),
+    setUser: (pkg: string, risk: string, desc: string): Promise<void> => (inTauri ? call("ratings_user_set", { package: pkg, risk, desc }) : mock.ratings.setUser(pkg, risk, desc)),
+    removeUser: (pkg: string): Promise<void> => (inTauri ? call("ratings_user_remove", { package: pkg }) : mock.ratings.removeUser(pkg)),
+    /** Saves your own ratings as a file to share. Resolves the count, or null if cancelled. */
+    exportUser: async (): Promise<number | null> => {
+      if (inTauri) {
+        const { save } = await import("@tauri-apps/plugin-dialog");
+        const path = await save({ defaultPath: "my-coolant-ratings.json", filters: [{ name: "Ratings", extensions: ["json"] }] });
+        if (!path) return null;
+        return call("ratings_user_export", { path });
+      }
+      const o = await mock.ratings.overview();
+      if (!o.user.length) throw "You have not rated any apps yet.";
+      const url = URL.createObjectURL(new Blob([JSON.stringify(o.user)], { type: "application/json" }));
+      Object.assign(document.createElement("a"), { href: url, download: "my-coolant-ratings.json" }).click();
+      URL.revokeObjectURL(url);
+      return o.user.length;
+    },
+  },
   snapshots: {
     create: (serial: string, name: string, auto: boolean): Promise<SnapshotMeta> =>
       inTauri ? call("snapshot_create", { serial, name, auto }) : mock.snapshots.create(serial, name, auto),

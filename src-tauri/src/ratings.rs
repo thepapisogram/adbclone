@@ -111,6 +111,107 @@ const EMBEDDED: &[&str] = &[
     include_str!("../data/ratings/transsion.json"),
 ];
 
+/// Sub-folder of the ratings folder that holds imported files.
+pub const COMMUNITY_DIR: &str = "community";
+pub const USER_FILE: &str = "user.json";
+
+fn id_ok(id: &str) -> bool {
+    !id.is_empty() && id.len() <= 128 && id.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_') && !CORE_BLOCKLIST.contains(&id)
+}
+
+fn one_line(s: &str, max: usize) -> String {
+    s.chars().filter(|c| !c.is_control()).take(max).collect::<String>().trim().to_string()
+}
+
+/// Make a file someone else shared safe to use. Returns the cleaned JSON, how many entries were kept and how many dropped.
+/// Shared advice is never trusted more than "advanced": nothing becomes pre-ticked, "recommended" is
+/// downgraded, family (prefix) rules and core system packages are dropped, and confidence is always low.
+pub fn clean_community(json: &str) -> Result<(String, usize, usize), String> {
+    let entries: Vec<Entry> = serde_json::from_str(json).map_err(|_| "That is not a Coolant ratings file (expected a list of ratings).".to_string())?;
+    if entries.len() > 5000 {
+        return Err("That file has too many entries to be a ratings file.".into());
+    }
+    let total = entries.len();
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    for e in entries {
+        if e.prefix || !id_ok(&e.id) || !seen.insert(e.id.clone()) {
+            continue;
+        }
+        let unsafe_ = match e.risk.as_str() {
+            "unsafe" => true,
+            "recommended" | "advanced" => false,
+            _ => continue,
+        };
+        let desc = one_line(&e.desc, 160);
+        let impact = e.impact.as_deref().map(|i| one_line(i, 160)).filter(|i| i.len() >= 15).unwrap_or_else(|| "Shared by another person; Coolant has not checked it.".into());
+        out.push(serde_json::json!({
+            "id": e.id,
+            "risk": if unsafe_ { "unsafe" } else { "advanced" },
+            "tier": if unsafe_ { serde_json::Value::Null } else { "aggressive".into() },
+            "category": "other",
+            "confidence": "low",
+            "desc": format!("Shared rating: {desc}"),
+            "impact": impact,
+        }));
+    }
+    if out.is_empty() {
+        return Err("No usable ratings were found in that file.".into());
+    }
+    let kept = out.len();
+    Ok((serde_json::to_string_pretty(&out).map_err(|e| e.to_string())?, kept, total - kept))
+}
+
+#[derive(Clone, Debug, serde::Serialize, Deserialize, PartialEq, Eq)]
+pub struct UserRating {
+    pub id: String,
+    pub risk: String,
+    #[serde(default)]
+    pub desc: String,
+}
+
+pub fn read_user_ratings(dir: &Path) -> Vec<UserRating> {
+    std::fs::read_to_string(dir.join(USER_FILE)).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default()
+}
+
+fn write_user_ratings(dir: &Path, list: &[UserRating]) -> Result<(), String> {
+    std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    // The file doubles as a loadable ratings file, so write the fields the loader expects.
+    let json: Vec<_> = list
+        .iter()
+        .map(|r| {
+            serde_json::json!({
+                "id": r.id, "risk": r.risk, "desc": r.desc, "category": "other", "confidence": "medium",
+                "tier": match r.risk.as_str() { "recommended" => "safe", "advanced" => "balanced", _ => "" },
+                "impact": if r.desc.len() >= 15 { r.desc.clone() } else { "Rated by you.".to_string() },
+            })
+        })
+        .collect();
+    let tmp = dir.join("user.json.tmp");
+    std::fs::write(&tmp, serde_json::to_string_pretty(&json).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    std::fs::rename(&tmp, dir.join(USER_FILE)).map_err(|e| e.to_string())
+}
+
+pub fn set_user_rating(dir: &Path, id: &str, risk: &str, desc: &str) -> Result<(), String> {
+    if !id_ok(id) {
+        return Err("This package cannot be rated: it is a core system package, or the name is not valid.".into());
+    }
+    if !["recommended", "advanced", "unsafe"].contains(&risk) {
+        return Err("Unknown rating.".into());
+    }
+    let mut list = read_user_ratings(dir);
+    list.retain(|r| r.id != id);
+    list.push(UserRating { id: id.to_string(), risk: risk.to_string(), desc: one_line(desc, 160) });
+    list.sort_by(|a, b| a.id.cmp(&b.id));
+    write_user_ratings(dir, &list)
+}
+
+pub fn remove_user_rating(dir: &Path, id: &str) -> Result<(), String> {
+    let mut list = read_user_ratings(dir);
+    list.retain(|r| r.id != id);
+    write_user_ratings(dir, &list)
+}
+
 #[derive(Default)]
 pub struct Ratings {
     exact: HashMap<String, Rating>,
@@ -161,10 +262,18 @@ fn build(e: Entry) -> Option<(String, bool, Rating)> {
 
 impl Ratings {
     fn add_json(&mut self, json: &str) -> Result<usize, serde_json::Error> {
+        self.add_json_with(json, true)
+    }
+
+    /// With `overwrite` false, anything already rated is left exactly as it was.
+    fn add_json_with(&mut self, json: &str, overwrite: bool) -> Result<usize, serde_json::Error> {
         let entries: Vec<Entry> = serde_json::from_str(json)?;
         let mut n = 0;
         for e in entries {
             if let Some((id, prefix, r)) = build(e) {
+                if !overwrite && (if prefix { self.prefixes.iter().any(|(p, _)| p == &id) } else { self.exact.contains_key(&id) }) {
+                    continue;
+                }
                 if prefix {
                     self.prefixes.retain(|(p, _)| p != &id);
                     self.prefixes.push((id, r));
@@ -184,6 +293,16 @@ impl Ratings {
             r.add_json(json).expect("embedded ratings must be valid");
         }
         if let Some(dir) = user_dir {
+            // Shared files come first and can only add: they never change a built-in rating.
+            if let Ok(rd) = std::fs::read_dir(dir.join(COMMUNITY_DIR)) {
+                for f in rd.flatten() {
+                    if f.path().extension().and_then(|e| e.to_str()) == Some("json") {
+                        if let Ok(text) = std::fs::read_to_string(f.path()) {
+                            let _ = r.add_json_with(&text, false);
+                        }
+                    }
+                }
+            }
             if let Ok(rd) = std::fs::read_dir(dir) {
                 for f in rd.flatten() {
                     if f.path().extension().and_then(|e| e.to_str()) == Some("json") {
@@ -234,6 +353,52 @@ impl Ratings {
 mod tests {
     use super::*;
     use std::collections::HashSet;
+
+    #[test]
+    fn shared_files_are_sanitised() {
+        let raw = r#"[
+          {"id":"com.ok.app","risk":"recommended","tier":"safe","confidence":"high","desc":"junk\u0007 app","impact":"Nothing you would miss at all."},
+          {"id":"com.deadly","risk":"unsafe","desc":"keep"},
+          {"id":"com.android.systemui","risk":"recommended"},
+          {"id":"com.fam.","prefix":true,"risk":"recommended"},
+          {"id":"bad id!","risk":"advanced"},
+          {"id":"com.weird","risk":"fantastic"},
+          {"id":"com.ok.app","risk":"advanced"}
+        ]"#;
+        let (clean, kept, dropped) = clean_community(raw).unwrap();
+        assert_eq!((kept, dropped), (2, 5));
+        let v: Vec<serde_json::Value> = serde_json::from_str(&clean).unwrap();
+        assert_eq!(v[0]["risk"], "advanced", "recommended is downgraded");
+        assert_eq!(v[0]["tier"], "aggressive");
+        assert_eq!(v[0]["confidence"], "low");
+        assert!(v[0]["desc"].as_str().unwrap().starts_with("Shared rating: "));
+        assert!(!v[0]["desc"].as_str().unwrap().contains('\u{7}'));
+        assert_eq!(v[1]["risk"], "unsafe");
+        assert!(clean_community("not json").is_err());
+        assert!(clean_community("[]").is_err());
+    }
+
+    #[test]
+    fn shared_ratings_never_override_built_in_or_gain_trust() {
+        let dir = std::env::temp_dir().join(format!("coolant-ratings-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join(COMMUNITY_DIR)).unwrap();
+        let raw = r#"[{"id":"com.facebook.appmanager","risk":"unsafe","desc":"lies"},{"id":"com.new.thing","risk":"recommended","desc":"x"}]"#;
+        std::fs::write(dir.join(COMMUNITY_DIR).join("a.json"), clean_community(raw).unwrap().0).unwrap();
+        let r = Ratings::load(Some(&dir));
+        let built_in = Ratings::load(None).lookup("com.facebook.appmanager").unwrap();
+        let got = r.lookup("com.facebook.appmanager").unwrap();
+        assert_eq!((got.risk, got.tier, got.desc.as_str()), (built_in.risk, built_in.tier, built_in.desc.as_str()));
+        let new = r.lookup("com.new.thing").unwrap();
+        assert_eq!((new.risk, new.tier, new.confidence), ("advanced", "aggressive", "low"));
+        // The user's own rating does override.
+        set_user_rating(&dir, "com.facebook.appmanager", "advanced", "I use this one").unwrap();
+        assert_eq!(Ratings::load(Some(&dir)).lookup("com.facebook.appmanager").unwrap().risk, "advanced");
+        assert!(set_user_rating(&dir, "com.android.systemui", "recommended", "").is_err());
+        remove_user_rating(&dir, "com.facebook.appmanager").unwrap();
+        assert!(read_user_ratings(&dir).is_empty());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     #[test]
     fn embedded_lists_are_valid_and_unique() {

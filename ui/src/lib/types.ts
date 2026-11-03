@@ -145,3 +145,8 @@ export interface UsageReport { available: boolean; entries: Usage[] }
 export interface WakeLockRow { package?: string | null; uid: number; kind: string; tag: string; heldSecs?: number | null }
 export interface Wakeups { package: string; wakeups: number; alarms: number }
 export interface WakeReport { available: boolean; locks: WakeLockRow[]; wakeups: Wakeups[] }
+
+export interface CommunityFile { file: string; entries: number }
+export interface UserRating { id: string; risk: "recommended" | "advanced" | "unsafe"; desc: string }
+export interface RatingsOverview { community: CommunityFile[]; user: UserRating[] }
+export interface ImportOut { file: string; accepted: number; skipped: number }
