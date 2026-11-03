@@ -42,6 +42,11 @@ elif args[:1] == ["exec-out"] and len(args) > 1 and args[1].startswith("CLASSPAT
         if mode == "icons" and wanted and '"p":"' in l and not any(f'"p":"{w}"' in l for w in wanted):
             continue
         print(l)
+elif args[-3:] == ["exec-out", "screencap", "-p"]:
+    p = os.path.join(d, "screen.png")
+    if not os.path.exists(p):
+        sys.stdout.write("Error: no display\n"); sys.exit(0)
+    sys.stdout.buffer.write(open(p, "rb").read())
 elif args[:1] == ["version"]:
     print("Android Debug Bridge version 1.0.41\nVersion 34.0.4-10411341\nInstalled as /fake/adb")
 elif args[:1] == ["pair"]:

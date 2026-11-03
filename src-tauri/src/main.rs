@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{storage, wakelocks, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{storage, wakelocks, mirror, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1443,6 +1443,34 @@ fn ratings_user_export(state: State<'_, AppState>, path: String) -> Result<usize
     Ok(list.len())
 }
 
+/// Save a screenshot of the phone's screen to `path` (a .png the user chose).
+#[tauri::command]
+async fn screenshot_save(serial: String, path: String) -> Result<usize, String> {
+    if !path.to_lowercase().ends_with(".png") {
+        return Err("Choose a file name ending in .png.".into());
+    }
+    let bytes = mirror::screenshot(&adb(), &serial).await.map_err(|e| e.to_string())?;
+    std::fs::write(&path, &bytes).map_err(|e| format!("Could not write {path}: {e}"))?;
+    Ok(bytes.len())
+}
+
+fn scrcpy_path() -> Option<std::path::PathBuf> {
+    mirror::find_scrcpy(APP_DATA.get().map(|p| p.as_path()), std::env::current_exe().ok().as_deref().and_then(|p| p.parent()), std::env::var_os("PATH").as_deref(), cfg!(windows))
+}
+
+#[tauri::command]
+fn mirror_available() -> bool {
+    scrcpy_path().is_some()
+}
+
+/// Open the phone's screen in scrcpy (installed separately).
+#[tauri::command]
+fn mirror_start(serial: String) -> Result<(), String> {
+    let scrcpy = scrcpy_path().ok_or("scrcpy was not found. Install it (free, from github.com/Genymobile/scrcpy), put it on your PATH or next to this app, then try again.")?;
+    let adb_path = find_adb().map(|f| f.path).unwrap_or_else(|| std::path::PathBuf::from(platform_tools::adb_file_name(platform_tools::current_os())));
+    mirror::start_scrcpy(&scrcpy, &adb_path, &serial).map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1494,6 +1522,7 @@ fn main() {
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
             install_inspect, install_item, install_discard, backup_one,
             storage_report, usage_report, wake_report,
+            screenshot_save, mirror_available, mirror_start,
             ratings_overview, ratings_import, ratings_community_remove, ratings_user_set, ratings_user_remove, ratings_user_export])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");

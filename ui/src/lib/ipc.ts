@@ -63,6 +63,19 @@ export const ipc = {
       inTauri ? call("wireless_reconnect", { address }) : mock.wireless.reconnect(address),
   },
 
+  /** Asks where to save, then saves a screenshot of the phone. Resolves the path, or null if cancelled. */
+  screenshot: async (serial: string): Promise<string | null> => {
+    if (inTauri) {
+      const { save } = await import("@tauri-apps/plugin-dialog");
+      const path = await save({ defaultPath: `screenshot-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`, filters: [{ name: "Image", extensions: ["png"] }] });
+      if (!path) return null;
+      await call("screenshot_save", { serial, path });
+      return path;
+    }
+    return mock.screenshot(serial);
+  },
+  mirrorAvailable: (): Promise<boolean> => (inTauri ? call("mirror_available") : mock.mirrorAvailable()),
+  mirror: (serial: string): Promise<void> => (inTauri ? call("mirror_start", { serial }) : mock.mirror(serial)),
   ratings: {
     overview: (): Promise<RatingsOverview> => (inTauri ? call("ratings_overview") : mock.ratings.overview()),
     /** Asks for a ratings file. Resolves null if cancelled. */

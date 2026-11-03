@@ -8,6 +8,7 @@ pub mod health;
 pub mod install;
 pub mod labels;
 pub mod log;
+pub mod mirror;
 pub mod packages;
 pub mod platform_tools;
 pub mod processes;

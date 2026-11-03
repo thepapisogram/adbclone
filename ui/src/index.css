@@ -155,3 +155,6 @@ table.storagetable { width: 100%; margin-top: 8px; } table.storagetable td, tabl
 
 details.rescue { margin: 8px 14px; padding: 8px 12px; border: 1px solid var(--border, #8884); border-radius: 8px; }
 details.rescue .saferow { margin: 6px 0 6px 4px; }
+
+fieldset.alsoon { margin: 10px 0; padding: 8px 12px; border: 1px solid var(--border, #8884); border-radius: 8px; display: flex; flex-direction: column; gap: 4px; }
+.phonecard { cursor: default; }

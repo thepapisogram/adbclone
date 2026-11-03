@@ -89,6 +89,9 @@ function planFor(m: MockSnap): PlanResponse["plan"] {
 }
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 
+/** For tests: a second ready phone appears when this browser flag is set. */
+const second = () => { try { return localStorage.getItem("coolant.mock.second") === "1"; } catch { return false; } };
+
 export const mock = {
   async listDevices(): Promise<Device[]> {
     await delay(100);
@@ -96,6 +99,7 @@ export const mock = {
       { serial: "R58M123ABC", state: "device", model: "Pixel 7 (mock)" },
       { serial: "192.168.1.30:5555", state: "unauthorized", model: null },
       ...[...wifi].map((serial) => ({ serial, state: "device", model: "Pixel 7 (mock, Wi-Fi)" })),
+      ...(second() ? [{ serial: "R99SECOND", state: "device", model: "Galaxy S23 (mock)" }] : []),
     ];
   },
   async listApps(_serial: string): Promise<AppInfo[]> {
@@ -424,6 +428,17 @@ export const mock = {
     const apps = this_apps().map((a, i) => ({ package: a.name, appBytes: (40 + ((i * 53) % 400)) * 1_048_576, dataBytes: ((i * 37) % 300) * 1_048_576, cacheBytes: ((i * 71) % 180) * 1_048_576 }));
     return { available: true, apps: apps.sort((a, b) => b.appBytes + b.dataBytes + b.cacheBytes - (a.appBytes + a.dataBytes + a.cacheBytes)) };
   },
+  async screenshot(_serial: string): Promise<string> {
+    await delay(300);
+    const c = Object.assign(document.createElement("canvas"), { width: 270, height: 480 });
+    const g = c.getContext("2d");
+    if (g) { g.fillStyle = "#1e3a8a"; g.fillRect(0, 0, 270, 480); g.fillStyle = "#fff"; g.fillText("mock screenshot", 80, 240); }
+    const a = Object.assign(document.createElement("a"), { href: c.toDataURL("image/png"), download: "screenshot.png" });
+    a.click();
+    return "screenshot.png";
+  },
+  async mirrorAvailable(): Promise<boolean> { return true; },
+  async mirror(serial: string): Promise<void> { await delay(300); if (serial === "NOSCRCPY") throw "scrcpy was not found."; },
   ratings: {
     community: [] as CommunityFile[],
     user: [] as UserRating[],

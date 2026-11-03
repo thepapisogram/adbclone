@@ -104,6 +104,22 @@ impl AdbRunner {
     }
 }
 
+/// Start a long-running program (a window of its own) without waiting for it and without a console window.
+pub fn spawn_detached(program: &std::path::Path, args: &[String], envs: &[(&str, &std::ffi::OsStr)]) -> std::io::Result<()> {
+    let mut cmd = Command::new(program);
+    cmd.args(args).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null()).stderr(std::process::Stdio::null());
+    for (k, v) in envs {
+        cmd.env(k, v);
+    }
+    quiet(&mut cmd);
+    let mut child = cmd.spawn()?;
+    // Reap it when it exits so it does not linger as a zombie process.
+    tokio::spawn(async move {
+        let _ = child.wait().await;
+    });
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -24,6 +24,8 @@ import { AdbSetup } from "./features/setup/AdbSetup";
 import { Guide } from "./features/guide/Guide";
 import { Storage } from "./features/storage/Storage";
 import { Wake } from "./features/wake/Wake";
+import { Phones } from "./features/phones/Phones";
+import { appliesTo, otherReady, repeatable } from "./lib/multi";
 import { Ratings } from "./features/ratings/Ratings";
 import { InstallAndBackup } from "./features/install/Install";
 import { DeviceCard } from "./features/deviceinfo/DeviceCard";
@@ -52,7 +54,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
-  const [tab, setTab] = useState<"apps" | "running" | "health" | "debloat" | "tune" | "install" | "storage" | "wake" | "ratings" | "snapshots" | "logs">("apps");
+  const [tab, setTab] = useState<"apps" | "running" | "health" | "debloat" | "tune" | "install" | "storage" | "wake" | "phones" | "ratings" | "snapshots" | "logs">("apps");
   const [snapVersion, setSnapVersion] = useState(0);
   const [notice, setNotice] = useState("");
   const historyReady = useRef(false);
@@ -193,6 +195,29 @@ export default function App() {
   const selectedApps = apps.filter((a) => selected.has(a.name));
   const unsafeCount = (names: string[]) => apps.filter((a) => names.includes(a.name) && a.risk === "unsafe").length;
 
+  const [alsoOn, setAlsoOn] = useState<Set<string>>(new Set());
+  useEffect(() => { setAlsoOn(new Set()); }, [pending]);
+
+  /** Repeat the same action on other phones the user ticked, each with its own safety snapshot. */
+  async function runOthers(action: Action, names: string[]): Promise<string[]> {
+    const notes: string[] = [];
+    for (const s2 of alsoOn) {
+      const label = devices.find((d) => d.serial === s2)?.model ?? s2;
+      try {
+        const theirs = await ipc.listApps(s2);
+        const { names: todo, skipped } = appliesTo(action, names, theirs);
+        if (!todo.length) { notes.push(`${label}: nothing to do (${skipped} not applicable)`); continue; }
+        if (action === "disable" || action === "uninstall") await ipc.snapshots.create(s2, `Before ${action} of ${todo.length} app${todo.length > 1 ? "s" : ""}`, true);
+        const results = await ipc.applyAction(s2, action, todo);
+        const time = new Date().toLocaleTimeString();
+        setLog((l) => [...results.map((r) => ({ time, serial: s2, action, name: r.name, ok: r.ok, message: r.message, prev: theirs.find((a) => a.name === r.name)?.state ?? "enabled" })), ...l]);
+        const bad = results.filter((r) => !r.ok).length;
+        notes.push(`${label}: ${results.length - bad} done${bad ? `, ${bad} failed` : ""}${skipped ? `, ${skipped} not applicable` : ""}`);
+      } catch (e) { notes.push(`${label}: not changed (${String(e)})`); }
+    }
+    return notes;
+  }
+
   async function run(action: Action, names: string[]) {
     setBusy(true);
     if ((action === "disable" || action === "uninstall") && names.length > 0) {
@@ -213,6 +238,7 @@ export default function App() {
       const time = new Date().toLocaleTimeString();
       setLog((l) => [...results.map((r) => ({ time, serial, action, name: r.name, ok: r.ok, message: r.message, prev: prevs.get(r.name) ?? "enabled" })), ...l]);
       await loadApps(serial);
+      if (alsoOn.size > 0 && repeatable(action)) setNotice(`Also on other phones: ${(await runOthers(action, names)).join("; ")}`);
     } catch (e) { setError(String(e)); }
     finally { setBusy(false); setPending(null); }
   }
@@ -239,6 +265,7 @@ export default function App() {
           <button className={tab === "install" ? "active" : ""} onClick={() => setTab("install")}>Install</button>
           <button className={tab === "storage" ? "active" : ""} onClick={() => setTab("storage")}>Storage</button>
           <button className={tab === "ratings" ? "active" : ""} onClick={() => setTab("ratings")}>Ratings</button>
+          <button className={tab === "phones" ? "active" : ""} onClick={() => setTab("phones")}>Phones{devices.length > 1 ? ` (${devices.length})` : ""}</button>
           <button className={tab === "wake" ? "active" : ""} onClick={() => setTab("wake")}>Wake-ups</button>
           <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>Snapshots</button>
           <button className={tab === "logs" ? "active" : ""} onClick={() => setTab("logs")}>Logs</button>
@@ -283,6 +310,8 @@ export default function App() {
       {tab === "storage" && <Storage serial={serial} apps={apps} protections={protections.map} busy={busy} active onRequest={(action, names) => setPending({ action, names })} />}
 
       {tab === "ratings" && <Ratings apps={apps} onChanged={() => loadApps(serial)} />}
+
+      {tab === "phones" && <Phones devices={devices} serial={serial} active onUse={(s) => { setSerial(s); setTab("apps"); }} />}
 
       {tab === "wake" && <Wake serial={serial} apps={apps} active />}
 
@@ -419,6 +448,15 @@ export default function App() {
               })}
               {pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}
             </ul>
+            {repeatable(pending.action) && otherReady(devices, serial).length > 0 && (
+              <fieldset className="alsoon">
+                <legend>Also do this on</legend>
+                {otherReady(devices, serial).map((d) => (
+                  <label key={d.serial} className="inline"><input type="checkbox" checked={alsoOn.has(d.serial)} disabled={busy} onChange={(e) => setAlsoOn((s) => { const n = new Set(s); e.target.checked ? n.add(d.serial) : n.delete(d.serial); return n; })} /> {d.model ?? d.serial}</label>
+                ))}
+                <div className="muted small">Only apps that phone also has are changed; each phone saves its own safety snapshot first.</div>
+              </fieldset>
+            )}
             <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : pending.action === "stop" ? "Stops the app now; it may restart on its own." : "Reversible from the History panel."}</p>
             <div className="modal-actions">
               <button onClick={() => setPending(null)} disabled={busy}>Cancel</button>

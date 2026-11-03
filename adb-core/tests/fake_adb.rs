@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{storage, wakelocks, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{mirror, storage, wakelocks, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -565,4 +565,16 @@ async fn wake_locks_and_wakeups_come_from_the_phone() {
     fs::write(d.join("wake.txt"), "@@POWER\nSecurityException\n@@ALARM\n").unwrap();
     let w = wakelocks::read(&adb, "SER").await.unwrap();
     assert!(w.locks.is_empty() && w.wakeups.is_empty());
+}
+
+#[tokio::test]
+async fn screenshot_returns_a_png_or_a_clear_error() {
+    let (adb, d) = setup("shot", false);
+    let mut png = vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+    png.extend(std::iter::repeat(7u8).take(300));
+    fs::write(d.join("screen.png"), &png).unwrap();
+    assert_eq!(mirror::screenshot(&adb, "SER").await.unwrap(), png);
+    fs::remove_file(d.join("screen.png")).unwrap();
+    let e = mirror::screenshot(&adb, "SER").await.unwrap_err().to_string();
+    assert!(e.contains("did not return a picture"), "{e}");
 }
