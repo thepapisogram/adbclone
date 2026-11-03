@@ -1084,7 +1084,16 @@ struct ReportOut {
 
 #[tauri::command]
 async fn device_report(serial: String) -> Result<ReportOut, String> {
-    let sections = report::collect(&adb(), &serial).await;
+    let a = adb();
+    let mut sections = report::collect(&a, &serial).await;
+    // Which preinstalled apps still have no rating: names of system apps only, so ratings can grow from real phones.
+    if let Ok(states) = packages::list_states(&a, &serial).await {
+        let r = ratings();
+        let mut names: Vec<String> = states.into_iter().filter(|p| p.system && r.lookup(&p.name).is_none()).map(|p| p.name).collect();
+        names.sort();
+        let text = format!("{} preinstalled apps have no rating yet:\n{}", names.len(), names.join("\n"));
+        sections.push(report::Section { name: "preinstalled apps without a rating".into(), command: "(computed from the app list and the built-in ratings)".into(), ok: true, output: report::truncate(&text, 40_000) });
+    }
     let text = report::render(&report::Meta { app_version: env!("CARGO_PKG_VERSION"), unix_time: now_secs() }, &sections);
     let sections = sections.iter().map(|s| ReportSection { name: s.name.clone(), ok: s.ok, bytes: s.output.len() }).collect();
     Ok(ReportOut { text, sections })

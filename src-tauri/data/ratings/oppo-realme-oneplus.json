@@ -28,7 +28,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.apps.youtube.music"
  },
  {
   "id": "com.heytap.browser",
@@ -38,7 +39,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.android.chrome"
  },
  {
   "id": "com.heytap.market",
@@ -218,7 +220,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "Alarms and timers may stop working."
+  "impact": "Alarms and timers may stop working.",
+  "duplicate_of": "com.google.android.deskclock"
  },
  {
   "id": "com.oneplus.camera",
@@ -238,7 +241,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.photos"
  },
  {
   "id": "com.oneplus.filemanager",
@@ -248,7 +252,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.nbu.files"
  },
  {
   "id": "com.opos.ads",
@@ -288,7 +293,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.calculator"
  },
  {
   "id": "com.coloros.weather.service",
@@ -308,6 +314,205 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.keep"
+ },
+ {
+  "id": "com.oplus.statistics.rom",
+  "risk": "recommended",
+  "desc": "Usage statistics.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.nearme.statistics.rom",
+  "risk": "recommended",
+  "desc": "Usage statistics.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.oplus.postmanservice",
+  "risk": "recommended",
+  "desc": "Feedback and diagnostics.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.heytap.mcs",
+  "risk": "advanced",
+  "desc": "Push service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.heytap.usercenter",
+  "risk": "advanced",
+  "desc": "HeyTap account.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
+ },
+ {
+  "id": "com.heytap.themestore",
+  "risk": "recommended",
+  "desc": "Theme store.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
   "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.gallery3d",
+  "risk": "advanced",
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.coloros.filemanager",
+  "risk": "advanced",
+  "desc": "File manager.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.coloros.alarmclock",
+  "risk": "advanced",
+  "desc": "Clock.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.coloros.calendar",
+  "risk": "recommended",
+  "desc": "Calendar.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.screenrecorder",
+  "risk": "recommended",
+  "desc": "Screen recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.oppomultiapp",
+  "risk": "recommended",
+  "desc": "Clone apps.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.backuprestore",
+  "risk": "recommended",
+  "desc": "Clone Phone.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.sceneservice",
+  "risk": "advanced",
+  "desc": "Smart scenes.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.oplus.athena",
+  "risk": "advanced",
+  "desc": "System optimiser.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.realme.link",
+  "risk": "recommended",
+  "desc": "Realme Link.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.oneplus.opbugreport",
+  "risk": "recommended",
+  "desc": "Bug report tool.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.oneplus.aod",
+  "risk": "recommended",
+  "desc": "Ambient display.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.oneplus.iconpack.oneplus",
+  "risk": "recommended",
+  "desc": "Icon pack.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
+ },
+ {
+  "id": "com.oneplus.launcher.themes",
+  "risk": "recommended",
+  "desc": "Launcher themes.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
+ },
+ {
+  "id": "com.coloros.healthservice",
+  "risk": "recommended",
+  "desc": "Health service.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.coloros.speechassist",
+  "risk": "recommended",
+  "desc": "Breeno voice assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "The voice assistant and its wake word stop working."
  }
 ]

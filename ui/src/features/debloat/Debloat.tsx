@@ -4,6 +4,8 @@ import type { Action, AppInfo } from "../../lib/types";
 import { SafetyTag } from "../../components/SafetyTag";
 import { AppIcon } from "../../components/AppIcon";
 import { useSettings } from "../../lib/settings";
+import { categoryName } from "../../lib/categories";
+import { duplicateTarget } from "../../lib/filters";
 import { candidates, defaultSelection, protectedOffers, ramTotalKb, type Context, type Group, type Preset } from "./presets";
 
 const presetInfo: Record<Preset, { title: string; text: string }> = {
@@ -16,12 +18,6 @@ const groupInfo: Record<Group, string> = {
   balanced: "Check each one: what you would lose is shown",
   aggressive: "May affect other features: be careful",
   unrated: "Not rated yet: your call",
-};
-const categoryName: Record<string, string> = {
-  "ads-telemetry": "ads and reports", "partner-stub": "partner helper", "help-promo": "tips and promos", discontinued: "discontinued", "aosp-extra": "leftover extra",
-  "game-hub": "games", assistant: "assistant", "vendor-app": "maker's app", "google-app": "Google app", "preinstalled-app": "preinstalled app",
-  store: "app store", carrier: "carrier", "cloud-sync": "maker's cloud", payments: "payments", "system-service": "system service", "core-app": "main app",
-  "background-service": "background helper", duplicate: "duplicate", other: "other",
 };
 const mb = (kb: number) => (kb >= 1_048_576 ? `${(kb / 1_048_576).toFixed(2)} GB` : `${Math.round(kb / 1024)} MB`);
 
@@ -46,6 +42,7 @@ export function Debloat({ serial, apps, busy, protections, protectionsKnown, onA
   const [ram, setRam] = useState<Map<string, number>>(new Map());
   const [ramNote, setRamNote] = useState("Measuring…");
 
+  const byName = useMemo(() => new Map(apps.map((a) => [a.name, a])), [apps]);
   const ctx: Context = useMemo(() => ({ includeUser, protectedPkgs: new Set(protections.keys()) }), [includeUser, protections]);
   // If the phone could not say what is in use, never offer a main app (calls, messages, camera, keyboard, browser, files, clock).
   const usable = useMemo(() => (protectionsKnown ? apps : apps.filter((a) => a.category !== "core-app")), [apps, protectionsKnown]);
@@ -124,6 +121,7 @@ export function Debloat({ serial, apps, busy, protections, protectionsKnown, onA
                         <div>{app.impact ?? (g === "unrated" ? "Nobody has rated this app yet. Only remove it if you know what it is." : app.description) ?? ""}</div>
                         <div className="muted small">
                           {app.category && categoryName[app.category] && <span className="pill">{categoryName[app.category]}</span>}{" "}
+                          {duplicateTarget(app, byName) && <span className="pill" title="This app does the same job as one you also have.">same job as {duplicateTarget(app, byName)!.label}</span>}{" "}
                           {app.confidence !== "high" && g !== "unrated" && <span className="pill" title="We are less sure about this rating, so it is listed under a more careful group.">less sure</span>}{" "}
                           {app.reinstall === "store" ? "Reinstall from the store." : app.reinstall === "rom-only" ? "Undo from a snapshot." : ""}
                         </div>

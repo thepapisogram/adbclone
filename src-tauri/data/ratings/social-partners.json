@@ -322,5 +322,245 @@
   "confidence": "medium",
   "impact": "You lose the game launcher or its overlay. Games still run.",
   "reinstall": "store"
+ },
+ {
+  "id": "com.zhiliaoapp.musically",
+  "risk": "recommended",
+  "desc": "TikTok.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.ss.android.ugc.trill",
+  "risk": "recommended",
+  "desc": "TikTok (Asia).",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.facebook.lite",
+  "risk": "recommended",
+  "desc": "Facebook Lite.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.facebook.mlite",
+  "risk": "recommended",
+  "desc": "Messenger Lite.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.snapchat.android",
+  "risk": "recommended",
+  "desc": "Snapchat.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.twitter.android",
+  "risk": "recommended",
+  "desc": "X (Twitter).",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.pinterest",
+  "risk": "recommended",
+  "desc": "Pinterest.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.booking",
+  "risk": "recommended",
+  "desc": "Booking.com.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.agoda.mobile.consumer",
+  "risk": "recommended",
+  "desc": "Agoda.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.ebay.mobile",
+  "risk": "recommended",
+  "desc": "eBay.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.microsoft.teams",
+  "risk": "recommended",
+  "desc": "Microsoft Teams.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.microsoft.todos",
+  "risk": "recommended",
+  "desc": "Microsoft To Do.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.microsoft.bing",
+  "risk": "recommended",
+  "desc": "Microsoft Bing.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.microsoft.launcher",
+  "risk": "advanced",
+  "desc": "Microsoft Launcher.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.opera.mini.native",
+  "risk": "recommended",
+  "desc": "Opera Mini.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.opera.browser",
+  "risk": "recommended",
+  "desc": "Opera.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "in.startv.hotstar",
+  "risk": "recommended",
+  "desc": "Hotstar.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "net.one97.paytm",
+  "risk": "recommended",
+  "desc": "Paytm.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.phonepe.app",
+  "risk": "recommended",
+  "desc": "PhonePe.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.truecaller",
+  "risk": "recommended",
+  "desc": "Truecaller.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.gaana",
+  "risk": "recommended",
+  "desc": "Gaana.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.bsbportal.music",
+  "risk": "recommended",
+  "desc": "Wynk Music.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.king.candycrushjellysaga",
+  "risk": "recommended",
+  "desc": "Candy Crush Jelly Saga.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.gameloft.android.ANMP.GloftA9HM",
+  "risk": "recommended",
+  "desc": "Asphalt 9.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  }
 ]

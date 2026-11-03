@@ -3,6 +3,8 @@ import { ipc } from "./lib/ipc";
 import { BRAND } from "./brand";
 import { updateSettings, useSettings } from "./lib/settings";
 import { reasonOf } from "./lib/reason";
+import { categoryCounts, duplicateTarget, INSTALLER_OPTIONS, matchesFilters, NO_FILTERS, type Filters, type InstallerKey } from "./lib/filters";
+import { nameOfCategory } from "./lib/categories";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
@@ -53,6 +55,7 @@ export default function App() {
   const connectOpen = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   // Apps the phone is using for main jobs (home screen, dialer, browser, keyboard...): never offered for removal.
   const [protections, setProtections] = useState<{ map: Map<string, string>; known: boolean }>({ map: new Map(), known: false });
   const [adbStatus, setAdbStatus] = useState<AdbStatus | null>(null);
@@ -160,19 +163,23 @@ export default function App() {
     return () => { cancelled = true; off(); };
   }, [serial, namesRun]);
 
+  const byName = useMemo(() => new Map(apps.map((a) => [a.name, a])), [apps]);
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = apps.filter((a) =>
       (scope === "all" || (scope === "system") === a.system) &&
       (stateFilter === "any" || a.state === stateFilter) &&
       (riskFilter === "any" || a.risk === riskFilter) &&
+      matchesFilters(a, filters, byName) &&
       (!q || a.name.toLowerCase().includes(q) || a.label.toLowerCase().includes(q)));
     list.sort((a, b) => {
       const c = sort.key === "risk" ? riskOrder[a.risk] - riskOrder[b.risk] : a[sort.key].localeCompare(b[sort.key]);
       return c * sort.dir;
     });
     return list;
-  }, [apps, query, scope, stateFilter, riskFilter, sort]);
+  }, [apps, query, scope, stateFilter, riskFilter, sort, filters, byName]);
+  const categories = useMemo(() => categoryCounts(apps), [apps]);
+  const haveInstallerData = useMemo(() => apps.some((a) => a.details), [apps]);
 
   const toggle = (name: string) => setSelected((s) => { const n = new Set(s); n.has(name) ? n.delete(name) : n.add(name); return n; });
   const allVisibleSelected = visible.length > 0 && visible.every((a) => selected.has(a.name));
@@ -283,6 +290,15 @@ export default function App() {
         <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value as Risk | "any")} aria-label="Risk">
           <option value="any">Any risk</option><option value="recommended">Recommended</option><option value="advanced">Advanced</option><option value="unsafe">Unsafe</option><option value="unknown">Unrated</option>
         </select>
+        <select value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })} aria-label="Category">
+          <option value="any">Any kind of app</option>
+          {categories.map((c) => <option key={c.key} value={c.key}>{nameOfCategory(c.key)} ({c.count})</option>)}
+        </select>
+        <select value={filters.installer} onChange={(e) => setFilters({ ...filters, installer: e.target.value as InstallerKey })} aria-label="Installed by" disabled={!haveInstallerData}
+          title={haveInstallerData ? undefined : "Available once the phone has told us who installed each app"}>
+          {INSTALLER_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+        </select>
+        <label className="inline" title="Apps that do the same job as another app you also have"><input type="checkbox" checked={filters.duplicatesOnly} onChange={(e) => setFilters({ ...filters, duplicatesOnly: e.target.checked })} /> Duplicates only</label>
         <button onClick={() => loadApps(serial)} disabled={!serial || loading}>{loading ? "Loading…" : "Reload"}</button>
       </div>
 
@@ -318,7 +334,7 @@ export default function App() {
               {visible.map((a) => (
                 <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={[a.description, a.details?.versionName && `Version ${a.details.versionName}`, a.details?.installer && `Installed by ${a.details.installer}`, a.details && (a.details.launchable ? "Has a launcher icon" : "No launcher icon")].filter(Boolean).join(" · ") || undefined}>
                   <td className="chk"><input type="checkbox" checked={selected.has(a.name)} onChange={() => toggle(a.name)} onClick={(e) => e.stopPropagation()} /></td>
-                  <td><span className="namecell"><AppIcon name={a.name} /><span><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span>{plain && <span className="reason">{reasonOf(a)}</span>}</span></span></td>
+                  <td><span className="namecell"><AppIcon name={a.name} /><span><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span>{plain && <span className="reason">{reasonOf(a)}</span>}{duplicateTarget(a, byName) && <span className="reason">Does the same job as {duplicateTarget(a, byName)!.label}, which you also have.</span>}{protections.map.get(a.name) && <span className="reason warn-inline">You use this as {protections.map.get(a.name)}.</span>}</span></span></td>
                   {!plain && <td className="mono">{a.name}</td>}
                   <td>{a.system ? "System" : "User"}</td>
                   <td><span className={`pill ${a.state}`}>{a.state}</span></td>

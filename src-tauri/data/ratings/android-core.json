@@ -1039,5 +1039,131 @@
   "category": "core-system",
   "confidence": "high",
   "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.android.providers.",
+  "risk": "unsafe",
+  "desc": "Content providers (contacts, SMS, downloads, media...).",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.server.",
+  "risk": "unsafe",
+  "desc": "System server components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.systemui.",
+  "risk": "unsafe",
+  "desc": "System UI plugins and overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.internal.",
+  "risk": "unsafe",
+  "desc": "Internal system overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.theme.",
+  "risk": "unsafe",
+  "desc": "System theme overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.overlay.",
+  "risk": "unsafe",
+  "desc": "System overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.cts.",
+  "risk": "unsafe",
+  "desc": "Compatibility shims.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.wifi.",
+  "risk": "unsafe",
+  "desc": "Wi-Fi components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.connectivity.",
+  "risk": "unsafe",
+  "desc": "Connectivity components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.bluetooth.",
+  "risk": "unsafe",
+  "desc": "Bluetooth components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.nfc.",
+  "risk": "unsafe",
+  "desc": "NFC components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.phone.",
+  "risk": "unsafe",
+  "desc": "Telephony components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.networkstack.",
+  "risk": "unsafe",
+  "desc": "Network stack components.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "android.auto_generated_rro_",
+  "risk": "unsafe",
+  "desc": "Generated system overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
  }
 ]

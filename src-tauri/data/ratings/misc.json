@@ -206,5 +206,256 @@
   "tier": "aggressive",
   "confidence": "low",
   "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.qualcomm.",
+  "risk": "unsafe",
+  "desc": "Qualcomm chip and radio services (specific harmless ones are rated separately).",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.qti.",
+  "risk": "unsafe",
+  "desc": "Qualcomm chip services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "vendor.qti.",
+  "risk": "unsafe",
+  "desc": "Qualcomm vendor services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "org.codeaurora.",
+  "risk": "unsafe",
+  "desc": "Qualcomm open-source services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.mediatek.",
+  "risk": "unsafe",
+  "desc": "MediaTek chip and radio services (specific harmless ones are rated separately).",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.sprd.",
+  "risk": "unsafe",
+  "desc": "Spreadtrum/Unisoc chip services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.unisoc.",
+  "risk": "unsafe",
+  "desc": "Unisoc chip services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.asus.launcher",
+  "risk": "unsafe",
+  "desc": "ZenUI launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.asus.mobilemanager",
+  "risk": "advanced",
+  "desc": "Mobile Manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.asus.gamewidget",
+  "risk": "recommended",
+  "desc": "Game Genie.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.asus.weathertime",
+  "risk": "recommended",
+  "desc": "Weather and clock widget.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.asus.calculator",
+  "risk": "recommended",
+  "desc": "Calculator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.asus.soundrecorder",
+  "risk": "recommended",
+  "desc": "Sound Recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.asus.ia.asusapp",
+  "risk": "recommended",
+  "desc": "MyASUS.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
+ },
+ {
+  "id": "com.asus.camera",
+  "risk": "advanced",
+  "desc": "Camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.asus.gallery",
+  "risk": "advanced",
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.asus.filemanager",
+  "risk": "advanced",
+  "desc": "File manager.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.asus.browser",
+  "risk": "recommended",
+  "desc": "Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.asus.deskclock",
+  "risk": "advanced",
+  "desc": "Clock.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.lge.launcher3",
+  "risk": "unsafe",
+  "desc": "LG launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.lge.lgworld",
+  "risk": "recommended",
+  "desc": "LG World.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
+ },
+ {
+  "id": "com.lge.smartshare",
+  "risk": "recommended",
+  "desc": "SmartShare.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.lge.qmemoplus",
+  "risk": "recommended",
+  "desc": "QuickMemo+.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.lge.music",
+  "risk": "recommended",
+  "desc": "Music.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.lge.email",
+  "risk": "recommended",
+  "desc": "Email.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sonymobile.android.dialer",
+  "risk": "advanced",
+  "desc": "Sony dialer.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.sonymobile.xperiaxlivewallpaper",
+  "risk": "recommended",
+  "desc": "Live wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
+ },
+ {
+  "id": "com.motorola.audiofx",
+  "risk": "recommended",
+  "desc": "Audio effects.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  }
 ]

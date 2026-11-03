@@ -771,5 +771,354 @@
   "confidence": "medium",
   "impact": "You lose this Google app. You can reinstall it from the Play Store.",
   "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.overlay.",
+  "risk": "unsafe",
+  "desc": "Google system overlays.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.mainline.",
+  "risk": "unsafe",
+  "desc": "Updatable system modules.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.tzdata",
+  "risk": "unsafe",
+  "desc": "Time zone data.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.conscrypt",
+  "risk": "unsafe",
+  "desc": "Security library module.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.adservices",
+  "risk": "unsafe",
+  "desc": "Privacy sandbox module.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.gms.",
+  "risk": "unsafe",
+  "desc": "Parts of Google Play services.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.gsf.",
+  "risk": "unsafe",
+  "desc": "Parts of the Google services framework.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.google.android.apps.youtube.kids",
+  "risk": "recommended",
+  "desc": "YouTube Kids.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.kids.familylinkhelper",
+  "risk": "advanced",
+  "desc": "Family Link helper (parental controls).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.googlevoice",
+  "risk": "recommended",
+  "desc": "Google Voice.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.dynamite",
+  "risk": "recommended",
+  "desc": "Google Chat.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.nbu.paisa.user",
+  "risk": "recommended",
+  "desc": "Google Pay (India).",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.healthdata",
+  "risk": "advanced",
+  "desc": "Health Connect.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.safetyhub",
+  "risk": "recommended",
+  "desc": "Personal Safety.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.adm",
+  "risk": "advanced",
+  "desc": "Find My Device.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.searchlite",
+  "risk": "recommended",
+  "desc": "Google Go.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.mapslite",
+  "risk": "recommended",
+  "desc": "Google Maps Go.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.cameralite",
+  "risk": "recommended",
+  "desc": "Camera Go.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.books",
+  "risk": "recommended",
+  "desc": "Google Play Books.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.wallpaper",
+  "risk": "recommended",
+  "desc": "Wallpapers.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.photosgo",
+  "risk": "recommended",
+  "desc": "Gallery Go.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.calculator",
+  "risk": "recommended",
+  "desc": "Google Calculator.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.deskclock",
+  "risk": "advanced",
+  "desc": "Google Clock (alarms and timers).",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.google.android.GoogleCamera",
+  "risk": "advanced",
+  "desc": "Google Camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.google.android.gm.exchange",
+  "risk": "advanced",
+  "desc": "Exchange account support for Gmail.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.ims",
+  "risk": "advanced",
+  "desc": "Carrier Services (RCS chat features).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.pixel.setupwizard",
+  "risk": "advanced",
+  "desc": "Pixel setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.work.clouddpc",
+  "risk": "advanced",
+  "desc": "Android Device Policy (work devices).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.youtube.creator",
+  "risk": "recommended",
+  "desc": "YouTube Studio.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.youtube.tv",
+  "risk": "recommended",
+  "desc": "YouTube for TV.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.recorder",
+  "risk": "recommended",
+  "desc": "Pixel Recorder.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.google.android.apps.pixel.psi",
+  "risk": "advanced",
+  "desc": "Pixel system intelligence helper.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.as",
+  "risk": "advanced",
+  "desc": "Device Personalization Services (suggestions, Now Playing).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.assistant",
+  "risk": "recommended",
+  "desc": "Assistant helper.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.google.android.apps.carrier.log",
+  "risk": "recommended",
+  "desc": "Carrier diagnostics logging.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.google.android.apps.gcs",
+  "risk": "advanced",
+  "desc": "Google Connectivity Services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.google.android.apps.stargazer",
+  "risk": "recommended",
+  "desc": "Stargazer.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  }
 ]

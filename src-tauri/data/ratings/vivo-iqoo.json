@@ -1,0 +1,170 @@
+[
+ {
+  "id": "com.vivo.browser",
+  "risk": "recommended",
+  "desc": "vivo Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.android.chrome"
+ },
+ {
+  "id": "com.vivo.appstore",
+  "risk": "recommended",
+  "desc": "V-Appstore.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
+ },
+ {
+  "id": "com.bbk.account",
+  "risk": "advanced",
+  "desc": "vivo Account.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
+ },
+ {
+  "id": "com.vivo.email",
+  "risk": "recommended",
+  "desc": "Email.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.vivo.weather",
+  "risk": "recommended",
+  "desc": "Weather.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.vivo.game",
+  "risk": "recommended",
+  "desc": "Game Center.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.vivo.gamecube",
+  "risk": "recommended",
+  "desc": "Game Cube.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.vivo.easyshare",
+  "risk": "recommended",
+  "desc": "EasyShare.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.vivo.space",
+  "risk": "recommended",
+  "desc": "vivo community app.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
+ },
+ {
+  "id": "com.vivo.floatingball",
+  "risk": "recommended",
+  "desc": "Floating ball shortcut.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.vivo.agent",
+  "risk": "recommended",
+  "desc": "Jovi voice assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.vivo.assistant",
+  "risk": "recommended",
+  "desc": "Jovi assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.vivo.childrenmode",
+  "risk": "recommended",
+  "desc": "Kids Space.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.android.bbkcalculator",
+  "risk": "recommended",
+  "desc": "Calculator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.calculator"
+ },
+ {
+  "id": "com.android.BBKClock",
+  "risk": "advanced",
+  "desc": "Clock.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.deskclock"
+ },
+ {
+  "id": "com.android.notes",
+  "risk": "recommended",
+  "desc": "Notes.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.keep"
+ },
+ {
+  "id": "com.vivo.pushservice",
+  "risk": "advanced",
+  "desc": "Push service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.vivo.upslide",
+  "risk": "recommended",
+  "desc": "Swipe-up shortcut panel.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ }
+]

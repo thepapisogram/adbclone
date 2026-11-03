@@ -46,7 +46,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.apps.youtube.music"
  },
  {
   "id": "com.huawei.himovie.overseas",
@@ -56,7 +57,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.videos"
  },
  {
   "id": "com.huawei.browser",
@@ -66,7 +68,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.android.chrome"
  },
  {
   "id": "com.huawei.health",
@@ -116,7 +119,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.keep"
  },
  {
   "id": "com.huawei.wallet",
@@ -166,5 +170,122 @@
   "tier": "aggressive",
   "confidence": "medium",
   "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.huawei.hiview",
+  "risk": "recommended",
+  "desc": "Diagnostic and log service.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.huawei.android.pushagent",
+  "risk": "advanced",
+  "desc": "Push messages.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.huawei.vassistant",
+  "risk": "recommended",
+  "desc": "Celia voice assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.huawei.hiai",
+  "risk": "advanced",
+  "desc": "HiAI engine.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.huawei.android.thememanager",
+  "risk": "recommended",
+  "desc": "Themes.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.huawei.hivoice",
+  "risk": "recommended",
+  "desc": "Voice engine.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.huawei.camera",
+  "risk": "advanced",
+  "desc": "Camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.huawei.photos",
+  "risk": "advanced",
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.huawei.contacts",
+  "risk": "advanced",
+  "desc": "Contacts.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.huawei.hicloud",
+  "risk": "advanced",
+  "desc": "Huawei Cloud.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
+ },
+ {
+  "id": "com.huawei.parentcontrol",
+  "risk": "recommended",
+  "desc": "Parental controls.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.huawei.desktop.explorer",
+  "risk": "recommended",
+  "desc": "Desktop mode helper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.huawei.search",
+  "risk": "recommended",
+  "desc": "Search.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  }
 ]

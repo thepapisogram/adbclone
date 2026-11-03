@@ -137,7 +137,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.apps.youtube.music"
  },
  {
   "id": "com.miui.videoplayer",
@@ -147,7 +148,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.videos"
  },
  {
   "id": "com.mi.android.globalFileexplorer",
@@ -157,7 +159,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.nbu.files"
  },
  {
   "id": "com.miui.gallery",
@@ -167,7 +170,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.photos"
  },
  {
   "id": "com.miui.notes",
@@ -177,7 +181,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.keep"
  },
  {
   "id": "com.miui.weather2",
@@ -207,7 +212,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.calculator"
  },
  {
   "id": "com.android.browser",
@@ -217,7 +223,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.android.chrome"
  },
  {
   "id": "com.mi.globalbrowser",
@@ -227,7 +234,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.android.chrome"
  },
  {
   "id": "com.xiaomi.discover",
@@ -583,6 +591,159 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.mi.android.globalminusscreen",
+  "risk": "recommended",
+  "desc": "App Vault (the left-hand screen).",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.backup",
+  "risk": "recommended",
+  "desc": "Backup.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.cleanmaster",
+  "risk": "recommended",
+  "desc": "Cleaner.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.global.packageinstaller",
+  "risk": "advanced",
+  "desc": "Package installer.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+ },
+ {
+  "id": "com.xiaomi.misettings",
+  "risk": "unsafe",
+  "desc": "Xiaomi settings.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.miui.miwallpaper.snowmountain",
+  "risk": "recommended",
+  "desc": "Super wallpaper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.miwallpaper.earth",
+  "risk": "recommended",
+  "desc": "Super wallpaper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.miwallpaper.mars",
+  "risk": "recommended",
+  "desc": "Super wallpaper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.miui.wallpaper.overlay",
+  "risk": "advanced",
+  "desc": "Wallpaper overlay.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.miui.audiomonitor",
+  "risk": "recommended",
+  "desc": "Audio monitor.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.miui.guardprovider",
+  "risk": "advanced",
+  "desc": "Security scan provider.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.miui.freeform",
+  "risk": "advanced",
+  "desc": "Floating windows.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.xiaomi.gamecenter",
+  "risk": "recommended",
+  "desc": "Game Center.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.mi.globalTrendNews",
+  "risk": "recommended",
+  "desc": "News feed.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.miui.vpnsdkmanager",
+  "risk": "advanced",
+  "desc": "VPN helper.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.miui.cit",
+  "risk": "recommended",
+  "desc": "Hardware test tool.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.miui.qr",
+  "risk": "recommended",
+  "desc": "QR scanner.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
   "impact": "You lose this app. Make sure you have another one for the same job first."
  }
 ]

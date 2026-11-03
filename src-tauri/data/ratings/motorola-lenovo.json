@@ -106,7 +106,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.photos"
  },
  {
   "id": "com.motorola.dolby.dolbyui",

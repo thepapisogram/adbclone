@@ -7,7 +7,8 @@
   "category": "assistant",
   "tier": "balanced",
   "confidence": "high",
-  "impact": "The voice assistant and its wake word stop working."
+  "impact": "The voice assistant and its wake word stop working.",
+  "duplicate_of": "com.google.android.googlequicksearchbox"
  },
  {
   "id": "com.samsung.android.bixby.service",
@@ -289,7 +290,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.dialer"
  },
  {
   "id": "com.samsung.android.messaging",
@@ -299,7 +301,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.messaging"
  },
  {
   "id": "com.samsung.android.contacts",
@@ -309,7 +312,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.contacts"
  },
  {
   "id": "com.samsung.android.calendar",
@@ -319,7 +323,8 @@
   "category": "other",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "Something you use may stop working. Check what it is first."
+  "impact": "Something you use may stop working. Check what it is first.",
+  "duplicate_of": "com.google.android.calendar"
  },
  {
   "id": "com.sec.android.app.sbrowser",
@@ -329,7 +334,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.android.chrome"
  },
  {
   "id": "com.samsung.android.email.provider",
@@ -339,7 +345,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.gm"
  },
  {
   "id": "com.samsung.android.app.notes",
@@ -349,7 +356,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.keep"
  },
  {
   "id": "com.samsung.android.app.reminder",
@@ -449,7 +457,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "Alarms and timers may stop working."
+  "impact": "Alarms and timers may stop working.",
+  "duplicate_of": "com.google.android.deskclock"
  },
  {
   "id": "com.sec.android.app.popupcalculator",
@@ -459,7 +468,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.calculator"
  },
  {
   "id": "com.sec.android.app.myfiles",
@@ -469,7 +479,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.nbu.files"
  },
  {
   "id": "com.sec.android.gallery3d",
@@ -479,7 +490,8 @@
   "category": "core-app",
   "tier": "aggressive",
   "confidence": "medium",
-  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
+  "duplicate_of": "com.google.android.apps.photos"
  },
  {
   "id": "com.sec.android.app.camera",
@@ -775,6 +787,348 @@
   "category": "system-service",
   "tier": "aggressive",
   "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.sec.android.provider.",
+  "risk": "unsafe",
+  "desc": "Samsung content providers.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.samsung.android.provider.",
+  "risk": "unsafe",
+  "desc": "Samsung content providers.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Part of the phone's core software or radio. Never offered for removal.",
+  "prefix": true
+ },
+ {
+  "id": "com.samsung.android.app.galaxyfinder",
+  "risk": "advanced",
+  "desc": "Finder (search on the phone).",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.cocktailbarservice",
+  "risk": "advanced",
+  "desc": "Edge panels.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.taskedge",
+  "risk": "advanced",
+  "desc": "Edge panel: Tasks.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.clipboardedge",
+  "risk": "advanced",
+  "desc": "Edge panel: Clipboard.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.service.peoplestripe",
+  "risk": "advanced",
+  "desc": "Edge panel: People.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.appsedge",
+  "risk": "advanced",
+  "desc": "Edge panel: Apps.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.dynamiclock",
+  "risk": "recommended",
+  "desc": "Dynamic Lock Screen (changing wallpapers and news).",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.omcagent",
+  "risk": "advanced",
+  "desc": "Carrier customisation (OMC).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.mcfserver",
+  "risk": "advanced",
+  "desc": "Continuity service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.aware.service",
+  "risk": "advanced",
+  "desc": "Nearby device scanning.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.allshare.service.mediashare",
+  "risk": "recommended",
+  "desc": "Media sharing to TVs.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.allshare.service.fileshare",
+  "risk": "recommended",
+  "desc": "File sharing.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sec.android.easyMover",
+  "risk": "recommended",
+  "desc": "Smart Switch.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sec.android.easyMover.Agent",
+  "risk": "recommended",
+  "desc": "Smart Switch helper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sec.android.app.voicenote",
+  "risk": "recommended",
+  "desc": "Voice Recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sec.android.app.billing",
+  "risk": "advanced",
+  "desc": "Samsung Checkout.",
+  "category": "payments",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Payments and wallet features stop working."
+ },
+ {
+  "id": "com.sec.android.widgetapp.samsungapps",
+  "risk": "recommended",
+  "desc": "Galaxy Store widget.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
+ },
+ {
+  "id": "com.sec.android.app.kidshome",
+  "risk": "recommended",
+  "desc": "Kids Home.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.app.sbrowseredge",
+  "risk": "recommended",
+  "desc": "Samsung Internet edge helper.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.smartsuggestions",
+  "risk": "advanced",
+  "desc": "Smart suggestions.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.visioncloudagent",
+  "risk": "recommended",
+  "desc": "Vision cloud agent.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.samsung.android.app.watchmanagerstub",
+  "risk": "recommended",
+  "desc": "Galaxy Wearable installer stub.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
+ },
+ {
+  "id": "com.samsung.android.shortcutbackupservice",
+  "risk": "advanced",
+  "desc": "Home screen shortcut backup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.app.dofviewer",
+  "risk": "recommended",
+  "desc": "Photo depth viewer.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.bixby.ondevice.enus",
+  "risk": "recommended",
+  "desc": "Bixby language pack (English).",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.samsung.android.bixbyvision.framework",
+  "risk": "recommended",
+  "desc": "Bixby Vision framework.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "The voice assistant and its wake word stop working."
+ },
+ {
+  "id": "com.samsung.android.wcmurlsnetworkstack",
+  "risk": "advanced",
+  "desc": "Network helper.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.net.wifi.wifiguider",
+  "risk": "recommended",
+  "desc": "Wi-Fi guider.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.hmt.vrsvc",
+  "risk": "recommended",
+  "desc": "Gear VR service.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.hmt.vrshell",
+  "risk": "recommended",
+  "desc": "Gear VR shell.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.sec.android.autodoodle.service",
+  "risk": "recommended",
+  "desc": "AR Emoji doodle service.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.samsung.android.tvplus",
+  "risk": "recommended",
+  "desc": "Samsung TV Plus.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.samsung.android.mapsagent",
+  "risk": "recommended",
+  "desc": "Maps agent.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "low",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
+ },
+ {
+  "id": "com.samsung.android.mdecservice",
+  "risk": "advanced",
+  "desc": "Mobile device extension service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.samsung.android.ConnectivityOverlay",
+  "risk": "unsafe",
+  "desc": "Connectivity overlay.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.sec.android.app.safetyassurance",
+  "risk": "advanced",
+  "desc": "Safety assurance.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
   "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  }
 ]

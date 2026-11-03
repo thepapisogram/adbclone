@@ -14,7 +14,7 @@ const IMPACT: Record<string, string> = {
   "core-app": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first.",
   "core-system": "Can stop the phone from working properly. Never remove.",
 };
-type Row = [name: string, label: string, system: boolean, risk: AppInfo["risk"], tier: AppInfo["tier"], category: string | null, confidence: AppInfo["confidence"], description: string];
+type Row = [name: string, label: string, system: boolean, risk: AppInfo["risk"], tier: AppInfo["tier"], category: string | null, confidence: AppInfo["confidence"], description: string, duplicateOf?: string];
 const rows: Row[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "balanced", "google-app", "high", "Video app; reinstallable from Play Store."],
   ["com.google.android.apps.maps", "Maps", true, "recommended", "balanced", "google-app", "medium", "Google Maps."],
@@ -38,6 +38,8 @@ const rows: Row[] = [
   ["com.android.egg", "Android Easter Egg", true, "recommended", "safe", "aosp-extra", "high", "A hidden game."],
   ["com.samsung.android.app.tips", "Tips", true, "recommended", "safe", "help-promo", "high", "Tips and tutorials."],
   ["com.vendor.analyticsservice", "Vendor Analytics", true, "recommended", "safe", "ads-telemetry", "medium", "Usage reports sent to the maker."],
+  ["com.sec.android.gallery3d", "Samsung Gallery", true, "advanced", "balanced", "vendor-app", "medium", "Photo gallery.", "com.google.android.apps.photos"],
+  ["com.sec.android.app.sbrowser", "Samsung Internet", true, "advanced", "aggressive", "core-app", "medium", "Samsung browser.", "com.android.chrome"],
   ["com.vendor.unknownservice", "Vendor Service", true, "unknown", "unrated", null, "low", ""],
   ["com.sec.android.app.randomthing", "Random Thing", true, "unknown", "unrated", null, "low", ""],
   ["org.mozilla.firefox", "Firefox", false, "unknown", "unrated", null, "low", ""],
@@ -48,8 +50,8 @@ const rows: Row[] = [
   ["com.instagram.android", "Instagram", false, "unknown", "unrated", null, "low", ""],
 ];
 const safetyOf = (risk: string): Safety => (({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" }) as Record<string, Safety>)[risk];
-const apps: AppInfo[] = rows.map(([name, label, system, risk, tier, category, confidence, description]) => ({
-  name, label, system, risk, tier, category, confidence, description,
+const apps: AppInfo[] = rows.map(([name, label, system, risk, tier, category, confidence, description, duplicateOf]) => ({
+  name, label, system, risk, tier, category, confidence, description, duplicateOf: duplicateOf ?? null,
   impact: category ? IMPACT[category] ?? null : null,
   disableSafety: safetyOf(risk),
   uninstallSafety: safetyOf(risk),

@@ -178,5 +178,115 @@
   "tier": "balanced",
   "confidence": "medium",
   "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
+ },
+ {
+  "id": "com.verizon.",
+  "risk": "advanced",
+  "desc": "Verizon apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.vzw.",
+  "risk": "advanced",
+  "desc": "Verizon apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.att.",
+  "risk": "advanced",
+  "desc": "AT&T apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.tmobile.",
+  "risk": "advanced",
+  "desc": "T-Mobile apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.sprint.",
+  "risk": "advanced",
+  "desc": "Sprint apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.orange.",
+  "risk": "advanced",
+  "desc": "Orange apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.vodafone.",
+  "risk": "advanced",
+  "desc": "Vodafone apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "de.telekom.",
+  "risk": "advanced",
+  "desc": "Telekom apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.telefonica.",
+  "risk": "advanced",
+  "desc": "Telefonica apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.jio.",
+  "risk": "advanced",
+  "desc": "Jio apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
+ },
+ {
+  "id": "com.myairtelapp",
+  "risk": "advanced",
+  "desc": "Airtel apps and services.",
+  "category": "carrier",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Carrier apps can include network setup (calls, data, Wi-Fi calling, voicemail). Only remove ones you recognise.",
+  "prefix": true
  }
 ]

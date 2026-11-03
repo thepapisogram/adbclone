@@ -56,7 +56,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.apps.youtube.music"
  },
  {
   "id": "com.sonymobile.androidapp.walkmate",
@@ -116,7 +117,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.apps.photos"
  },
  {
   "id": "com.sonymobile.email",
@@ -126,7 +128,8 @@
   "category": "vendor-app",
   "tier": "balanced",
   "confidence": "medium",
-  "impact": "You lose this app. Make sure you have another one for the same job first."
+  "impact": "You lose this app. Make sure you have another one for the same job first.",
+  "duplicate_of": "com.google.android.gm"
  },
  {
   "id": "com.sonymobile.entrance",

@@ -1,0 +1,73 @@
+[
+ {
+  "id": "com.transsion.carlcare",
+  "risk": "recommended",
+  "desc": "Carlcare support app.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
+ },
+ {
+  "id": "com.transsion.hilauncher",
+  "risk": "unsafe",
+  "desc": "HiOS launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.transsion.XOSLauncher",
+  "risk": "unsafe",
+  "desc": "XOS launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
+ },
+ {
+  "id": "com.transsion.phonemaster",
+  "risk": "advanced",
+  "desc": "Phone Master (cleaner, security).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
+ },
+ {
+  "id": "com.transsion.theme",
+  "risk": "recommended",
+  "desc": "Themes.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.afmobi.boomplayer",
+  "risk": "recommended",
+  "desc": "Boomplay music.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
+ },
+ {
+  "id": "com.transsion.smartpanel",
+  "risk": "recommended",
+  "desc": "Smart panel.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ },
+ {
+  "id": "com.transsion.magicshow",
+  "risk": "recommended",
+  "desc": "Video effects.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "low",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
+ }
+]

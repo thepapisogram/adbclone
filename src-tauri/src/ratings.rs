@@ -107,6 +107,8 @@ const EMBEDDED: &[&str] = &[
     include_str!("../data/ratings/social-partners.json"),
     include_str!("../data/ratings/carriers.json"),
     include_str!("../data/ratings/misc.json"),
+    include_str!("../data/ratings/vivo-iqoo.json"),
+    include_str!("../data/ratings/transsion.json"),
 ];
 
 #[derive(Default)]
@@ -248,7 +250,7 @@ mod tests {
                 assert!(seen.insert(e.id.clone()), "duplicate {}", e.id);
             }
         }
-        assert!(Ratings::load(None).exact_len() >= 300);
+        assert!(Ratings::load(None).exact_len() >= 600, "the list should keep growing, never shrink");
     }
 
     const CATEGORIES: &[&str] = &[
@@ -300,6 +302,39 @@ mod tests {
         let gms = r.lookup("com.google.android.gms").unwrap();
         assert_eq!((gms.tier, gms.confidence), ("never", "high"));
         assert!(!gms.impact.is_empty());
+    }
+
+    #[test]
+    fn unknown_core_software_is_protected_by_family_rules_and_exact_ratings_still_win() {
+        let r = Ratings::load(None);
+        for id in ["com.android.providers.somethingnew", "com.android.systemui.plugin.x", "com.qualcomm.qti.newradio", "com.mediatek.hidden", "com.google.android.gms.supervision", "android.auto_generated_rro_product__", "com.google.android.overlay.foo"] {
+            let x = r.lookup(id).unwrap_or_else(|| panic!("{id} should be covered by a family rule"));
+            assert_eq!((x.tier, x.risk), ("never", "unsafe"), "{id}");
+        }
+        // Specific, harmless entries inside those families keep their own rating.
+        assert_eq!(r.lookup("com.android.providers.partnerbookmarks").unwrap().tier, "safe");
+        assert_ne!(r.lookup("com.qualcomm.qti.qms.service.telemetry").unwrap().tier, "never");
+        // Carrier families are careful but not blocked.
+        let c = r.lookup("com.verizon.somenewservice").unwrap();
+        assert_eq!((c.tier, c.confidence), ("aggressive", "low"));
+    }
+
+    #[test]
+    fn duplicate_links_point_at_real_apps_and_never_at_themselves() {
+        let r = Ratings::load(None);
+        let mut n = 0;
+        for json in EMBEDDED {
+            for e in serde_json::from_str::<Vec<Entry>>(json).unwrap() {
+                if let Some(t) = &e.duplicate_of {
+                    n += 1;
+                    assert_ne!(&e.id, t);
+                    assert!(t.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_'), "{t}");
+                    assert!(r.lookup(&e.id).unwrap().duplicate_of.as_deref() == Some(t.as_str()));
+                }
+            }
+        }
+        assert!(n >= 30, "expected the known vendor/Google pairs, found {n}");
+        assert_eq!(r.lookup("com.samsung.android.messaging").unwrap().duplicate_of.as_deref(), Some("com.google.android.apps.messaging"));
     }
 
     #[test]
