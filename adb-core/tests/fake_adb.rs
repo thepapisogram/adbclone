@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{bridge, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -431,4 +431,23 @@ async fn report_describes_a_working_helper_without_app_names() {
     assert!(h.output.contains("\"sdk\":34") && h.output.contains("apps listed: 2, with a real name: 2"), "{}", h.output);
     assert!(h.output.contains("error kinds: label: NullPointerException") || h.output.contains("NullPointerException"));
     assert!(!h.output.contains("Gmail") && !h.output.contains("com.google.android.gm") && !h.output.contains("com.broken"), "no app names or ids in the helper section: {}", h.output);
+}
+
+// ---- command log ----
+
+#[tokio::test]
+async fn every_command_is_logged_and_pairing_codes_never_are() {
+    let (adb, _d) = setup("logging", false);
+    let (_, start) = log::since(0);
+    let _ = wireless::pair(&adb, "192.168.77.1:40000", "424242").await;
+    let _ = adb.shell("LOGSER123", &["echo hello-log-test"]).await;
+    let (entries, _) = log::since(start);
+    assert!(entries.iter().any(|e| e.command.contains("-s LOGSER123 shell echo hello-log-test")), "{entries:?}");
+    let pair = entries.iter().find(|e| e.command.contains("pair 192.168.77.1:40000")).expect("the pair command is listed");
+    assert!(pair.command.ends_with("******"), "{}", pair.command);
+    // No test in this file may leak a code into the shared log.
+    let (all, _) = log::since(0);
+    for code in ["424242", "123456", "000000", "999999"] {
+        assert!(!all.iter().any(|e| e.command.contains(&format!(" {code}"))), "{code} leaked into the log");
+    }
 }

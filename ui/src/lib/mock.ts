@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -305,5 +305,25 @@ export const mock = {
       "Serial numbers, e-mail addresses, IP/MAC addresses and long ID numbers were replaced with placeholders.", "Read it before sharing.", "",
       ...names.flatMap((n) => [`=== ${n} [ok] ===`, "$ (mock command)", "(sample output)", ""])].join("\n");
     return { text, sections: names.map((name) => ({ name, ok: true, bytes: 120 })) };
+  },
+
+  log: {
+    entries: [] as CommandLogEntry[],
+    seq: 0,
+    id: 0,
+    add(command: string, ok = true, note: string | null = null) {
+      const last = this.entries[this.entries.length - 1];
+      this.seq++;
+      if (last && last.command === command) { last.count++; last.seq = this.seq; last.timeMs = Date.now(); return; }
+      this.entries.push({ id: ++this.id, seq: this.seq, timeMs: Date.now(), command, ok, millis: 20 + Math.round(Math.random() * 80), count: 1, note });
+    },
+    async since(seq: number): Promise<CommandLog> {
+      // Looks like the real thing: the app's background polling shows up here.
+      this.add("adb devices -l");
+      if (this.seq % 4 === 0) this.add("adb -s R58M123ABC shell pm list packages -f -U --user 0");
+      if (this.seq % 7 === 0) this.add("adb -s R58M123ABC shell settings put global low_power 1", false, "device offline");
+      return { entries: this.entries.filter((e) => e.seq > seq).map((e) => ({ ...e })), seq: this.seq };
+    },
+    async clear() { this.entries = []; this.seq++; },
   },
 };

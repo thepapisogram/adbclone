@@ -15,6 +15,10 @@ fn quiet(cmd: &mut Command) {
     let _ = cmd;
 }
 
+fn first_line(s: &str) -> String {
+    s.trim().lines().next().unwrap_or("").chars().take(200).collect()
+}
+
 /// Everything a finished adb process produced.
 #[derive(Debug, Clone)]
 pub struct Output {
@@ -57,6 +61,17 @@ impl AdbRunner {
     /// Run and return everything, including stderr and the exit code. Errors only if adb could not be
     /// started or took too long: a non-zero exit is reported in the result, not as an error.
     pub async fn run_full(&self, args: &[&str]) -> Result<Output, AdbError> {
+        let started = std::time::Instant::now();
+        let result = self.run_full_inner(args).await;
+        let millis = started.elapsed().as_millis() as u64;
+        match &result {
+            Ok(o) => crate::log::record(args, o.code == Some(0), millis, if o.code == Some(0) { None } else { Some(first_line(&o.stderr)) }),
+            Err(e) => crate::log::record(args, false, millis, Some(e.to_string())),
+        }
+        result
+    }
+
+    async fn run_full_inner(&self, args: &[&str]) -> Result<Output, AdbError> {
         let mut attempt = 0;
         loop {
             let mut cmd = Command::new(&self.adb_path);

@@ -5,6 +5,7 @@ pub mod devices;
 pub mod error;
 pub mod health;
 pub mod labels;
+pub mod log;
 pub mod packages;
 pub mod processes;
 pub mod report;

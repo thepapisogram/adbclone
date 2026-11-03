@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{bridge, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, log as cmdlog, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1084,6 +1084,25 @@ fn save_text_file(path: String, text: String) -> Result<(), String> {
     std::fs::write(&path, text).map_err(|e| format!("Could not write {path}: {e}"))
 }
 
+// ---- command log ----
+
+#[derive(Serialize)]
+struct LogOut {
+    entries: Vec<cmdlog::Entry>,
+    seq: u64,
+}
+
+#[tauri::command]
+fn get_log(since: u64) -> LogOut {
+    let (entries, seq) = cmdlog::since(since);
+    LogOut { entries, seq }
+}
+
+#[tauri::command]
+fn clear_log() {
+    cmdlog::clear();
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1129,7 +1148,7 @@ fn main() {
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
-            device_report, save_text_file])
+            device_report, save_text_file, get_log, clear_log])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

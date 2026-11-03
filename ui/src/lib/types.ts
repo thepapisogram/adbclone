@@ -113,3 +113,6 @@ export interface LabelHandlers {
   onDetails: (d: DetailItem[]) => void;
   onIcons: (i: IconItem[]) => void;
 }
+
+export interface CommandLogEntry { id: number; seq: number; timeMs: number; command: string; ok: boolean; millis: number; count: number; note?: string | null }
+export interface CommandLog { entries: CommandLogEntry[]; seq: number }

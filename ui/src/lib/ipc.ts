@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -133,5 +133,10 @@ export const ipc = {
       URL.revokeObjectURL(url);
       return true;
     },
+  },
+
+  log: {
+    since: (seq: number): Promise<CommandLog> => (inTauri ? call("get_log", { since: seq }) : mock.log.since(seq)),
+    clear: (): Promise<void> => (inTauri ? call("clear_log") : mock.log.clear()),
   },
 };

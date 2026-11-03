@@ -17,6 +17,7 @@ import { Snapshots } from "./features/snapshots/Snapshots";
 import { Health } from "./features/health/Health";
 import { Debloat } from "./features/debloat/Debloat";
 import { Tune } from "./features/tuning/Tune";
+import { Logs } from "./features/logs/Logs";
 import { DeviceCard } from "./features/deviceinfo/DeviceCard";
 
 type Scope = "all" | "system" | "user";
@@ -43,7 +44,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
-  const [tab, setTab] = useState<"apps" | "running" | "health" | "debloat" | "tune" | "snapshots">("apps");
+  const [tab, setTab] = useState<"apps" | "running" | "health" | "debloat" | "tune" | "snapshots" | "logs">("apps");
   const [snapVersion, setSnapVersion] = useState(0);
   const [notice, setNotice] = useState("");
   const historyReady = useRef(false);
@@ -206,6 +207,7 @@ export default function App() {
           <button className={tab === "debloat" ? "active" : ""} onClick={() => setTab("debloat")}>Debloat</button>
           <button className={tab === "tune" ? "active" : ""} onClick={() => setTab("tune")}>Tune</button>
           <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>Snapshots</button>
+          <button className={tab === "logs" ? "active" : ""} onClick={() => setTab("logs")}>Logs</button>
         </nav>
         <div className="spacer" />
         <select value={serial} onChange={(e) => setSerial(e.target.value)} aria-label="Device">
@@ -237,6 +239,8 @@ export default function App() {
       {tab === "health" && <Health serial={serial} wireless={isWireless(serial)} active onShowRunning={() => setTab("running")} />}
 
       {tab === "debloat" && <Debloat serial={serial} apps={apps} busy={busy} onApply={(action, names) => setPending({ action, names })} />}
+
+      {tab === "logs" && <Logs active />}
 
       {tab === "tune" && <Tune serial={serial} apps={apps} active />}
 

@@ -10,7 +10,7 @@ trap 'kill $PID 2>/dev/null' EXIT
 sleep 2
 fail=0
 for f in e2e/*.cjs; do
-  out=$(BASE="http://localhost:$PORT" NODE_PATH="$(npm root -g)" node "$f" /tmp/e2e-shot-1.png /tmp/e2e-shot-2.png 2>&1)
+  out=$(BASE="http://localhost:$PORT" NODE_PATH="$(npm root -g)" timeout 150 node "$f" /tmp/e2e-shot-1.png /tmp/e2e-shot-2.png 2>&1)
   status=$?
   # A script fails if it throws, prints console errors, or prints a check that came out false.
   bad=$(echo "$out" | grep -E ': false|errors \[ [^]]|Error:|TimeoutError' | head -3)
