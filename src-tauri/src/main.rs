@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{devices, labels, packages, processes, wireless, AdbRunner};
+use adb_core::{devices, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -45,6 +45,7 @@ struct AppState {
     qr_generation: AtomicU64,
     saved: Mutex<Vec<SavedDevice>>,
     saved_file: Mutex<Option<std::path::PathBuf>>,
+    data_dir: Mutex<Option<std::path::PathBuf>>,
 }
 
 #[derive(Serialize, serde::Deserialize, Clone)]
@@ -114,36 +115,16 @@ async fn list_devices() -> Result<Vec<devices::Device>, String> {
 
 #[tauri::command]
 async fn list_apps(serial: String) -> Result<Vec<AppInfo>, String> {
-    let a = adb();
-    let (ar, sr) = (&a, &serial);
-    let names = |f, u| async move { packages::list_packages(ar, sr, f, u).await };
-    let (all_u, installed, system, disabled) = tokio::try_join!(
-        names(Filter::All, true),
-        names(Filter::All, false),
-        names(Filter::System, true),
-        names(Filter::Disabled, false)
-    )
-    .map_err(|e| e.to_string())?;
-
-    let set = |v: &[packages::Package]| v.iter().map(|p| p.name.clone()).collect::<HashSet<_>>();
-    let (installed, system, disabled) = (set(&installed), set(&system), set(&disabled));
+    let states = packages::list_states(&adb(), &serial).await.map_err(|e| e.to_string())?;
     let rules = ratings();
-
-    let mut out: Vec<AppInfo> = all_u
+    let mut out: Vec<AppInfo> = states
         .into_iter()
         .map(|p| {
-            let state = if !installed.contains(&p.name) {
-                "uninstalled"
-            } else if disabled.contains(&p.name) {
-                "disabled"
-            } else {
-                "enabled"
-            };
             let rule = rules.lookup(&p.name);
             AppInfo {
                 label: labels::fallback_label(&p.name),
-                system: system.contains(&p.name),
-                state,
+                system: p.system,
+                state: p.state.as_str(),
                 risk: rule.as_ref().map_or("unknown", |r| r.risk),
                 disable_safety: rule.as_ref().map_or("unknown", |r| r.disable.as_str()),
                 uninstall_safety: rule.as_ref().map_or("unknown", |r| r.uninstall.as_str()),
@@ -511,11 +492,154 @@ async fn wireless_reconnect(state: State<'_, AppState>, address: String) -> Resu
     Ok(msg)
 }
 
+// ---- snapshots and history ----
+
+fn data_subdir(state: &AppState, sub: &str) -> Result<std::path::PathBuf, String> {
+    let base = state.data_dir.lock().unwrap().clone().ok_or("The app data folder is not available.")?;
+    Ok(base.join(sub))
+}
+
+fn now_secs() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+}
+
+async fn device_model(a: &AdbRunner, serial: &str) -> Option<String> {
+    devices::list_devices(a).await.ok()?.into_iter().find(|d| d.serial == serial)?.model
+}
+
+async fn take_snapshot(
+    state: &AppState,
+    a: &AdbRunner,
+    serial: &str,
+    name: &str,
+    auto: bool,
+) -> Result<snapshot::SnapshotMeta, String> {
+    let dir = data_subdir(state, "snapshots")?;
+    let states = packages::list_states(a, serial).await.map_err(|e| e.to_string())?;
+    if states.is_empty() {
+        return Err("No packages were found, so nothing was saved. Is the phone connected and authorised?".into());
+    }
+    let entries = states.into_iter().map(|p| snapshot::PackageEntry { name: p.name, state: p.state }).collect();
+    let snap = snapshot::Snapshot::new(name, now_secs(), auto, device_model(a, serial).await, entries);
+    snapshot::save(&dir, &snap).map_err(|e| format!("Could not save the snapshot: {e}"))?;
+    if auto {
+        snapshot::prune_auto(&dir, 20);
+    }
+    Ok(snap.meta())
+}
+
+#[tauri::command]
+async fn snapshot_create(state: State<'_, AppState>, serial: String, name: String, auto: bool) -> Result<snapshot::SnapshotMeta, String> {
+    let name = if name.trim().is_empty() { "Snapshot".to_string() } else { name };
+    take_snapshot(&state, &adb(), &serial, &name, auto).await
+}
+
+#[tauri::command]
+fn snapshot_list(state: State<'_, AppState>) -> Result<Vec<snapshot::SnapshotMeta>, String> {
+    Ok(snapshot::list(&data_subdir(&state, "snapshots")?))
+}
+
+#[tauri::command]
+fn snapshot_delete(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    snapshot::delete(&data_subdir(&state, "snapshots")?, &id).map_err(|e| e.to_string())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PlanResponse {
+    plan: snapshot::RestorePlan,
+    snapshot_name: String,
+    snapshot_model: Option<String>,
+    device_model: Option<String>,
+}
+
+async fn current_map(a: &AdbRunner, serial: &str) -> Result<HashMap<String, packages::PkgState>, String> {
+    let states = packages::list_states(a, serial).await.map_err(|e| e.to_string())?;
+    Ok(states.into_iter().map(|p| (p.name, p.state)).collect())
+}
+
+#[tauri::command]
+async fn snapshot_plan(state: State<'_, AppState>, serial: String, id: String) -> Result<PlanResponse, String> {
+    let a = adb();
+    let snap = snapshot::load(&data_subdir(&state, "snapshots")?, &id).map_err(|e| format!("Could not read the snapshot: {e}"))?;
+    let plan = snapshot::plan_restore(&snap, &current_map(&a, &serial).await?);
+    Ok(PlanResponse { plan, snapshot_name: snap.name, snapshot_model: snap.device_model, device_model: device_model(&a, &serial).await })
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RestoreResponse {
+    results: Vec<ActionResult>,
+    /// Changes still needed after restoring (0 means the device now matches the snapshot).
+    remaining: usize,
+    /// The automatic snapshot taken just before restoring, so the restore itself can be undone.
+    undo_snapshot: Option<snapshot::SnapshotMeta>,
+}
+
+#[tauri::command]
+async fn snapshot_restore(state: State<'_, AppState>, serial: String, id: String) -> Result<RestoreResponse, String> {
+    let a = adb();
+    let dir = data_subdir(&state, "snapshots")?;
+    let snap = snapshot::load(&dir, &id).map_err(|e| format!("Could not read the snapshot: {e}"))?;
+    let plan = snapshot::plan_restore(&snap, &current_map(&a, &serial).await?);
+
+    // Safety net first: if this snapshot saving fails, nothing has been changed yet.
+    let undo = take_snapshot(&state, &a, &serial, &format!("Before restoring {}", snap.name), true).await?;
+
+    let results = snapshot::execute(&a, &serial, &plan)
+        .await
+        .into_iter()
+        .map(|o| ActionResult { name: o.name, ok: o.ok, message: o.message })
+        .collect();
+    let remaining = snapshot::plan_restore(&snap, &current_map(&a, &serial).await?).changes.len();
+    Ok(RestoreResponse { results, remaining, undo_snapshot: Some(undo) })
+}
+
+#[tauri::command]
+fn snapshot_export(state: State<'_, AppState>, id: String, path: String) -> Result<(), String> {
+    let snap = snapshot::load(&data_subdir(&state, "snapshots")?, &id).map_err(|e| e.to_string())?;
+    let json = serde_json::to_string_pretty(&snap).map_err(|e| e.to_string())?;
+    std::fs::write(&path, json).map_err(|e| format!("Could not write {path}: {e}"))
+}
+
+#[tauri::command]
+fn snapshot_import(state: State<'_, AppState>, path: String) -> Result<snapshot::SnapshotMeta, String> {
+    let meta = std::fs::metadata(&path).map_err(|e| format!("Could not open the file: {e}"))?;
+    if meta.len() > 20_000_000 {
+        return Err("That file is too large to be a snapshot.".into());
+    }
+    let text = std::fs::read_to_string(&path).map_err(|e| format!("Could not read the file: {e}"))?;
+    let snap = snapshot::import_from_str(&text, now_secs())?;
+    snapshot::save(&data_subdir(&state, "snapshots")?, &snap).map_err(|e| e.to_string())?;
+    Ok(snap.meta())
+}
+
+#[tauri::command]
+fn history_load(state: State<'_, AppState>) -> serde_json::Value {
+    data_subdir(&state, "history.json")
+        .ok()
+        .and_then(|f| std::fs::read_to_string(f).ok())
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or(serde_json::Value::Array(vec![]))
+}
+
+#[tauri::command]
+fn history_save(state: State<'_, AppState>, entries: Vec<serde_json::Value>) -> Result<(), String> {
+    let file = data_subdir(&state, "history.json")?;
+    if let Some(dir) = file.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+    let kept: Vec<_> = entries.into_iter().take(500).collect();
+    std::fs::write(file, serde_json::to_string(&kept).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .setup(|app| {
             let data = app.path().app_data_dir().ok();
+            *app.state::<AppState>().data_dir.lock().unwrap() = data.clone();
             // Optional user rating files: <app-data>/ratings/*.json override built-ins.
             let dir = data.as_ref().map(|d| d.join("ratings"));
             let _ = RATINGS.set(ratings::Ratings::load(dir.as_deref()));
@@ -541,7 +665,9 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![list_devices, list_apps, apply_action, list_running, load_labels,
             adb_check, wireless_discover, wireless_pair, wireless_connect, wireless_disconnect, wireless_usb_to_wireless,
-            wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect])
+            wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect,
+            snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
+            history_load, history_save])
         .run(tauri::generate_context!())
         .expect("error while running ADB Manager");
 }

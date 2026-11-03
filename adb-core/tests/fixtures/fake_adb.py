@@ -59,7 +59,37 @@ elif args[:1] == ["pull"]:
     print("1 file pulled")
 elif args[:1] == ["shell"]:
     cmd = " ".join(args[1:])
-    if cmd.startswith("ip -f inet addr show"):
+    if cmd.startswith("pm ") or cmd.startswith("cmd package "):
+        import json
+        db_path = os.path.join(d, "pkgdb.json")
+        db = json.load(open(db_path))
+        words = cmd.split()
+        def save():
+            json.dump(db, open(db_path, "w"))
+        def target():
+            return words[-1]
+        if cmd.startswith("pm list packages"):
+            flags = set(words[3:])
+            for i, (name, p) in enumerate(sorted(db.items())):
+                st = p["state"]
+                if st == "uninstalled" and "-u" not in flags: continue
+                if "-s" in flags and not p["system"]: continue
+                if "-3" in flags and p["system"]: continue
+                if "-d" in flags and st != "disabled": continue
+                if "-e" in flags and st != "enabled": continue
+                print(f"package:/system/app/{name}.apk={name} uid:{10000 + i}")
+        else:
+            name = target()
+            if name not in db:
+                print("Exception: Package " + name + " doesn't exist"); sys.exit(0)
+            if "fail" in name and ("enable" in words or "disable-user" in words):
+                print("Failure [DELETE_FAILED_DEVICE_POLICY_MANAGER]"); sys.exit(0)
+            if words[1] == "disable-user": db[name]["state"] = "disabled"; print(f"Package {name} new state: disabled-user")
+            elif words[1] == "enable": db[name]["state"] = "enabled"; print(f"Package {name} new state: enabled")
+            elif words[1] == "uninstall": db[name]["state"] = "uninstalled"; print("Success")
+            elif "install-existing" in words: db[name]["state"] = "enabled"; print(f"Package {name} installed for user: 0")
+            save()
+    elif cmd.startswith("ip -f inet addr show"):
         sys.stdout.write(read("ipaddr.txt", 'Device "wlan0" does not exist.\n'))
     elif cmd.startswith("stat -c"):
         for p in cmd.split("2>/dev/null")[0].split("'")[-1].split():

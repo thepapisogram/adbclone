@@ -1,5 +1,5 @@
 use crate::{AdbError, AdbRunner};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Package {
@@ -32,6 +32,56 @@ pub fn parse_packages(output: &str) -> Vec<Package> {
         .collect()
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PkgState {
+    Enabled,
+    Disabled,
+    Uninstalled,
+}
+
+impl PkgState {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            PkgState::Enabled => "enabled",
+            PkgState::Disabled => "disabled",
+            PkgState::Uninstalled => "uninstalled",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PackageState {
+    pub name: String,
+    pub system: bool,
+    pub state: PkgState,
+}
+
+/// Every package on the device (including ones uninstalled for the current user) with its state.
+pub async fn list_states(adb: &AdbRunner, serial: &str) -> Result<Vec<PackageState>, AdbError> {
+    let (all_u, installed, system, disabled) = tokio::try_join!(
+        list_packages(adb, serial, Filter::All, true),
+        list_packages(adb, serial, Filter::All, false),
+        list_packages(adb, serial, Filter::System, true),
+        list_packages(adb, serial, Filter::Disabled, false),
+    )?;
+    let set = |v: &[Package]| v.iter().map(|p| p.name.clone()).collect::<std::collections::HashSet<_>>();
+    let (installed, system, disabled) = (set(&installed), set(&system), set(&disabled));
+    Ok(all_u
+        .into_iter()
+        .map(|p| {
+            let state = if !installed.contains(&p.name) {
+                PkgState::Uninstalled
+            } else if disabled.contains(&p.name) {
+                PkgState::Disabled
+            } else {
+                PkgState::Enabled
+            };
+            PackageState { system: system.contains(&p.name), state, name: p.name }
+        })
+        .collect())
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum Filter {
     All,
@@ -62,7 +112,7 @@ pub async fn list_packages(
 }
 
 /// Validate a package name before interpolating it into a shell command.
-fn valid_name(name: &str) -> bool {
+pub fn valid_name(name: &str) -> bool {
     !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_')
 }
 

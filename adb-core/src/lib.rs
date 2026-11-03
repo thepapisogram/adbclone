@@ -5,6 +5,7 @@ pub mod labels;
 pub mod packages;
 pub mod processes;
 pub mod runner;
+pub mod snapshot;
 pub mod wireless;
 
 pub use error::AdbError;

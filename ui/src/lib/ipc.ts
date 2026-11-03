@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -50,5 +50,50 @@ export const ipc = {
     forget: (address: string): Promise<void> => (inTauri ? call("forget_device", { address }) : mock.wireless.forget(address)),
     reconnect: (address: string): Promise<string> =>
       inTauri ? call("wireless_reconnect", { address }) : mock.wireless.reconnect(address),
+  },
+
+  snapshots: {
+    create: (serial: string, name: string, auto: boolean): Promise<SnapshotMeta> =>
+      inTauri ? call("snapshot_create", { serial, name, auto }) : mock.snapshots.create(serial, name, auto),
+    list: (): Promise<SnapshotMeta[]> => (inTauri ? call("snapshot_list") : mock.snapshots.list()),
+    remove: (id: string): Promise<void> => (inTauri ? call("snapshot_delete", { id }) : mock.snapshots.remove(id)),
+    plan: (serial: string, id: string): Promise<PlanResponse> =>
+      inTauri ? call("snapshot_plan", { serial, id }) : mock.snapshots.plan(serial, id),
+    restore: (serial: string, id: string): Promise<RestoreResponse> =>
+      inTauri ? call("snapshot_restore", { serial, id }) : mock.snapshots.restore(serial, id),
+    /** Asks where to save (native dialog in the app, a download in the browser). Resolves false if cancelled. */
+    export: async (meta: SnapshotMeta): Promise<boolean> => {
+      const file = `${meta.name.replace(/[^\w.-]+/g, "_") || "snapshot"}.json`;
+      if (inTauri) {
+        const { save } = await import("@tauri-apps/plugin-dialog");
+        const path = await save({ defaultPath: file, filters: [{ name: "Snapshot", extensions: ["json"] }] });
+        if (!path) return false;
+        await call("snapshot_export", { id: meta.id, path });
+        return true;
+      }
+      const url = URL.createObjectURL(new Blob([mock.snapshots.exportJson(meta.id)], { type: "application/json" }));
+      Object.assign(document.createElement("a"), { href: url, download: file }).click();
+      URL.revokeObjectURL(url);
+      return true;
+    },
+    /** Asks for a snapshot file to import. Resolves null if cancelled. */
+    import: async (): Promise<SnapshotMeta | null> => {
+      if (inTauri) {
+        const { open } = await import("@tauri-apps/plugin-dialog");
+        const path = await open({ multiple: false, filters: [{ name: "Snapshot", extensions: ["json"] }] });
+        if (!path || Array.isArray(path)) return null;
+        return call("snapshot_import", { path });
+      }
+      const file = await new Promise<File | null>((res) => {
+        const i = Object.assign(document.createElement("input"), { type: "file", accept: ".json" });
+        i.onchange = () => res(i.files?.[0] ?? null);
+        i.click();
+      });
+      return file ? mock.snapshots.importJson(await file.text()) : null;
+    },
+  },
+  history: {
+    load: (): Promise<unknown[]> => (inTauri ? call("history_load") : Promise.resolve(mock.history.load)),
+    save: (entries: unknown[]): Promise<void> => (inTauri ? call("history_save", { entries }) : Promise.resolve()),
   },
 };

@@ -5,10 +5,11 @@ import { isWireless } from "./lib/types";
 import type { Action, AppInfo, Device, LabelProgress, PkgState, Risk } from "./lib/types";
 import { SafetyTag } from "./components/SafetyTag";
 import { Running } from "./features/running/Running";
+import { Snapshots } from "./features/snapshots/Snapshots";
 
 type Scope = "all" | "system" | "user";
 type StateFilter = "any" | PkgState;
-interface LogEntry { time: string; action: Action; name: string; ok: boolean; message?: string; prev: PkgState }
+interface LogEntry { time: string; serial?: string; action: Action; name: string; ok: boolean; message?: string; prev: PkgState }
 
 const riskOrder: Record<Risk, number> = { recommended: 0, advanced: 1, unknown: 2, unsafe: 3 };
 const undoOf: Partial<Record<Action, Action>> = { disable: "enable", enable: "disable", uninstall: "restore", restore: "uninstall" };
@@ -30,7 +31,10 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
-  const [tab, setTab] = useState<"apps" | "running">("apps");
+  const [tab, setTab] = useState<"apps" | "running" | "snapshots">("apps");
+  const [snapVersion, setSnapVersion] = useState(0);
+  const [notice, setNotice] = useState("");
+  const historyReady = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
   const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
@@ -68,6 +72,13 @@ export default function App() {
   }, []);
 
   useEffect(() => { refreshDevices(); }, [refreshDevices]);
+
+  // Action history survives restarts.
+  useEffect(() => {
+    ipc.history.load().then((h) => { if (Array.isArray(h)) setLog((cur) => (cur.length ? cur : (h as LogEntry[]))); }).catch(() => {}).finally(() => { historyReady.current = true; });
+  }, []);
+  useEffect(() => { if (historyReady.current) ipc.history.save(log).catch(() => {}); }, [log]);
+  useEffect(() => { if (!notice) return; const t = setTimeout(() => setNotice(""), 7000); return () => clearTimeout(t); }, [notice]);
   useEffect(() => {
     ipc.wireless.check().then((c) => setAdbWarning(c.ok ? "" : c.message)).catch(() => {});
     // Notice phones being plugged in, unplugged or dropping off Wi-Fi.
@@ -120,11 +131,23 @@ export default function App() {
 
   async function run(action: Action, names: string[]) {
     setBusy(true);
+    if ((action === "disable" || action === "uninstall") && names.length > 0) {
+      // Safety net: save the current state first. If that fails nothing is changed.
+      try {
+        const snap = await ipc.snapshots.create(serial, `Before ${action} of ${names.length} app${names.length > 1 ? "s" : ""}`, true);
+        setSnapVersion((v) => v + 1);
+        setNotice(`Safety snapshot saved: "${snap.name}". Undo from the Snapshots tab.`);
+      } catch (e) {
+        setError(`Could not save a safety snapshot, so nothing was changed. ${String(e)}`);
+        setBusy(false); setPending(null);
+        return;
+      }
+    }
     const prevs = new Map(apps.map((a) => [a.name, a.state]));
     try {
       const results = await ipc.applyAction(serial, action, names);
       const time = new Date().toLocaleTimeString();
-      setLog((l) => [...results.map((r) => ({ time, action, name: r.name, ok: r.ok, message: r.message, prev: prevs.get(r.name) ?? "enabled" })), ...l]);
+      setLog((l) => [...results.map((r) => ({ time, serial, action, name: r.name, ok: r.ok, message: r.message, prev: prevs.get(r.name) ?? "enabled" })), ...l]);
       await loadApps(serial);
     } catch (e) { setError(String(e)); }
     finally { setBusy(false); setPending(null); }
@@ -145,6 +168,7 @@ export default function App() {
         <nav className="tabs">
           <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>Apps</button>
           <button className={tab === "running" ? "active" : ""} onClick={() => setTab("running")}>Running</button>
+          <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>Snapshots</button>
         </nav>
         <div className="spacer" />
         <select value={serial} onChange={(e) => setSerial(e.target.value)} aria-label="Device">
@@ -164,11 +188,14 @@ export default function App() {
 
       {error && <div className="error" role="alert">{error}</div>}
       {adbWarning && <div className="error" role="alert">{adbWarning}</div>}
+      {notice && <div className="notice" role="status">{notice}</div>}
       {device?.state === "unauthorized" && <div className="error">Accept the USB debugging prompt on the phone.</div>}
 
       {tab === "running" && (
         <Running serial={serial} wireless={isWireless(serial)} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
       )}
+
+      {tab === "snapshots" && <Snapshots serial={serial} version={snapVersion} onRestored={() => loadApps(serial)} />}
 
       {tab === "apps" && <>
       <div className="toolbar">
@@ -236,7 +263,7 @@ export default function App() {
               <div key={i} className={`entry ${e.ok ? "" : "fail"}`}>
                 <div><b>{labelOf[e.action]}</b> <span className="mono">{e.name}</span></div>
                 <div className="muted">{e.time} · {e.ok ? "ok" : e.message ?? "failed"}</div>
-                {e.ok && undoOf[e.action] && <button disabled={busy} onClick={() => run(undoOf[e.action]!, [e.name])}>Undo</button>}
+                {e.ok && undoOf[e.action] && <button disabled={busy || e.serial !== serial} title={e.serial !== serial ? "Select the device this was done on to undo" : undefined} onClick={() => run(undoOf[e.action]!, [e.name])}>Undo</button>}
               </div>
             ))}
           </aside>

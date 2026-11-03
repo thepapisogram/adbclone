@@ -64,3 +64,11 @@ label.inline { display: inline-flex; align-items: center; gap: 4px; }
 .qr { background: #fff; padding: 8px; border-radius: 8px; align-self: flex-start; } .qr svg { display: block; width: 220px; height: 220px; }
 .saved { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
 @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+
+.notice { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); padding: 8px 14px; }
+.snapshots { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.actions .grow { flex: 1; min-width: 200px; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; }
+.note.top { border-top: 0; border-bottom: 1px solid var(--line); }
+tr.static { cursor: default; } tr.static:hover { background: transparent; }
+.rowbtns { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
+ul.changes { max-height: 220px; overflow: auto; padding-left: 18px; margin: 8px 0; }

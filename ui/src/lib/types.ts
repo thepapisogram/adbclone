@@ -54,3 +54,15 @@ export interface QrStart { svg: string; name: string; password: string; id: numb
 
 /** Wireless devices have an ip:port serial, or an mDNS name like `adb-XXXX._adb-tls-connect._tcp`. */
 export const isWireless = (serial: string) => serial.includes(":") || serial.startsWith("adb-");
+
+export type Step = "restore" | "enable" | "disable" | "uninstall";
+export interface SnapshotMeta {
+  id: string; name: string; created: number; auto: boolean; deviceModel?: string | null;
+  enabled: number; disabled: number; uninstalled: number;
+}
+export interface Change { name: string; from: PkgState; to: PkgState; steps: Step[] }
+export interface PlanResponse {
+  plan: { changes: Change[]; missing: string[]; unchanged: number };
+  snapshotName: string; snapshotModel?: string | null; deviceModel?: string | null;
+}
+export interface RestoreResponse { results: ActionResult[]; remaining: number; undoSnapshot?: SnapshotMeta | null }

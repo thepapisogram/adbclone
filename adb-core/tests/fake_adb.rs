@@ -1,5 +1,5 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
-use adb_core::{labels, processes, wireless, AdbRunner};
+use adb_core::{labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -151,4 +151,70 @@ async fn usb_to_wireless_without_wifi_explains() {
     let (adb, _d) = setup("nowifi", false);
     let e = wireless::usb_to_wireless(&adb, "R58M123ABC", 5555).await.unwrap_err().to_string();
     assert!(e.contains("Wi-Fi"), "{e}");
+}
+
+// ---- snapshot and restore against a stateful fake device ----
+
+fn write_db(dir: &PathBuf, rows: &[(&str, bool, &str)]) {
+    let body: Vec<String> = rows.iter().map(|(n, sys, st)| format!("\"{n}\": {{\"system\": {sys}, \"state\": \"{st}\"}}")).collect();
+    fs::write(dir.join("pkgdb.json"), format!("{{{}}}", body.join(","))).unwrap();
+}
+
+async fn current(adb: &AdbRunner) -> std::collections::HashMap<String, PkgState> {
+    packages::list_states(adb, "SER").await.unwrap().into_iter().map(|p| (p.name, p.state)).collect()
+}
+
+#[tokio::test]
+async fn list_states_reads_all_four_states() {
+    let (adb, d) = setup("states", false);
+    write_db(&d, &[("com.a", true, "enabled"), ("com.b", true, "disabled"), ("com.c", false, "enabled"), ("com.d", true, "uninstalled")]);
+    let s = packages::list_states(&adb, "SER").await.unwrap();
+    let get = |n: &str| s.iter().find(|p| p.name == n).unwrap();
+    assert_eq!(get("com.a").state, PkgState::Enabled);
+    assert_eq!(get("com.b").state, PkgState::Disabled);
+    assert_eq!(get("com.d").state, PkgState::Uninstalled);
+    assert!(get("com.a").system && !get("com.c").system);
+    assert_eq!(s.len(), 4);
+}
+
+#[tokio::test]
+async fn snapshot_then_restore_brings_device_back() {
+    let (adb, d) = setup("restore", false);
+    write_db(&d, &[("com.a", true, "enabled"), ("com.b", true, "disabled"), ("com.c", false, "enabled"), ("com.d", true, "uninstalled")]);
+    let entries: Vec<_> = packages::list_states(&adb, "SER").await.unwrap().into_iter()
+        .map(|p| snapshot::PackageEntry { name: p.name, state: p.state }).collect();
+    let snap = snapshot::Snapshot::new("before", 1, false, None, entries);
+    let before = current(&adb).await;
+
+    // The "debloat": disable a, enable b, uninstall c, restore d.
+    packages::disable(&adb, "SER", "com.a").await.unwrap();
+    packages::enable(&adb, "SER", "com.b").await.unwrap();
+    packages::uninstall_for_user(&adb, "SER", "com.c").await.unwrap();
+    packages::restore(&adb, "SER", "com.d").await.unwrap();
+    assert_ne!(current(&adb).await, before);
+
+    let plan = snapshot::plan_restore(&snap, &current(&adb).await);
+    assert_eq!(plan.changes.len(), 4);
+    let out = snapshot::execute(&adb, "SER", &plan).await;
+    assert!(out.iter().all(|o| o.ok), "{out:?}");
+    assert_eq!(current(&adb).await, before, "device matches the snapshot again");
+    assert!(snapshot::plan_restore(&snap, &current(&adb).await).changes.is_empty());
+}
+
+#[tokio::test]
+async fn failed_step_is_reported_and_others_continue() {
+    let (adb, d) = setup("restorefail", false);
+    write_db(&d, &[("com.fail.pkg", false, "enabled"), ("com.ok", false, "enabled")]);
+    let entries: Vec<_> = packages::list_states(&adb, "SER").await.unwrap().into_iter()
+        .map(|p| snapshot::PackageEntry { name: p.name, state: p.state }).collect();
+    let snap = snapshot::Snapshot::new("s", 1, false, None, entries);
+    // Put both into states that need a step to fix; the fake refuses to enable "fail" packages.
+    write_db(&d, &[("com.fail.pkg", false, "disabled"), ("com.ok", false, "disabled")]);
+    let plan = snapshot::plan_restore(&snap, &current(&adb).await);
+    let out = snapshot::execute(&adb, "SER", &plan).await;
+    let bad = out.iter().find(|o| o.name == "com.fail.pkg").unwrap();
+    assert!(!bad.ok && bad.message.as_deref().unwrap().starts_with("enable:"), "{bad:?}");
+    assert!(out.iter().find(|o| o.name == "com.ok").unwrap().ok);
+    let left = snapshot::plan_restore(&snap, &current(&adb).await);
+    assert_eq!(left.changes.len(), 1, "only the failed package is still different");
 }

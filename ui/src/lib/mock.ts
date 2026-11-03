@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -43,6 +43,29 @@ const wifi = new Set<string>();
 const savedList: SavedDevice[] = [];
 let qrCancelled = false;
 const fakeQr = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="200" height="200" shape-rendering="crispEdges"><rect width="8" height="8" fill="#fff"/><path d="M0 0h3v3H0zM5 0h3v3H5zM0 5h3v3H0zM4 4h1v1H4zM6 5h2v1H6zM5 7h1v1H5z" fill="#000"/></svg>';
+interface MockSnap extends SnapshotMeta { states: Record<string, AppInfo["state"]> }
+const snaps: MockSnap[] = [];
+const metaOf = (m: MockSnap): SnapshotMeta => { const { states: _s, ...rest } = m; return rest; };
+function takeSnap(name: string, auto: boolean): MockSnap {
+  const states = Object.fromEntries(apps.map((a) => [a.name, a.state]));
+  const v = Object.values(states);
+  const m: MockSnap = { id: `${Date.now()}-${snaps.length}`, name, created: Math.floor(Date.now() / 1000), auto, deviceModel: "Pixel 7 (mock)",
+    enabled: v.filter((x) => x === "enabled").length, disabled: v.filter((x) => x === "disabled").length, uninstalled: v.filter((x) => x === "uninstalled").length, states };
+  snaps.unshift(m);
+  return m;
+}
+const stepsFor = (from: string, to: string): Change["steps"] =>
+  from === "uninstalled" ? ["restore", to === "enabled" ? "enable" : "disable"] : to === "uninstalled" ? ["uninstall"] : [to === "enabled" ? "enable" : "disable"];
+function planFor(m: MockSnap): PlanResponse["plan"] {
+  const changes: Change[] = []; const missing: string[] = []; let unchanged = 0;
+  for (const [name, to] of Object.entries(m.states)) {
+    const a = apps.find((x) => x.name === name);
+    if (!a) missing.push(name); else if (a.state === to) unchanged++; else changes.push({ name, from: a.state, to, steps: stepsFor(a.state, to) });
+  }
+  const rank = (c: Change) => (c.steps[0] === "restore" ? 0 : c.steps[0] === "enable" ? 1 : c.steps[0] === "disable" ? 2 : 3);
+  changes.sort((x, y) => rank(x) - rank(y));
+  return { changes, missing, unchanged };
+}
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 
 export const mock = {
@@ -148,4 +171,35 @@ export const mock = {
     async forget(address: string): Promise<void> { const i = savedList.findIndex((d) => d.address === address); if (i >= 0) savedList.splice(i, 1); },
     async reconnect(address: string): Promise<string> { await delay(600); wifi.add(address); return `connected to ${address}`; },
   },
+
+  snapshots: {
+    async create(_serial: string, name: string, auto: boolean): Promise<SnapshotMeta> { await delay(300); return metaOf(takeSnap(name || "Snapshot", auto)); },
+    async list(): Promise<SnapshotMeta[]> { return snaps.map(metaOf); },
+    async remove(id: string): Promise<void> { const i = snaps.findIndex((m) => m.id === id); if (i >= 0) snaps.splice(i, 1); },
+    async plan(_serial: string, id: string): Promise<PlanResponse> {
+      await delay(300);
+      const m = snaps.find((x) => x.id === id)!;
+      return { plan: planFor(m), snapshotName: m.name, snapshotModel: m.deviceModel, deviceModel: "Pixel 7 (mock)" };
+    },
+    async restore(_serial: string, id: string): Promise<RestoreResponse> {
+      await delay(700);
+      const m = snaps.find((x) => x.id === id)!;
+      const undo = takeSnap(`Before restoring ${m.name}`, true);
+      const plan = planFor(m);
+      const results = plan.changes.map((c) => {
+        if (c.name === "com.google.android.apps.photos" && c.to !== "enabled") return { name: c.name, ok: false, message: "disable: Failure [DELETE_FAILED_DEVICE_POLICY_MANAGER]" };
+        apps.find((a) => a.name === c.name)!.state = c.to;
+        return { name: c.name, ok: true };
+      });
+      return { results, remaining: planFor(m).changes.length, undoSnapshot: metaOf(undo) };
+    },
+    exportJson(id: string): string { const m = snaps.find((x) => x.id === id)!; return JSON.stringify(m, null, 2); },
+    importJson(text: string): SnapshotMeta {
+      const m = JSON.parse(text) as MockSnap;
+      if (!m.states) throw "That file is not a valid snapshot.";
+      m.id = `${Date.now()}-imp`; m.name = `${m.name} (imported)`; m.auto = false; snaps.unshift(m);
+      return metaOf(m);
+    },
+  },
+  history: { load: [] as unknown[] },
 };
