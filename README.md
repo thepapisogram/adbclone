@@ -25,10 +25,23 @@ cd ui && npx tauri build                  # installers / executable
 ```
 `.github/workflows/build.yml` builds Windows, macOS and Linux artifacts.
 
-## Status
-Features: app names and icons for every app through a temporary on-device helper (pushed, run once, deleted; nothing is installed; falls back to reading app files, and explains any app it cannot name), "Save device report" (read-only, privacy-scrubbed dump of what the app reads from the phone, for fixing parsers from real data), Tune tab (calmer animations, battery saver, 60 Hz cap, per-app background restrictions, one-click cool-down with before/after temperatures; every change is verified on the phone and undoable), temperature tab (battery and sensor temperatures, throttling status, CPU speed), device info, debloat wizard (Safe/Balanced/Aggressive presets with RAM estimates), wireless ADB (pair by code or QR, USB-to-Wi-Fi switch, saved phones that reconnect when the port changes), snapshots of app states (automatic before every disable/uninstall batch, restorable, exportable), saved action history, app list with real names (read from APKs, cached), disable/enable/uninstall/restore with undo, a Running tab (RAM, CPU, force stop) and safe-to-disable / safe-to-uninstall tags from ~465 own ratings.
+## Features
+- **Set-up:** downloads Google's platform-tools if adb is missing; first-run guide for USB and Wireless debugging with maker notes (Xiaomi, Samsung and others); wireless ADB (pair by code or QR, USB-to-Wi-Fi switch, saved phones).
+- **Apps:** real names and icons through a temporary on-device helper (nothing installed); plain-language mode (names and a one-line reason instead of package names); filters by category, "installed by" and duplicates of Google apps; disable / enable / uninstall for you / restore with undo; ~700 own ratings with Safe / Balanced / Aggressive tiers, "what stops working" lines, and apps you actually use (home, dialer, browser, keyboard…) protected automatically.
+- **Debloat wizard** with presets and RAM estimates; **snapshots** before every removal, restore, export/import; **Rescue mode** (restore the newest snapshot, Safe Mode steps per maker).
+- **Install and backup:** drag-drop APK / APKS / XAPK / split APKs; export installed APKs including splits.
+- **Storage:** space per app, one-click cache cleanup, apps not opened in 30/60/90/180 days.
+- **Performance:** Running (RAM, CPU, force stop), Temperature, Tune (battery saver, 60 Hz cap, background limits, cool-down), **Animation speeds** (presets and separate window / transition / in-app mixes), **Profiles** (Gaming, Battery saver, Work), before/after history with battery drain, a visible "phone is warm" suggestion (never an automatic action), and a **Wake-ups** view (held wake locks, apps that wake the phone most).
+- **Ratings sharing:** rate apps yourself, export and import ratings files. Imported files are sanitised: never "recommended", never pre-ticked, never override built-in ratings or core system apps.
+- **Several phones:** a Phones overview, "also do this on" other phones in the confirmation window (each phone saves its own snapshot), screenshots, and screen mirroring by launching scrcpy (install it separately).
+- **Trust:** a Logs tab shows every adb command; light / dark theme; English, Spanish, French, Portuguese and German (translations of the main screens are drafts).
+- "Save device report" (read-only, privacy-scrubbed) gathers what the app reads from a phone, to fix parsers from real data.
 
-Not yet tested against a real device or emulator. Parsers and the label/process pipelines are tested against fixtures and a fake `adb` (`adb-core/tests`).
+## Status: what is and is not verified
+Verified by automated tests: the parsers against fixtures in the formats I expect, a fake `adb` that exercises each command end to end, the Rust code compiled for Windows, the whole UI against mock data in a real browser, and a clean-checkout build (`scripts/check.sh`).
+
+**Not yet run on a real phone:** the on-device helper, usage statistics, storage (`dumpsys diskstats`), wake-lock and alarm parsers, animation and refresh-rate settings on every maker's firmware, scrcpy launching, and downloading platform-tools from Google (blocked in my build environment). Phones differ; where a reading is unavailable the app says so instead of guessing. Please use "Save device report" and send it if something looks wrong.
+Ratings are unreviewed guidance written from public knowledge, not guarantees. Translations are drafts that need a native speaker's review.
 
 ## The on-device helper
 `helper/` holds a tiny Java program (compiled to `helper/dist/helper.jar`, embedded in the app). It runs with `app_process` as the shell user, like scrcpy's server, asks Android's own PackageManager for every app's name, icon and basic details, prints them, and is deleted again. Rebuild it with `helper/build.sh` (needs a JDK, `dalvik-exchange` and `android-sdk-platform-23`); the build is reproducible and CI checks the jar against `helper/dist/helper.jar.sha256`.
