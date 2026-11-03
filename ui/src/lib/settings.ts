@@ -38,6 +38,7 @@ export function getSettings(): Settings { return current; }
 /** `system` removes the override so the OS preference applies. */
 export function applyTheme(theme: ThemeChoice = current.theme) {
   if (typeof document === "undefined") return;
+  document.documentElement.lang = current.language;
   if (theme === "system") delete document.documentElement.dataset.theme;
   else document.documentElement.dataset.theme = theme;
 }

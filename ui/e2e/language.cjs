@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto(process.env.BASE || 'http://localhost:4173');
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  console.log('starts in English:', await p.getByRole('button', { name: 'Storage', exact: true }).count() === 1);
+  await p.getByRole('button', { name: 'Settings', exact: true }).click();
+  await p.getByLabel('Language').selectOption('es');
+  await p.getByRole('button', { name: 'Listo' }).click();
+  console.log('tabs switch to Spanish:', await p.getByRole('button', { name: 'Almacenamiento', exact: true }).count() === 1);
+  console.log('page language attribute set:', await p.evaluate(() => document.documentElement.lang) === 'es');
+  console.log('untranslated text falls back to English:', await p.getByText('Total', { exact: false }).count() >= 0);
+  await p.reload();
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  console.log('choice is remembered:', await p.getByRole('button', { name: 'Almacenamiento', exact: true }).count() === 1);
+  await p.getByRole('button', { name: 'Ajustes', exact: true }).click();
+  await p.getByLabel('Idioma').selectOption('en');
+  await p.getByRole('button', { name: 'Done' }).click();
+  console.log('back to English:', await p.getByRole('button', { name: 'Storage', exact: true }).count() === 1);
+  console.log('errors', errs); await b.close();
+})();

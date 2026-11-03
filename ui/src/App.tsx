@@ -24,6 +24,7 @@ import { AdbSetup } from "./features/setup/AdbSetup";
 import { Guide } from "./features/guide/Guide";
 import { Storage } from "./features/storage/Storage";
 import { Wake } from "./features/wake/Wake";
+import { useT } from "./lib/i18n";
 import { Phones } from "./features/phones/Phones";
 import { appliesTo, otherReady, repeatable } from "./lib/multi";
 import { Ratings } from "./features/ratings/Ratings";
@@ -36,9 +37,11 @@ interface LogEntry { time: string; serial?: string; action: Action; name: string
 
 const riskOrder: Record<Risk, number> = { recommended: 0, advanced: 1, unknown: 2, unsafe: 3 };
 const undoOf: Partial<Record<Action, Action>> = { disable: "enable", enable: "disable", uninstall: "restore", restore: "uninstall" };
-const labelOf: Record<Action, string> = { disable: "Disable", enable: "Enable", uninstall: "Uninstall", restore: "Restore", stop: "Force stop" };
+
 
 export default function App() {
+  const t = useT();
+  const labelOf: Record<Action, string> = { disable: t("action.disable"), enable: t("action.enable"), uninstall: t("action.uninstall"), restore: t("action.restore"), stop: t("action.stop") };
   const [devices, setDevices] = useState<Device[]>([]);
   const [serial, setSerial] = useState("");
   const [apps, setApps] = useState<AppInfo[]>([]);
@@ -257,35 +260,35 @@ export default function App() {
         <h1 className="brand"><img src="/logo.svg" width="26" height="26" alt="" />{BRAND.name}</h1>
         {ipc.isMock && <span className="badge mock" title="Running in a browser without the Rust backend">mock data</span>}
         <nav className="tabs">
-          <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>Apps</button>
-          <button className={tab === "running" ? "active" : ""} onClick={() => setTab("running")}>Running</button>
-          <button className={tab === "health" ? "active" : ""} onClick={() => setTab("health")}>Temperature</button>
-          <button className={tab === "debloat" ? "active" : ""} onClick={() => setTab("debloat")}>Debloat</button>
-          <button className={tab === "tune" ? "active" : ""} onClick={() => setTab("tune")}>Tune</button>
-          <button className={tab === "install" ? "active" : ""} onClick={() => setTab("install")}>Install</button>
-          <button className={tab === "storage" ? "active" : ""} onClick={() => setTab("storage")}>Storage</button>
-          <button className={tab === "ratings" ? "active" : ""} onClick={() => setTab("ratings")}>Ratings</button>
-          <button className={tab === "phones" ? "active" : ""} onClick={() => setTab("phones")}>Phones{devices.length > 1 ? ` (${devices.length})` : ""}</button>
-          <button className={tab === "wake" ? "active" : ""} onClick={() => setTab("wake")}>Wake-ups</button>
-          <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>Snapshots</button>
-          <button className={tab === "logs" ? "active" : ""} onClick={() => setTab("logs")}>Logs</button>
+          <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>{t("tab.apps")}</button>
+          <button className={tab === "running" ? "active" : ""} onClick={() => setTab("running")}>{t("tab.running")}</button>
+          <button className={tab === "health" ? "active" : ""} onClick={() => setTab("health")}>{t("tab.health")}</button>
+          <button className={tab === "debloat" ? "active" : ""} onClick={() => setTab("debloat")}>{t("tab.debloat")}</button>
+          <button className={tab === "tune" ? "active" : ""} onClick={() => setTab("tune")}>{t("tab.tune")}</button>
+          <button className={tab === "install" ? "active" : ""} onClick={() => setTab("install")}>{t("tab.install")}</button>
+          <button className={tab === "storage" ? "active" : ""} onClick={() => setTab("storage")}>{t("tab.storage")}</button>
+          <button className={tab === "ratings" ? "active" : ""} onClick={() => setTab("ratings")}>{t("tab.ratings")}</button>
+          <button className={tab === "phones" ? "active" : ""} onClick={() => setTab("phones")}>{t("tab.phones")}{devices.length > 1 ? ` (${devices.length})` : ""}</button>
+          <button className={tab === "wake" ? "active" : ""} onClick={() => setTab("wake")}>{t("tab.wake")}</button>
+          <button className={tab === "snapshots" ? "active" : ""} onClick={() => setTab("snapshots")}>{t("tab.snapshots")}</button>
+          <button className={tab === "logs" ? "active" : ""} onClick={() => setTab("logs")}>{t("tab.logs")}</button>
         </nav>
         <div className="spacer" />
         <select value={serial} onChange={(e) => setSerial(e.target.value)} aria-label="Device">
-          <option value="">{devices.length ? "Select device…" : "No devices"}</option>
+          <option value="">{devices.length ? t("header.selectDevice") : t("header.noDevices")}</option>
           {devices.map((d) => (
             <option key={d.serial} value={d.serial} disabled={d.state !== "device"}>
               {isWireless(d.serial) ? "Wi-Fi" : "USB"} · {d.model ?? d.serial} — {d.state === "device" ? d.serial : d.state}
             </option>
           ))}
         </select>
-        <button onClick={() => refreshDevices()}>Refresh</button>
+        <button onClick={() => refreshDevices()}>{t("header.refresh")}</button>
         {serial && isWireless(serial) && (
-          <button onClick={async () => { try { await ipc.wireless.disconnect(serial); } catch (e) { setError(String(e)); } refreshDevices(); }}>Disconnect</button>
+          <button onClick={async () => { try { await ipc.wireless.disconnect(serial); } catch (e) { setError(String(e)); } refreshDevices(); }}>{t("header.disconnect")}</button>
         )}
-        <button className="primary" onClick={() => setShowConnect(true)}>Connect…</button>
-        <button onClick={() => setShowGuide(true)} aria-label="Help getting started" title="Getting started">?</button>
-        <button onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">⚙</button>
+        <button className="primary" onClick={() => setShowConnect(true)}>{t("header.connect")}</button>
+        <button onClick={() => setShowGuide(true)} aria-label="Help getting started" title={t("header.help")}>?</button>
+        <button onClick={() => setShowSettings(true)} aria-label={t("header.settings")} title={t("header.settings")}>⚙</button>
       </header>
 
       {error && <div className="error" role="alert">{error}</div>}
@@ -325,15 +328,15 @@ export default function App() {
 
       {tab === "apps" && <>
       <div className="toolbar">
-        <input type="search" placeholder="Search name or package…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input type="search" placeholder={t("apps.search")} value={query} onChange={(e) => setQuery(e.target.value)} />
         <select value={scope} onChange={(e) => setScope(e.target.value as Scope)} aria-label="Type">
-          <option value="all">All apps</option><option value="system">System</option><option value="user">User</option>
+          <option value="all">{t("apps.allApps")}</option><option value="system">{t("apps.system")}</option><option value="user">{t("apps.user")}</option>
         </select>
         <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value as StateFilter)} aria-label="State">
-          <option value="any">Any state</option><option value="enabled">Enabled</option><option value="disabled">Disabled</option><option value="uninstalled">Uninstalled</option>
+          <option value="any">{t("apps.anyState")}</option><option value="enabled">{t("apps.enabled")}</option><option value="disabled">{t("apps.disabled")}</option><option value="uninstalled">{t("apps.uninstalled")}</option>
         </select>
         <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value as Risk | "any")} aria-label="Risk">
-          <option value="any">Any risk</option><option value="recommended">Recommended</option><option value="advanced">Advanced</option><option value="unsafe">Unsafe</option><option value="unknown">Unrated</option>
+          <option value="any">{t("apps.anyRisk")}</option><option value="recommended">{t("apps.recommended")}</option><option value="advanced">{t("apps.advanced")}</option><option value="unsafe">{t("apps.unsafe")}</option><option value="unknown">{t("apps.unrated")}</option>
         </select>
         <select value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })} aria-label="Category">
           <option value="any">Any kind of app</option>
@@ -344,7 +347,7 @@ export default function App() {
           {INSTALLER_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
         </select>
         <label className="inline" title="Apps that do the same job as another app you also have"><input type="checkbox" checked={filters.duplicatesOnly} onChange={(e) => setFilters({ ...filters, duplicatesOnly: e.target.checked })} /> Duplicates only</label>
-        <button onClick={() => loadApps(serial)} disabled={!serial || loading}>{loading ? "Loading…" : "Reload"}</button>
+        <button onClick={() => loadApps(serial)} disabled={!serial || loading}>{loading ? t("common.loading") : t("common.reload")}</button>
       </div>
 
       <div className="actions">
@@ -428,7 +431,7 @@ export default function App() {
       {pending && (
         <div className="modal-bg" onClick={() => !busy && setPending(null)}>
           <div className="modal" role="dialog" onClick={(e) => e.stopPropagation()}>
-            <h2>{labelOf[pending.action]} {pending.names.length} app{pending.names.length > 1 ? "s" : ""}?</h2>
+            <h2>{t(pending.names.length > 1 ? "confirm.many" : "confirm.one", { action: labelOf[pending.action], n: pending.names.length })}</h2>
             {unsafeCount(pending.names) > 0 && (pending.action === "disable" || pending.action === "uninstall") && (
               <p className="warn">⚠ {unsafeCount(pending.names)} selected app(s) are rated <b>unsafe</b>. Removing core system packages can cause a bootloop.</p>
             )}
@@ -450,7 +453,7 @@ export default function App() {
             </ul>
             {repeatable(pending.action) && otherReady(devices, serial).length > 0 && (
               <fieldset className="alsoon">
-                <legend>Also do this on</legend>
+                <legend>{t("confirm.alsoOn")}</legend>
                 {otherReady(devices, serial).map((d) => (
                   <label key={d.serial} className="inline"><input type="checkbox" checked={alsoOn.has(d.serial)} disabled={busy} onChange={(e) => setAlsoOn((s) => { const n = new Set(s); e.target.checked ? n.add(d.serial) : n.delete(d.serial); return n; })} /> {d.model ?? d.serial}</label>
                 ))}
@@ -459,8 +462,8 @@ export default function App() {
             )}
             <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : pending.action === "stop" ? "Stops the app now; it may restart on its own." : "Reversible from the History panel."}</p>
             <div className="modal-actions">
-              <button onClick={() => setPending(null)} disabled={busy}>Cancel</button>
-              <button className={pending.action === "uninstall" ? "danger" : "primary"} disabled={busy} onClick={() => run(pending.action, pending.names)}>{busy ? "Working…" : labelOf[pending.action]}</button>
+              <button onClick={() => setPending(null)} disabled={busy}>{t("common.cancel")}</button>
+              <button className={pending.action === "uninstall" ? "danger" : "primary"} disabled={busy} onClick={() => run(pending.action, pending.names)}>{busy ? t("common.working") : labelOf[pending.action]}</button>
             </div>
           </div>
         </div>
