@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
 import { BRAND } from "./brand";
+import { useSettings } from "./lib/settings";
+import { reasonOf } from "./lib/reason";
+import { SettingsDialog } from "./components/SettingsDialog";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
 import { pickSerial } from "./lib/pickSerial";
@@ -46,6 +49,8 @@ export default function App() {
   const historyReady = useRef(false);
   const connectOpen = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const { plain } = useSettings();
   useEffect(() => { connectOpen.current = showConnect; }, [showConnect]);
   const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
@@ -185,6 +190,7 @@ export default function App() {
     action === "disable" ? a.state === "enabled" : action === "enable" ? a.state === "disabled" :
     action === "uninstall" ? a.state !== "uninstalled" : a.state === "uninstalled").map((a) => a.name);
 
+  const nameFor = (pkg: string) => apps.find((a) => a.name === pkg)?.label ?? pkg;
   const device = devices.find((d) => d.serial === serial);
   const counts = { total: apps.length, disabled: apps.filter((a) => a.state === "disabled").length, removed: apps.filter((a) => a.state === "uninstalled").length };
 
@@ -215,6 +221,7 @@ export default function App() {
           <button onClick={async () => { try { await ipc.wireless.disconnect(serial); } catch (e) { setError(String(e)); } refreshDevices(); }}>Disconnect</button>
         )}
         <button className="primary" onClick={() => setShowConnect(true)}>Connect…</button>
+        <button onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">⚙</button>
       </header>
 
       {error && <div className="error" role="alert">{error}</div>}
@@ -270,7 +277,9 @@ export default function App() {
               <tr>
                 <th className="chk"><input type="checkbox" checked={allVisibleSelected} onChange={toggleAll} aria-label="Select all" /></th>
                 <th onClick={() => sortBy("label")}>App {sort.key === "label" && (sort.dir === 1 ? "▲" : "▼")}</th>
+                {!plain && (
                 <th onClick={() => sortBy("name")}>Package {sort.key === "name" && (sort.dir === 1 ? "▲" : "▼")}</th>
+                )}
                 <th>Type</th><th>State</th>
                 <th onClick={() => sortBy("risk")}>Rating {sort.key === "risk" && (sort.dir === 1 ? "▲" : "▼")}</th>
                 <th title="Is it safe to disable?">Disable</th><th title="Is it safe to uninstall?">Uninstall</th>
@@ -280,8 +289,8 @@ export default function App() {
               {visible.map((a) => (
                 <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={[a.description, a.details?.versionName && `Version ${a.details.versionName}`, a.details?.installer && `Installed by ${a.details.installer}`, a.details && (a.details.launchable ? "Has a launcher icon" : "No launcher icon")].filter(Boolean).join(" · ") || undefined}>
                   <td className="chk"><input type="checkbox" checked={selected.has(a.name)} onChange={() => toggle(a.name)} onClick={(e) => e.stopPropagation()} /></td>
-                  <td><span className="namecell"><AppIcon name={a.name} /><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span></span></td>
-                  <td className="mono">{a.name}</td>
+                  <td><span className="namecell"><AppIcon name={a.name} /><span><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span>{plain && <span className="reason">{reasonOf(a)}</span>}</span></span></td>
+                  {!plain && <td className="mono">{a.name}</td>}
                   <td>{a.system ? "System" : "User"}</td>
                   <td><span className={`pill ${a.state}`}>{a.state}</span></td>
                   <td><span className={`pill risk-${a.risk}`}>{a.risk === "unknown" ? "unrated" : a.risk}</span></td>
@@ -289,7 +298,7 @@ export default function App() {
                   <td><SafetyTag kind="Uninstall" value={a.uninstallSafety} /></td>
                 </tr>
               ))}
-              {!visible.length && <tr><td colSpan={8} className="empty">{serial ? (loading ? "Loading apps…" : "No apps match.") : "Connect a device with USB debugging enabled and select it above."}</td></tr>}
+              {!visible.length && <tr><td colSpan={plain ? 7 : 8} className="empty">{serial ? (loading ? "Loading apps…" : "No apps match.") : "Connect a device with USB debugging enabled and select it above."}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -300,7 +309,7 @@ export default function App() {
             {!log.length && <p className="muted">Nothing yet.</p>}
             {log.map((e, i) => (
               <div key={i} className={`entry ${e.ok ? "" : "fail"}`}>
-                <div><b>{labelOf[e.action]}</b> <span className="mono">{e.name}</span></div>
+                <div><b>{labelOf[e.action]}</b> <span className={plain ? "" : "mono"}>{plain ? nameFor(e.name) : e.name}</span></div>
                 <div className="muted">{e.time} · {e.ok ? "ok" : e.message ?? "failed"}</div>
                 {e.ok && undoOf[e.action] && <button disabled={busy || e.serial !== serial} title={e.serial !== serial ? "Select the device this was done on to undo" : undefined} onClick={() => run(undoOf[e.action]!, [e.name])}>Undo</button>}
               </div>
@@ -310,6 +319,7 @@ export default function App() {
       </div>
       </>}
 
+      {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} />}
       {showConnect && <ConnectDialog devices={devices} onClose={() => setShowConnect(false)} onChanged={onConnectionChanged} />}
 
       {pending && (
@@ -319,7 +329,7 @@ export default function App() {
             {unsafeCount(pending.names) > 0 && (pending.action === "disable" || pending.action === "uninstall") && (
               <p className="warn">⚠ {unsafeCount(pending.names)} selected app(s) are rated <b>unsafe</b>. Removing core system packages can cause a bootloop.</p>
             )}
-            <ul>{pending.names.slice(0, 8).map((n) => <li key={n} className="mono">{n}</li>)}{pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}</ul>
+            <ul>{pending.names.slice(0, 8).map((n) => <li key={n} className={plain ? "" : "mono"}>{plain ? nameFor(n) : n}</li>)}{pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}</ul>
             <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : pending.action === "stop" ? "Stops the app now; it may restart on its own." : "Reversible from the History panel."}</p>
             <div className="modal-actions">
               <button onClick={() => setPending(null)} disabled={busy}>Cancel</button>

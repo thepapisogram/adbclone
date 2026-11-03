@@ -3,6 +3,7 @@ import { ipc } from "../../lib/ipc";
 import type { Action, AppInfo } from "../../lib/types";
 import { SafetyTag } from "../../components/SafetyTag";
 import { AppIcon } from "../../components/AppIcon";
+import { useSettings } from "../../lib/settings";
 import { candidates, defaultSelection, ramTotalKb, type Group, type Preset } from "./presets";
 
 const presetInfo: Record<Preset, { title: string; text: string }> = {
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function Debloat({ serial, apps, busy, onApply }: Props) {
+  const { plain } = useSettings();
   const [preset, setPreset] = useState<Preset>("safe");
   const [includeUser, setIncludeUser] = useState(false);
   const [method, setMethod] = useState<"disable" | "uninstall">("disable");
@@ -100,7 +102,7 @@ export function Debloat({ serial, apps, busy, onApply }: Props) {
                   {rows.map(({ app }) => (
                     <tr key={app.name} className={selected.has(app.name) ? "sel" : ""} onClick={() => toggle(app.name)}>
                       <td className="chk"><input type="checkbox" checked={selected.has(app.name)} onChange={() => toggle(app.name)} onClick={(e) => e.stopPropagation()} aria-label={`Select ${app.label}`} /></td>
-                      <td><div className="namecell"><AppIcon name={app.name} /><div><div>{app.label}</div><div className="mono muted">{app.name}</div></div></div></td>
+                      <td><div className="namecell"><AppIcon name={app.name} /><div><div>{app.label}</div>{!plain && <div className="mono muted">{app.name}</div>}</div></div></td>
                       <td className="desc muted">{app.description ?? ""}</td>
                       <td className="num">{ram.has(app.name) ? mb(ram.get(app.name)!) : "not running"}</td>
                       <td><SafetyTag kind={method === "disable" ? "Disable" : "Uninstall"} value={method === "disable" ? app.disableSafety : app.uninstallSafety} /></td>

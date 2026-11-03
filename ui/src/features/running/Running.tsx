@@ -3,6 +3,8 @@ import { ipc } from "../../lib/ipc";
 import type { Action, AppInfo, RunningResponse } from "../../lib/types";
 import { SafetyTag } from "../../components/SafetyTag";
 import { AppIcon } from "../../components/AppIcon";
+import { useSettings } from "../../lib/settings";
+import { reasonOf } from "../../lib/reason";
 
 type SortKey = "rss" | "cpu" | "name";
 
@@ -18,6 +20,7 @@ interface Props {
 }
 
 export function Running({ serial, wireless, apps, active, onRequest }: Props) {
+  const { plain } = useSettings();
   const [data, setData] = useState<RunningResponse | null>(null);
   const [error, setError] = useState("");
   const [interval, setIntervalSec] = useState(wireless ? 5 : 3);
@@ -93,7 +96,7 @@ export function Running({ serial, wireless, apps, active, onRequest }: Props) {
             <tr>
               <th className="chk" />
               <th onClick={() => sortBy("name")}>App{arrow("name")}</th>
-              <th>Package</th>
+              {!plain && <th>Package</th>}
               <th onClick={() => sortBy("rss")} className="num">RAM{arrow("rss")}</th>
               <th onClick={() => sortBy("cpu")} className="num" title="Percent of one core">CPU %{arrow("cpu")}</th>
               <th className="num">Procs</th>
@@ -105,8 +108,8 @@ export function Running({ serial, wireless, apps, active, onRequest }: Props) {
             {rows.map((r) => (
               <tr key={r.package} className={selected.has(r.package!) ? "sel" : ""} onClick={() => toggle(r.package!)} title={r.description ?? undefined}>
                 <td className="chk"><input type="checkbox" checked={selected.has(r.package!)} onChange={() => toggle(r.package!)} onClick={(e) => e.stopPropagation()} /></td>
-                <td><span className="namecell"><AppIcon name={r.package!} />{r.label}</span></td>
-                <td className="mono">{r.package}</td>
+                <td><span className="namecell"><AppIcon name={r.package!} /><span>{r.label}{plain && <span className="reason">{reasonOf({ description: r.description, risk: r.risk })}</span>}</span></span></td>
+                {!plain && <td className="mono">{r.package}</td>}
                 <td className="num">{mb(r.rssKb)}</td>
                 <td className="num">{r.cpu == null ? "—" : r.cpu.toFixed(1)}</td>
                 <td className="num">{r.processes}</td>
@@ -114,7 +117,7 @@ export function Running({ serial, wireless, apps, active, onRequest }: Props) {
                 <td><SafetyTag kind="Uninstall" value={r.uninstallSafety} /></td>
               </tr>
             ))}
-            {data && !rows.length && <tr><td colSpan={8} className="empty">No matching running apps.</td></tr>}
+            {data && !rows.length && <tr><td colSpan={plain ? 7 : 8} className="empty">No matching running apps.</td></tr>}
           </tbody>
         </table>
       </div>

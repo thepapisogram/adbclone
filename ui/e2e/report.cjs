@@ -3,6 +3,7 @@ const SHOT = process.argv[2];
 (async () => {
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1150, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
   const p = await ctx.newPage();
+  await p.addInitScript(() => localStorage.setItem('coolant.settings', JSON.stringify({ plain: false })));
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
   await p.goto((process.env.BASE || 'http://localhost:4173'));
   await p.waitForSelector('.devicecard');
