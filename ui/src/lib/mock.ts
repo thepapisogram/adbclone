@@ -1,4 +1,4 @@
-import type { Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const IMPACT: Record<string, string> = {
   "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
@@ -369,5 +369,43 @@ export const mock = {
   async protections(_serial: string): Promise<Protection[]> {
     await delay(100);
     return [{ package: "com.android.chrome", reason: "your browser" }];
+  },
+
+  install: {
+    queue: new Map<string, InstallItem>(),
+    pick(kind: "files" | "folder"): string[] {
+      return kind === "folder" ? ["C:/Backups/com.example.tool"] : ["C:/Downloads/Hello Notes.apk", "C:/Downloads/Big Game.xapk", "C:/Downloads/already-exists.apk", "C:/Downloads/readme.txt"];
+    },
+    async inspect(paths: string[]): Promise<InspectOut[]> {
+      await delay(300);
+      return paths.map((p) => {
+        const name = p.split(/[\\/]/).pop() ?? p;
+        const ext = name.split(".").pop()?.toLowerCase();
+        if (!["apk", "apks", "xapk", "apkm"].includes(ext ?? "") && !p.endsWith("tool")) return { error: `${name}: only .apk, .apks, .xapk and .apkm files, or folders of .apk files, can be installed` };
+        const base = name.replace(/\.[^.]+$/, "");
+        const item: InstallItem = {
+          id: Math.random().toString(36).slice(2, 10), source: name, kind: p.endsWith("tool") ? "folder" : ext === "xapk" ? "xapk" : "apk", fileCount: ext === "xapk" ? 3 : 1,
+          package: `com.example.${base.toLowerCase().replace(/[^a-z0-9]/g, "")}`, version: "2.4.1", label: base, permissions: 7, sizeBytes: ext === "xapk" ? 412_000_000 : 18_500_000,
+          warnings: ext === "xapk" ? ["This file also contains game data (OBB files) that is not copied. The app may need it to run."] : [],
+        };
+        this.queue.set(item.id, item);
+        return { item };
+      });
+    },
+    async run(_serial: string, id: string, o: InstallOptions): Promise<string> {
+      await delay(900);
+      const it = this.queue.get(id);
+      if (it?.source.includes("exists") && !o.replace) throw "This app is already installed. Tick \"Replace if already installed\". (INSTALL_FAILED_ALREADY_EXISTS)";
+      return `${it?.label ?? "App"} installed.`;
+    },
+    async discard(ids: string[]) { ids.forEach((i) => this.queue.delete(i)); },
+  },
+  backup: {
+    async one(_serial: string, pkg: string, dest: string): Promise<ExportResult> {
+      await delay(350);
+      if (pkg === "com.whatsapp") throw "This app is not installed for you right now, so its files cannot be copied.";
+      const split = pkg.length % 2 === 0;
+      return { package: pkg, folder: `${dest}/${pkg}`, files: split ? ["base.apk", "split_config.arm64_v8a.apk", "split_config.xxhdpi.apk"] : ["base.apk"], bytes: split ? 61_000_000 : 24_000_000 };
+    },
   },
 };

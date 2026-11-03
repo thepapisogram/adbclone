@@ -1,9 +1,11 @@
 //! Tauri-independent ADB layer: spawns the `adb` binary and parses its output.
+pub mod backup;
 pub mod bridge;
 pub mod deviceinfo;
 pub mod devices;
 pub mod error;
 pub mod health;
+pub mod install;
 pub mod labels;
 pub mod log;
 pub mod packages;

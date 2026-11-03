@@ -1,4 +1,4 @@
-import type { Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { ExportResult, InspectOut, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -150,5 +150,44 @@ export const ipc = {
       try { await call("adb_download"); } catch (e) { off(); throw e; }
       return off;
     },
+  },
+
+  install: {
+    /** Ask for files (or a folder) with the system dialog. Resolves to nothing if cancelled. */
+    pick: async (kind: "files" | "folder"): Promise<string[]> => {
+      if (!inTauri) return mock.install.pick(kind);
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const r = await open(kind === "folder" ? { directory: true, multiple: false } : { multiple: true, filters: [{ name: "Android apps", extensions: ["apk", "apks", "xapk", "apkm"] }] });
+      return r == null ? [] : Array.isArray(r) ? r : [r];
+    },
+    /** Files dropped onto the window. `hover` says whether something is being dragged over it. Returns a function that stops listening. */
+    onDrop: async (cb: (paths: string[]) => void, hover: (over: boolean) => void): Promise<() => void> => {
+      if (inTauri) {
+        const { getCurrentWebview } = await import("@tauri-apps/api/webview");
+        return getCurrentWebview().onDragDropEvent((e) => {
+          const p = e.payload;
+          if (p.type === "drop") { hover(false); cb(p.paths); } else if (p.type === "enter" || p.type === "over") hover(true); else hover(false);
+        });
+      }
+      const over = (e: DragEvent) => { e.preventDefault(); hover(true); };
+      const leave = () => hover(false);
+      const drop = (e: DragEvent) => { e.preventDefault(); hover(false); cb([...(e.dataTransfer?.files ?? [])].map((f) => `C:/Downloads/${f.name}`)); };
+      window.addEventListener("dragover", over); window.addEventListener("dragleave", leave); window.addEventListener("drop", drop);
+      return () => { window.removeEventListener("dragover", over); window.removeEventListener("dragleave", leave); window.removeEventListener("drop", drop); };
+    },
+    inspect: (paths: string[]): Promise<InspectOut[]> => (inTauri ? call("install_inspect", { paths }) : mock.install.inspect(paths)),
+    run: (serial: string, id: string, o: InstallOptions): Promise<string> =>
+      inTauri ? call("install_item", { serial, id, replace: o.replace, allowDowngrade: o.allowDowngrade, allowTest: o.allowTest }) : mock.install.run(serial, id, o),
+    discard: (ids: string[]): Promise<void> => (inTauri ? call("install_discard", { ids }) : mock.install.discard(ids)),
+  },
+  backup: {
+    chooseFolder: async (): Promise<string | null> => {
+      if (!inTauri) return "C:/Backups";
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const r = await open({ directory: true, multiple: false });
+      return typeof r === "string" ? r : null;
+    },
+    one: (serial: string, pkg: string, dest: string, meta: { label?: string; versionName?: string; installer?: string }): Promise<ExportResult> =>
+      inTauri ? call("backup_one", { serial, package: pkg, dest, label: meta.label ?? null, versionName: meta.versionName ?? null, installer: meta.installer ?? null }) : mock.backup.one(serial, pkg, dest),
   },
 };

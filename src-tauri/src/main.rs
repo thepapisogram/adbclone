@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{bridge, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -54,6 +54,8 @@ struct AppState {
     data_dir: Mutex<Option<std::path::PathBuf>>,
     /// Changes made by the tuning features, so they can be undone later (even after a restart).
     tuning: Mutex<Vec<tuning::Record>>,
+    /// Things queued in the install tool, kept until installed or discarded.
+    installs: Mutex<HashMap<String, install::InstallItem>>,
 }
 
 #[derive(Serialize, serde::Deserialize, Clone)]
@@ -1198,6 +1200,59 @@ async fn get_protections(serial: String) -> Result<Vec<protect::Protection>, Str
     protect::detect(&adb().with_timeout(Duration::from_secs(20)), &serial).await.map_err(|e| e.to_string())
 }
 
+// ---- install tool and app backup ----
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InspectOut {
+    item: Option<install::InstallItem>,
+    error: Option<String>,
+}
+
+/// Look at what was dropped or chosen and queue what can be installed.
+#[tauri::command]
+async fn install_inspect(state: State<'_, AppState>, paths: Vec<String>) -> Result<Vec<InspectOut>, String> {
+    let paths: Vec<std::path::PathBuf> = paths.into_iter().take(50).map(Into::into).collect();
+    let results = tokio::task::spawn_blocking(move || install::inspect(&paths)).await.map_err(|e| e.to_string())?;
+    let mut out = Vec::new();
+    for r in results {
+        match r {
+            Ok(item) => {
+                state.installs.lock().unwrap().insert(item.id.clone(), item.clone());
+                out.push(InspectOut { item: Some(item), error: None });
+            }
+            Err(e) => out.push(InspectOut { item: None, error: Some(e) }),
+        }
+    }
+    Ok(out)
+}
+
+#[tauri::command]
+async fn install_item(state: State<'_, AppState>, serial: String, id: String, replace: bool, allow_downgrade: bool, allow_test: bool) -> Result<String, String> {
+    let item = state.installs.lock().unwrap().get(&id).cloned().ok_or("That item is no longer queued. Add it again.")?;
+    install::install(&adb(), &serial, &item, install::Options { replace, allow_downgrade, allow_test }).await
+}
+
+#[tauri::command]
+fn install_discard(state: State<'_, AppState>, ids: Vec<String>) {
+    let mut q = state.installs.lock().unwrap();
+    for id in ids {
+        if let Some(item) = q.remove(&id) {
+            install::discard(&item);
+        }
+    }
+}
+
+/// Save one app's files into `<dest>/<package>/`.
+#[tauri::command]
+async fn backup_one(serial: String, package: String, dest: String, label: Option<String>, version_name: Option<String>, installer: Option<String>) -> Result<backup::ExportResult, String> {
+    let dest = std::path::PathBuf::from(dest);
+    if !dest.is_dir() {
+        return Err("The folder to save into does not exist.".into());
+    }
+    backup::export(&adb(), &serial, &package, &dest, &backup::ExportInfo { label, version_name, installer }).await
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1246,7 +1301,8 @@ fn main() {
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
-            device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections])
+            device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
+            install_inspect, install_item, install_discard, backup_one])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

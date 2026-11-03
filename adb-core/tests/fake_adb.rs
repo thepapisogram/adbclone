@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -459,4 +459,84 @@ async fn protections_come_from_the_phone() {
     let p = protect::detect(&adb, "SER").await.unwrap();
     let pkgs: Vec<_> = p.iter().map(|x| x.package.as_str()).collect();
     assert!(pkgs.contains(&"com.sec.android.app.launcher") && pkgs.contains(&"com.samsung.android.honeyboard") && pkgs.contains(&"com.samsung.android.messaging"), "{p:?}");
+}
+
+// ---- install tool and app backup ----
+
+fn write_db_paths(dir: &PathBuf, json: &str) { fs::write(dir.join("pkgdb.json"), json).unwrap(); }
+
+#[tokio::test]
+async fn backup_copies_every_part_of_a_split_app_and_describes_it() {
+    let (adb, d) = setup("backup", false);
+    write_db_paths(&d, r#"{"com.test.split": {"system": false, "state": "enabled", "paths": ["/data/app/~~a==/com.test.split-b==/reference.apk", "/data/app/~~a==/com.test.split-b==/literal.apk"]}, "com.test.gone": {"system": false, "state": "uninstalled"}}"#);
+    let dest = std::env::temp_dir().join(format!("coolant-backup-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&dest);
+    let info = backup::ExportInfo { label: Some("Split App".into()), version_name: Some("1.2".into()), installer: Some("com.android.vending".into()) };
+    let r = backup::export(&adb, "SER", "com.test.split", &dest, &info).await.unwrap();
+    assert_eq!(r.files, ["reference.apk", "literal.apk"]);
+    assert!(r.bytes > 1000 && dest.join("com.test.split/reference.apk").is_file());
+    let meta: serde_json::Value = serde_json::from_str(&fs::read_to_string(dest.join("com.test.split/info.json")).unwrap()).unwrap();
+    assert_eq!((meta["package"].as_str(), meta["splitApp"].as_bool(), meta["label"].as_str()), (Some("com.test.split"), Some(true), Some("Split App")));
+    // An app that is removed for this user cannot be copied, and says why.
+    let e = backup::export(&adb, "SER", "com.test.gone", &dest, &backup::ExportInfo::default()).await.unwrap_err();
+    assert!(e.contains("not installed for you"), "{e}");
+    assert!(backup::export(&adb, "SER", "bad name; reboot", &dest, &backup::ExportInfo::default()).await.is_err());
+    // The saved folder can be dropped straight into the install tool.
+    let items = install::inspect(&[dest.join("com.test.split")]);
+    assert_eq!(items[0].as_ref().unwrap().file_count, 2);
+}
+
+#[tokio::test]
+async fn installing_single_and_split_apps_with_the_right_flags_and_clear_errors() {
+    let (adb, d) = setup("install", false);
+    let fx = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+    let opts = install::Options { replace: true, allow_downgrade: false, allow_test: false };
+    let single = install::inspect(&[fx.join("literal.apk")]).remove(0).unwrap();
+    assert_eq!(install::install(&adb, "SER", &single, opts).await.unwrap(), "Literal App installed.");
+    let multi = install::inspect(&[fx.join("reference.apk"), fx.join("entities.apk")]); // different apps: two items
+    assert_eq!(multi.len(), 2);
+    let log = fs::read_to_string(d.join("installed.log")).unwrap();
+    assert!(log.contains("install -r :: literal.apk"), "{log}");
+
+    // Several files of one app go through install-multiple.
+    let folder = std::env::temp_dir().join(format!("coolant-multi-{}", std::process::id()));
+    let _ = fs::remove_dir_all(&folder); fs::create_dir_all(&folder).unwrap();
+    fs::copy(fx.join("reference.apk"), folder.join("base.apk")).unwrap();
+    fs::copy(fx.join("literal.apk"), folder.join("split_config.en.apk")).unwrap();
+    let item = install::inspect(&[folder]).remove(0).unwrap();
+    install::install(&adb, "SER", &item, install::Options { replace: true, allow_downgrade: true, allow_test: true }).await.unwrap();
+    assert!(fs::read_to_string(d.join("installed.log")).unwrap().contains("install-multiple -r -d -t :: base.apk split_config.en.apk"));
+
+    // Without "replace", an already-installed app is refused with advice that points at the checkbox.
+    let exists = folder_with(&fx, "exists.apk", "literal.apk");
+    let item = install::inspect(&[exists.clone()]).remove(0).unwrap();
+    let e = install::install(&adb, "SER", &item, install::Options::default()).await.unwrap_err();
+    assert!(e.contains("Replace if already installed"), "{e}");
+    assert!(install::install(&adb, "SER", &item, opts).await.is_ok());
+    // A file built for another processor says so.
+    let abi = folder_with(&fx, "abi-mismatch.apk", "literal.apk");
+    let item = install::inspect(&[abi]).remove(0).unwrap();
+    assert!(install::install(&adb, "SER", &item, opts).await.unwrap_err().contains("processor"));
+    // Files that disappeared are reported, not installed.
+    fs::remove_file(&exists).unwrap();
+    assert!(install::install(&adb, "SER", &item_without_files(), opts).await.is_err());
+}
+
+fn folder_with(fx: &PathBuf, name: &str, from: &str) -> PathBuf {
+    let p = std::env::temp_dir().join(format!("coolant-{}-{name}", std::process::id()));
+    fs::copy(fx.join(from), &p).unwrap();
+    p
+}
+fn item_without_files() -> install::InstallItem {
+    let missing = std::env::temp_dir().join("coolant-missing.apk");
+    install::inspect(&[missing]).into_iter().find_map(|r| r.ok()).unwrap_or_else(|| {
+        // inspect() refuses a missing file's details but still lists it: build the same shape by hand.
+        let dir = std::env::temp_dir().join(format!("coolant-gone-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let f = dir.join("gone.apk");
+        fs::copy(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/literal.apk"), &f).unwrap();
+        let it = install::inspect(&[f.clone()]).remove(0).unwrap();
+        fs::remove_file(&f).unwrap();
+        it
+    })
 }

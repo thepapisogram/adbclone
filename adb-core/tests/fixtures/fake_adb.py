@@ -17,7 +17,18 @@ def read(name, default=""):
     p = os.path.join(d, name)
     return open(p).read() if os.path.exists(p) else default
 
-if args[:1] == ["push"]:
+if args[:1] in (["install"], ["install-multiple"]):
+    flags = [a for a in args[1:] if a.startswith("-")]
+    files = [a for a in args[1:] if not a.startswith("-")]
+    open(os.path.join(d, "installed.log"), "a").write(args[0] + " " + " ".join(flags) + " :: " + " ".join(os.path.basename(f) for f in files) + "\n")
+    print("Performing Streamed Install")
+    bad = [f for f in files if "exists" in os.path.basename(f)]
+    if bad and "-r" not in flags:
+        sys.stderr.write(f"adb: failed to install {bad[0]}: Failure [INSTALL_FAILED_ALREADY_EXISTS: Attempt to re-install without first uninstalling.]\n"); sys.exit(1)
+    if any("abi" in os.path.basename(f) for f in files):
+        sys.stderr.write("adb: failed to install x.apk: Failure [INSTALL_FAILED_NO_MATCHING_ABIS]\n"); sys.exit(1)
+    print("Success")
+elif args[:1] == ["push"]:
     shutil.copy(args[1], os.path.join(d, "pushed.jar"))
     print(f"{args[1]}: 1 file pushed.")
 elif args[:1] == ["exec-out"] and len(args) > 1 and args[1].startswith("CLASSPATH="):
@@ -138,6 +149,10 @@ elif args[:1] == ["shell"]:
                 print("Exception: Package " + name + " doesn't exist"); sys.exit(0)
             if "fail" in name and ("enable" in words or "disable-user" in words):
                 print("Failure [DELETE_FAILED_DEVICE_POLICY_MANAGER]"); sys.exit(0)
+            if words[1] == "path":
+                if db[name]["state"] != "uninstalled":
+                    for pth in db[name].get("paths", [f"/system/app/{name}.apk"]): print("package:" + pth)
+                save(); sys.exit(0)
             if words[1] == "disable-user": db[name]["state"] = "disabled"; print(f"Package {name} new state: disabled-user")
             elif words[1] == "enable": db[name]["state"] = "enabled"; print(f"Package {name} new state: enabled")
             elif words[1] == "uninstall": db[name]["state"] = "uninstalled"; print("Success")
