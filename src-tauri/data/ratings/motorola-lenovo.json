@@ -1,0 +1,92 @@
+[
+ {
+  "id": "com.motorola.ccc.notification",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Notifications service."
+ },
+ {
+  "id": "com.motorola.moto",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "Moto app."
+ },
+ {
+  "id": "com.motorola.actions",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Moto Actions."
+ },
+ {
+  "id": "com.motorola.genie",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "Moto Help."
+ },
+ {
+  "id": "com.motorola.help",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "Help."
+ },
+ {
+  "id": "com.motorola.setup",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Setup."
+ },
+ {
+  "id": "com.motorola.motocare",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "Moto Care."
+ },
+ {
+  "id": "com.motorola.android.fmradio",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "FM radio."
+ },
+ {
+  "id": "com.motorola.camera3",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Camera."
+ },
+ {
+  "id": "com.motorola.launcher3",
+  "risk": "unsafe",
+  "vendor": "motorola",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.motorola.gallery",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Gallery."
+ },
+ {
+  "id": "com.motorola.dolby.dolbyui",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Dolby audio."
+ },
+ {
+  "id": "com.motorola.timeweatherwidget",
+  "risk": "recommended",
+  "vendor": "motorola",
+  "desc": "Time and weather widget."
+ },
+ {
+  "id": "com.motorola.ccc.devicemanagement",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Device management."
+ },
+ {
+  "id": "com.motorola.faceunlock",
+  "risk": "advanced",
+  "vendor": "motorola",
+  "desc": "Face unlock."
+ }
+]

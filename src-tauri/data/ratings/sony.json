@@ -1,0 +1,86 @@
+[
+ {
+  "id": "com.sonyericsson.home",
+  "risk": "unsafe",
+  "vendor": "sony",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.sonymobile.xperiatransfermobile",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Xperia Transfer."
+ },
+ {
+  "id": "com.sonymobile.moviecreator",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Movie Creator."
+ },
+ {
+  "id": "com.sonymobile.cinemapro",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Cinema Pro."
+ },
+ {
+  "id": "com.sonymobile.photopro",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Photo Pro."
+ },
+ {
+  "id": "com.sonyericsson.music",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Music."
+ },
+ {
+  "id": "com.sonymobile.androidapp.walkmate",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Walk Mate."
+ },
+ {
+  "id": "com.sony.nfx.app.sfrc",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "News Suite."
+ },
+ {
+  "id": "com.sonymobile.xperiaservices",
+  "risk": "advanced",
+  "vendor": "sony",
+  "desc": "Xperia services."
+ },
+ {
+  "id": "com.sonymobile.sketch",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Sketch."
+ },
+ {
+  "id": "com.sonymobile.lifelog",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Lifelog."
+ },
+ {
+  "id": "com.sonyericsson.album",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Album."
+ },
+ {
+  "id": "com.sonymobile.email",
+  "risk": "recommended",
+  "vendor": "sony",
+  "desc": "Email."
+ },
+ {
+  "id": "com.sonymobile.entrance",
+  "risk": "advanced",
+  "vendor": "sony",
+  "desc": "Setup."
+ }
+]

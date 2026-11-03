@@ -1,0 +1,182 @@
+[
+ {
+  "id": "com.facebook.appmanager",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Preinstalled Facebook updater."
+ },
+ {
+  "id": "com.facebook.services",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Preinstalled Facebook service."
+ },
+ {
+  "id": "com.facebook.system",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Preinstalled Facebook installer."
+ },
+ {
+  "id": "com.facebook.katana",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Facebook."
+ },
+ {
+  "id": "com.facebook.orca",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Messenger."
+ },
+ {
+  "id": "com.instagram.android",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Instagram."
+ },
+ {
+  "id": "com.microsoft.office.officehubrow",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Microsoft 365."
+ },
+ {
+  "id": "com.microsoft.office.word",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Word."
+ },
+ {
+  "id": "com.microsoft.office.excel",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Excel."
+ },
+ {
+  "id": "com.microsoft.office.powerpoint",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "PowerPoint."
+ },
+ {
+  "id": "com.microsoft.office.outlook",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Outlook."
+ },
+ {
+  "id": "com.microsoft.skydrive",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "OneDrive."
+ },
+ {
+  "id": "com.microsoft.appmanager",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Link to Windows."
+ },
+ {
+  "id": "com.microsoft.translator",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Translator."
+ },
+ {
+  "id": "com.skype.raider",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Skype."
+ },
+ {
+  "id": "com.linkedin.android",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "LinkedIn."
+ },
+ {
+  "id": "com.amazon.mShop.android.shopping",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Amazon Shopping."
+ },
+ {
+  "id": "com.amazon.appmanager",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Amazon app manager."
+ },
+ {
+  "id": "com.amazon.kindle",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Kindle."
+ },
+ {
+  "id": "com.amazon.avod.thirdpartyclient",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Prime Video."
+ },
+ {
+  "id": "com.amazon.dee.app",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Alexa."
+ },
+ {
+  "id": "com.amazon.mp3",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Amazon Music."
+ },
+ {
+  "id": "com.audible.application",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Audible."
+ },
+ {
+  "id": "com.netflix.mediaclient",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Netflix."
+ },
+ {
+  "id": "com.netflix.partner.activation",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Netflix activation."
+ },
+ {
+  "id": "com.spotify.music",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Spotify."
+ },
+ {
+  "id": "flipboard.app",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Flipboard."
+ },
+ {
+  "id": "com.touchtype.swiftkey",
+  "risk": "advanced",
+  "vendor": "partner",
+  "desc": "SwiftKey keyboard."
+ },
+ {
+  "id": "com.king.candycrushsaga",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Candy Crush."
+ },
+ {
+  "id": "com.king.candycrushsodasaga",
+  "risk": "recommended",
+  "vendor": "partner",
+  "desc": "Candy Crush Soda."
+ }
+]

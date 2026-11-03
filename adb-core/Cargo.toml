@@ -1,0 +1,14 @@
+[package]
+name = "adb-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["process", "time", "rt", "macros", "io-util"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+apk-info = "1.1"
+zip = { version = "2", default-features = false }
+
+[dev-dependencies]
+zip = { version = "2", default-features = false, features = ["deflate"] }

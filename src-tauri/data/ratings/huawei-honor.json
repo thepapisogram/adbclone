@@ -1,0 +1,104 @@
+[
+ {
+  "id": "com.huawei.android.launcher",
+  "risk": "unsafe",
+  "vendor": "huawei",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.huawei.systemmanager",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "Phone manager."
+ },
+ {
+  "id": "com.huawei.hwid",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "Huawei ID."
+ },
+ {
+  "id": "com.huawei.appmarket",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "AppGallery."
+ },
+ {
+  "id": "com.huawei.music",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Music."
+ },
+ {
+  "id": "com.huawei.himovie.overseas",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Video."
+ },
+ {
+  "id": "com.huawei.browser",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Browser."
+ },
+ {
+  "id": "com.huawei.health",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Health."
+ },
+ {
+  "id": "com.huawei.fastapp",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Quick apps."
+ },
+ {
+  "id": "com.huawei.android.hwouc",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "System updater."
+ },
+ {
+  "id": "com.huawei.android.totemweather",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Weather."
+ },
+ {
+  "id": "com.huawei.notepad",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Notepad."
+ },
+ {
+  "id": "com.huawei.wallet",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "Wallet."
+ },
+ {
+  "id": "com.hihonor.id",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "Honor ID."
+ },
+ {
+  "id": "com.hihonor.appmarket",
+  "risk": "recommended",
+  "vendor": "huawei",
+  "desc": "Honor app store."
+ },
+ {
+  "id": "com.hihonor.android.launcher",
+  "risk": "unsafe",
+  "vendor": "huawei",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.hihonor.systemmanager",
+  "risk": "advanced",
+  "vendor": "huawei",
+  "desc": "Phone manager."
+ }
+]

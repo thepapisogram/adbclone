@@ -1,0 +1,651 @@
+[
+ {
+  "id": "android",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Android framework package."
+ },
+ {
+  "id": "com.android.systemui",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Status bar, navigation and lock screen."
+ },
+ {
+  "id": "com.android.settings",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Device settings."
+ },
+ {
+  "id": "com.android.phone",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Telephony stack."
+ },
+ {
+  "id": "com.android.providers.telephony",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "SMS/MMS and telephony storage."
+ },
+ {
+  "id": "com.android.providers.contacts",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Contacts storage."
+ },
+ {
+  "id": "com.android.providers.settings",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Settings storage."
+ },
+ {
+  "id": "com.android.providers.media",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Media storage."
+ },
+ {
+  "id": "com.android.providers.media.module",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Media storage module."
+ },
+ {
+  "id": "com.android.providers.downloads",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Download manager."
+ },
+ {
+  "id": "com.android.providers.downloads.ui",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Downloads UI."
+ },
+ {
+  "id": "com.android.providers.calendar",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Calendar storage."
+ },
+ {
+  "id": "com.android.providers.blockednumber",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Blocked numbers storage."
+ },
+ {
+  "id": "com.android.providers.userdictionary",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "User dictionary storage."
+ },
+ {
+  "id": "com.android.providers.partnerbookmarks",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Partner bookmarks."
+ },
+ {
+  "id": "com.android.providers.tv",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "TV provider; unused on phones."
+ },
+ {
+  "id": "com.android.server.telecom",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Call handling."
+ },
+ {
+  "id": "com.android.bluetooth",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Bluetooth stack."
+ },
+ {
+  "id": "com.android.nfc",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "NFC service."
+ },
+ {
+  "id": "com.android.shell",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "ADB shell; needed by this app."
+ },
+ {
+  "id": "com.android.packageinstaller",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Installs and removes apps."
+ },
+ {
+  "id": "com.google.android.packageinstaller",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Installs and removes apps."
+ },
+ {
+  "id": "com.android.permissioncontroller",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Runtime permission prompts."
+ },
+ {
+  "id": "com.google.android.permissioncontroller",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Runtime permission prompts."
+ },
+ {
+  "id": "com.android.keychain",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Certificate and key storage."
+ },
+ {
+  "id": "com.android.certinstaller",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Certificate installer."
+ },
+ {
+  "id": "com.android.captiveportallogin",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Wi-Fi sign-in pages."
+ },
+ {
+  "id": "com.android.networkstack",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Network stack."
+ },
+ {
+  "id": "com.android.networkstack.inprocess",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Network stack."
+ },
+ {
+  "id": "com.google.android.networkstack",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Network stack."
+ },
+ {
+  "id": "com.google.android.captiveportallogin",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Wi-Fi sign-in pages."
+ },
+ {
+  "id": "com.android.cellbroadcastreceiver",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Emergency alerts; keep for safety."
+ },
+ {
+  "id": "com.android.cellbroadcastservice",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Emergency alerts service."
+ },
+ {
+  "id": "com.android.emergency",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Emergency information."
+ },
+ {
+  "id": "com.android.mms.service",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "MMS handling."
+ },
+ {
+  "id": "com.android.mms",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Stock messaging app."
+ },
+ {
+  "id": "com.android.location.fused",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Fused location provider."
+ },
+ {
+  "id": "com.android.webview",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "System WebView; many apps need it."
+ },
+ {
+  "id": "com.google.android.webview",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "System WebView; many apps need it."
+ },
+ {
+  "id": "com.google.android.trichromelibrary",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Shared library for WebView/Chrome.",
+  "prefix": true
+ },
+ {
+  "id": "com.android.launcher3",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Default launcher on many devices."
+ },
+ {
+  "id": "com.android.inputdevices",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Input device handling."
+ },
+ {
+  "id": "com.android.externalstorage",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "External storage access."
+ },
+ {
+  "id": "com.android.mtp",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "USB file transfer."
+ },
+ {
+  "id": "com.android.intentresolver",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "App chooser dialogs."
+ },
+ {
+  "id": "com.android.wifi.resources",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Wi-Fi resources."
+ },
+ {
+  "id": "com.android.connectivity.resources",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Connectivity resources."
+ },
+ {
+  "id": "com.android.carrierconfig",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Carrier configuration."
+ },
+ {
+  "id": "com.android.carrierdefaultapp",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Carrier setup prompts."
+ },
+ {
+  "id": "com.android.managedprovisioning",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Work profile setup."
+ },
+ {
+  "id": "com.android.proxyhandler",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Proxy handling."
+ },
+ {
+  "id": "com.android.se",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Secure element service."
+ },
+ {
+  "id": "com.android.statementservice",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "App link verification."
+ },
+ {
+  "id": "com.android.storagemanager",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Storage cleanup."
+ },
+ {
+  "id": "com.android.settings.intelligence",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Settings search and suggestions."
+ },
+ {
+  "id": "com.android.vpndialogs",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "VPN consent dialog."
+ },
+ {
+  "id": "com.android.documentsui",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Files picker."
+ },
+ {
+  "id": "com.google.android.documentsui",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Files picker."
+ },
+ {
+  "id": "com.android.companiondevicemanager",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Pairing with watches."
+ },
+ {
+  "id": "com.android.ons",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Opportunistic network service."
+ },
+ {
+  "id": "com.android.sdksandbox",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Privacy sandbox runtime."
+ },
+ {
+  "id": "com.android.healthconnect.controller",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Health Connect UI."
+ },
+ {
+  "id": "com.android.ondevicepersonalization.services",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "On-device personalization."
+ },
+ {
+  "id": "com.android.rkpdapp",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Remote key provisioning."
+ },
+ {
+  "id": "com.android.simappdialog",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "SIM app dialog."
+ },
+ {
+  "id": "com.android.backupconfirm",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Backup confirmation."
+ },
+ {
+  "id": "com.android.localtransport",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Local backup transport."
+ },
+ {
+  "id": "com.android.sharedstoragebackup",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Shared storage backup."
+ },
+ {
+  "id": "com.android.pacprocessor",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Proxy auto-config."
+ },
+ {
+  "id": "com.android.stk",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "SIM Toolkit carrier menu."
+ },
+ {
+  "id": "com.android.wallpaperbackup",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Wallpaper backup."
+ },
+ {
+  "id": "com.android.wallpapercropper",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Wallpaper cropper."
+ },
+ {
+  "id": "com.android.wallpaper",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Wallpaper picker."
+ },
+ {
+  "id": "com.android.chrome",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Chrome browser."
+ },
+ {
+  "id": "com.android.vending",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Google Play Store."
+ },
+ {
+  "id": "com.android.contacts",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Stock contacts."
+ },
+ {
+  "id": "com.android.dialer",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Stock phone dialer."
+ },
+ {
+  "id": "com.android.camera2",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Stock camera."
+ },
+ {
+  "id": "com.android.inputmethod.latin",
+  "risk": "advanced",
+  "vendor": "android",
+  "desc": "Stock keyboard; keep another keyboard installed."
+ },
+ {
+  "id": "com.android.deskclock",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Clock."
+ },
+ {
+  "id": "com.android.calendar",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Calendar."
+ },
+ {
+  "id": "com.android.calculator2",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Calculator."
+ },
+ {
+  "id": "com.android.email",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Email."
+ },
+ {
+  "id": "com.android.gallery3d",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Gallery."
+ },
+ {
+  "id": "com.android.htmlviewer",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "HTML viewer."
+ },
+ {
+  "id": "com.android.musicfx",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Equalizer."
+ },
+ {
+  "id": "com.android.soundrecorder",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Sound recorder."
+ },
+ {
+  "id": "com.android.printspooler",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Printing."
+ },
+ {
+  "id": "com.android.bips",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Built-in print service."
+ },
+ {
+  "id": "com.android.traceur",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "System tracing."
+ },
+ {
+  "id": "com.android.egg",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Easter egg."
+ },
+ {
+  "id": "com.android.dreams.basic",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Screensaver."
+ },
+ {
+  "id": "com.android.dreams.phototable",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Photo screensaver."
+ },
+ {
+  "id": "com.android.bookmarkprovider",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Bookmark provider."
+ },
+ {
+  "id": "com.android.dynsystem",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Dynamic system updates."
+ },
+ {
+  "id": "com.android.apps.tag",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "NFC tag viewer."
+ },
+ {
+  "id": "com.android.bluetoothmidiservice",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Bluetooth MIDI."
+ },
+ {
+  "id": "com.android.wallpaper.livepicker",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Live wallpaper picker."
+ },
+ {
+  "id": "com.android.hotwordenrollment.okgoogle",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Hotword enrollment."
+ },
+ {
+  "id": "com.android.hotwordenrollment.xgoogle",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Hotword enrollment."
+ },
+ {
+  "id": "com.android.protips",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Tips."
+ },
+ {
+  "id": "com.android.noisefield",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Live wallpaper."
+ },
+ {
+  "id": "com.android.magicsmoke",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Live wallpaper."
+ },
+ {
+  "id": "com.android.galaxy4",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Live wallpaper."
+ },
+ {
+  "id": "com.android.phasebeam",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Live wallpaper."
+ },
+ {
+  "id": "com.android.musicvis",
+  "risk": "recommended",
+  "vendor": "android",
+  "desc": "Music visualisation wallpaper."
+ },
+ {
+  "id": "com.android.cts.priv.ctsshim",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Compatibility shim."
+ },
+ {
+  "id": "com.android.cts.ctsshim",
+  "risk": "unsafe",
+  "vendor": "android",
+  "desc": "Compatibility shim."
+ }
+]

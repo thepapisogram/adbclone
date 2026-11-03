@@ -1,0 +1,128 @@
+[
+ {
+  "id": "com.qualcomm.qti.services.systemhelper",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Qualcomm system helper."
+ },
+ {
+  "id": "com.qualcomm.qti.qms.service.telemetry",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "Qualcomm telemetry."
+ },
+ {
+  "id": "com.qualcomm.location",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Qualcomm location."
+ },
+ {
+  "id": "com.qualcomm.timeservice",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Qualcomm time service."
+ },
+ {
+  "id": "com.qualcomm.qti.telephonyservice",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Qualcomm telephony."
+ },
+ {
+  "id": "com.qti.qualcomm.deviceinfo",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "Device info."
+ },
+ {
+  "id": "com.qualcomm.qti.cne",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Connectivity engine."
+ },
+ {
+  "id": "com.qualcomm.qti.ims",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "IMS."
+ },
+ {
+  "id": "com.qualcomm.embms",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Broadcast multimedia."
+ },
+ {
+  "id": "com.qualcomm.atfwd",
+  "risk": "unsafe",
+  "vendor": "chipset",
+  "desc": "Modem AT command forwarder."
+ },
+ {
+  "id": "com.mediatek.ims",
+  "risk": "unsafe",
+  "vendor": "chipset",
+  "desc": "IMS."
+ },
+ {
+  "id": "com.mediatek.callrecorder",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "Call recorder."
+ },
+ {
+  "id": "com.mediatek.mdmlsample",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "Modem log sample."
+ },
+ {
+  "id": "com.mediatek.batterywarning",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "Battery warning."
+ },
+ {
+  "id": "com.mediatek.engineermode",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Engineer mode."
+ },
+ {
+  "id": "com.mediatek.gnssdebugreport",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "GNSS debug."
+ },
+ {
+  "id": "com.mediatek.location.lppe.main",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Location."
+ },
+ {
+  "id": "com.mediatek.camera",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "Camera."
+ },
+ {
+  "id": "com.mediatek.simprocessor",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "SIM processor."
+ },
+ {
+  "id": "com.mediatek.mtklogger",
+  "risk": "recommended",
+  "vendor": "chipset",
+  "desc": "MTK logger."
+ },
+ {
+  "id": "com.mediatek.omacp",
+  "risk": "advanced",
+  "vendor": "chipset",
+  "desc": "OMA client provisioning."
+ }
+]

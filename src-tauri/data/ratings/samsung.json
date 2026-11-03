@@ -1,0 +1,470 @@
+[
+ {
+  "id": "com.samsung.android.bixby.agent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Bixby Voice."
+ },
+ {
+  "id": "com.samsung.android.bixby.service",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Bixby service."
+ },
+ {
+  "id": "com.samsung.android.bixby.wakeup",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Bixby wake-up."
+ },
+ {
+  "id": "com.samsung.android.app.spage",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Bixby Home / Samsung Free."
+ },
+ {
+  "id": "com.samsung.android.visionintelligence",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Bixby Vision."
+ },
+ {
+  "id": "com.samsung.android.game.gamehome",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Game Launcher."
+ },
+ {
+  "id": "com.samsung.android.game.gametools",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Game Tools."
+ },
+ {
+  "id": "com.samsung.android.game.gos",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Game Optimizing Service."
+ },
+ {
+  "id": "com.samsung.android.app.tips",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Tips."
+ },
+ {
+  "id": "com.samsung.android.app.sharelive",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Quick Share."
+ },
+ {
+  "id": "com.samsung.android.easysetup",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Easy setup."
+ },
+ {
+  "id": "com.samsung.android.smartmirroring",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Smart View."
+ },
+ {
+  "id": "com.samsung.android.mdx",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Link to Windows."
+ },
+ {
+  "id": "com.samsung.android.app.watchmanager",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Galaxy Wearable."
+ },
+ {
+  "id": "com.samsung.android.aremoji",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "AR Emoji."
+ },
+ {
+  "id": "com.samsung.android.ardrawing",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "AR Doodle."
+ },
+ {
+  "id": "com.samsung.android.arzone",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "AR Zone."
+ },
+ {
+  "id": "com.sec.android.mimage.avatarstickers",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "AR Emoji stickers."
+ },
+ {
+  "id": "com.samsung.android.stickercenter",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Sticker Center."
+ },
+ {
+  "id": "com.samsung.android.kidsinstaller",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Kids Mode installer."
+ },
+ {
+  "id": "com.samsung.android.themestore",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Galaxy Themes."
+ },
+ {
+  "id": "com.samsung.android.app.dressroom",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Wallpaper services extras."
+ },
+ {
+  "id": "com.samsung.android.app.updatecenter",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung app updates."
+ },
+ {
+  "id": "com.sec.android.app.samsungapps",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Galaxy Store."
+ },
+ {
+  "id": "com.samsung.android.samsungpass",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung Pass."
+ },
+ {
+  "id": "com.samsung.android.authfw",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Authentication framework."
+ },
+ {
+  "id": "com.samsung.android.spay",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung Pay."
+ },
+ {
+  "id": "com.samsung.android.spayfw",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung Pay framework."
+ },
+ {
+  "id": "com.samsung.android.dialer",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Phone."
+ },
+ {
+  "id": "com.samsung.android.messaging",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Messages."
+ },
+ {
+  "id": "com.samsung.android.contacts",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Contacts."
+ },
+ {
+  "id": "com.samsung.android.calendar",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Calendar."
+ },
+ {
+  "id": "com.sec.android.app.sbrowser",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung Internet."
+ },
+ {
+  "id": "com.samsung.android.email.provider",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Samsung Email."
+ },
+ {
+  "id": "com.samsung.android.app.notes",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Samsung Notes."
+ },
+ {
+  "id": "com.samsung.android.app.reminder",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Reminder."
+ },
+ {
+  "id": "com.samsung.android.voc",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Samsung Members."
+ },
+ {
+  "id": "com.samsung.android.rubin.app",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Customization Service."
+ },
+ {
+  "id": "com.samsung.android.app.routines",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Modes and Routines."
+ },
+ {
+  "id": "com.samsung.android.forest",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Digital wellbeing helper."
+ },
+ {
+  "id": "com.samsung.android.wellbeing",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Digital Wellbeing."
+ },
+ {
+  "id": "com.sec.android.app.shealth",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Samsung Health."
+ },
+ {
+  "id": "com.samsung.android.service.health",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Health service."
+ },
+ {
+  "id": "com.sec.android.daemonapp",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Weather."
+ },
+ {
+  "id": "com.sec.android.app.clockpackage",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Clock."
+ },
+ {
+  "id": "com.sec.android.app.popupcalculator",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Calculator."
+ },
+ {
+  "id": "com.sec.android.app.myfiles",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "My Files."
+ },
+ {
+  "id": "com.sec.android.gallery3d",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Gallery."
+ },
+ {
+  "id": "com.sec.android.app.camera",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Camera."
+ },
+ {
+  "id": "com.samsung.android.incallui",
+  "risk": "unsafe",
+  "vendor": "samsung",
+  "desc": "In-call screen."
+ },
+ {
+  "id": "com.sec.android.app.launcher",
+  "risk": "unsafe",
+  "vendor": "samsung",
+  "desc": "One UI Home."
+ },
+ {
+  "id": "com.samsung.android.app.aodservice",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Always On Display."
+ },
+ {
+  "id": "com.samsung.android.lool",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Device care."
+ },
+ {
+  "id": "com.samsung.android.sm.devicesecurity",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Device security scanner."
+ },
+ {
+  "id": "com.samsung.android.knox.containercore",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Knox container."
+ },
+ {
+  "id": "com.samsung.android.knox.analytics.uploader",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Knox analytics."
+ },
+ {
+  "id": "com.samsung.android.mobileservice",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung account services."
+ },
+ {
+  "id": "com.samsung.android.fmm",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Find My Mobile."
+ },
+ {
+  "id": "com.samsung.android.scloud",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung Cloud."
+ },
+ {
+  "id": "com.samsung.android.keyboard",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung keyboard."
+ },
+ {
+  "id": "com.sec.android.inputmethod",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung keyboard."
+ },
+ {
+  "id": "com.samsung.android.honeyboard",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Samsung keyboard."
+ },
+ {
+  "id": "com.samsung.android.dqagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Diagnostics agent."
+ },
+ {
+  "id": "com.samsung.android.da.daagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Diagnostics agent."
+ },
+ {
+  "id": "com.samsung.android.ipsgeofence",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Geofence helper."
+ },
+ {
+  "id": "com.samsung.android.beaconmanager",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Beacon manager."
+ },
+ {
+  "id": "com.samsung.android.app.social",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Social hub."
+ },
+ {
+  "id": "com.samsung.android.livestickers",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Live stickers."
+ },
+ {
+  "id": "com.samsung.android.bbc.bbcagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "BBC agent."
+ },
+ {
+  "id": "com.samsung.android.privateshare",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Private share."
+ },
+ {
+  "id": "com.samsung.android.app.smartcapture",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Smart capture."
+ },
+ {
+  "id": "com.samsung.android.networkdiagnostic",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Network diagnostics."
+ },
+ {
+  "id": "com.sec.android.diagmonagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Diagnostic monitor."
+ },
+ {
+  "id": "com.sec.android.soagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Software update agent."
+ },
+ {
+  "id": "com.samsung.android.svcagent",
+  "risk": "recommended",
+  "vendor": "samsung",
+  "desc": "Service agent."
+ },
+ {
+  "id": "com.sec.imsservice",
+  "risk": "unsafe",
+  "vendor": "samsung",
+  "desc": "IMS / VoLTE service."
+ },
+ {
+  "id": "com.sec.epdg",
+  "risk": "unsafe",
+  "vendor": "samsung",
+  "desc": "Wi-Fi calling gateway."
+ },
+ {
+  "id": "com.sec.unifiedwfc",
+  "risk": "advanced",
+  "vendor": "samsung",
+  "desc": "Wi-Fi calling."
+ }
+]

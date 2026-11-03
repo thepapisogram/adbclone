@@ -1,0 +1,188 @@
+[
+ {
+  "id": "com.coloros.gamespace",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Game Space."
+ },
+ {
+  "id": "com.coloros.video",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Video."
+ },
+ {
+  "id": "com.heytap.music",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Music."
+ },
+ {
+  "id": "com.heytap.browser",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Browser."
+ },
+ {
+  "id": "com.heytap.market",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "App Market."
+ },
+ {
+  "id": "com.heytap.cloud",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Cloud."
+ },
+ {
+  "id": "com.nearme.gamecenter",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Game Center."
+ },
+ {
+  "id": "com.oppo.launcher",
+  "risk": "unsafe",
+  "vendor": "oppo",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.coloros.safecenter",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Phone Manager."
+ },
+ {
+  "id": "com.coloros.phonemanager",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Phone Manager."
+ },
+ {
+  "id": "com.oplus.battery",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Battery manager."
+ },
+ {
+  "id": "com.oplus.games",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Games."
+ },
+ {
+  "id": "com.oneplus.membership",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Membership."
+ },
+ {
+  "id": "com.oneplus.opbackup",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Clone phone / backup."
+ },
+ {
+  "id": "com.oneplus.card",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Cards."
+ },
+ {
+  "id": "com.oneplus.brickmode",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Zen mode."
+ },
+ {
+  "id": "com.oneplus.gamespace",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Game Space."
+ },
+ {
+  "id": "net.oneplus.launcher",
+  "risk": "unsafe",
+  "vendor": "oppo",
+  "desc": "System launcher."
+ },
+ {
+  "id": "net.oneplus.odm",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "OEM services."
+ },
+ {
+  "id": "com.oneplus.account",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "OnePlus account."
+ },
+ {
+  "id": "com.oneplus.screenrecord",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Screen recorder."
+ },
+ {
+  "id": "com.oneplus.deskclock",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Clock."
+ },
+ {
+  "id": "com.oneplus.camera",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Camera."
+ },
+ {
+  "id": "com.oneplus.gallery",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "Gallery."
+ },
+ {
+  "id": "com.oneplus.filemanager",
+  "risk": "advanced",
+  "vendor": "oppo",
+  "desc": "File manager."
+ },
+ {
+  "id": "com.opos.ads",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Ads service."
+ },
+ {
+  "id": "com.coloros.assistantscreen",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Smart sidebar / assistant screen."
+ },
+ {
+  "id": "com.coloros.soundrecorder",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Recorder."
+ },
+ {
+  "id": "com.coloros.calculator",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Calculator."
+ },
+ {
+  "id": "com.coloros.weather.service",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Weather."
+ },
+ {
+  "id": "com.coloros.note",
+  "risk": "recommended",
+  "vendor": "oppo",
+  "desc": "Notes."
+ }
+]

@@ -1,0 +1,356 @@
+[
+ {
+  "id": "com.miui.analytics",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Analytics."
+ },
+ {
+  "id": "com.miui.msa.global",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "MIUI ads service."
+ },
+ {
+  "id": "com.miui.systemAdSolution",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Ad solution."
+ },
+ {
+  "id": "com.xiaomi.mipicks",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "GetApps store."
+ },
+ {
+  "id": "com.miui.cloudservice",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi Cloud."
+ },
+ {
+  "id": "com.miui.cloudbackup",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi Cloud backup."
+ },
+ {
+  "id": "com.miui.cloudservice.sysbase",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi Cloud base."
+ },
+ {
+  "id": "com.xiaomi.payment",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi payment."
+ },
+ {
+  "id": "com.mipay.wallet",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Pay."
+ },
+ {
+  "id": "com.miui.bugreport",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Bug report."
+ },
+ {
+  "id": "com.miui.miservice",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Services and feedback."
+ },
+ {
+  "id": "com.xiaomi.glgm",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Games."
+ },
+ {
+  "id": "com.xiaomi.gamecenter.sdk.service",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Game center SDK."
+ },
+ {
+  "id": "com.miui.player",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Music."
+ },
+ {
+  "id": "com.miui.videoplayer",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Video player."
+ },
+ {
+  "id": "com.mi.android.globalFileexplorer",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "File manager."
+ },
+ {
+  "id": "com.miui.gallery",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Gallery."
+ },
+ {
+  "id": "com.miui.notes",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Notes."
+ },
+ {
+  "id": "com.miui.weather2",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Weather."
+ },
+ {
+  "id": "com.miui.compass",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Compass."
+ },
+ {
+  "id": "com.miui.calculator",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Calculator."
+ },
+ {
+  "id": "com.android.browser",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Browser."
+ },
+ {
+  "id": "com.mi.globalbrowser",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Browser."
+ },
+ {
+  "id": "com.xiaomi.discover",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "App suggestions and updates."
+ },
+ {
+  "id": "com.miui.yellowpage",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Yellow pages."
+ },
+ {
+  "id": "com.miui.hybrid",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Quick apps."
+ },
+ {
+  "id": "com.miui.cleaner",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Cleaner."
+ },
+ {
+  "id": "com.miui.securitycenter",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Security app."
+ },
+ {
+  "id": "com.miui.securitycore",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Security core."
+ },
+ {
+  "id": "com.miui.securityadd",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Security add-on."
+ },
+ {
+  "id": "com.miui.powerkeeper",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Battery manager."
+ },
+ {
+  "id": "com.miui.home",
+  "risk": "unsafe",
+  "vendor": "xiaomi",
+  "desc": "System launcher."
+ },
+ {
+  "id": "com.miui.miwallpaper",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Wallpaper service."
+ },
+ {
+  "id": "com.miui.contentcatcher",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Content catcher."
+ },
+ {
+  "id": "com.miui.catcherpatch",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Catcher patch."
+ },
+ {
+  "id": "com.miui.daemon",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "System daemon."
+ },
+ {
+  "id": "com.miui.fm",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "FM radio."
+ },
+ {
+  "id": "com.miui.antispam",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Spam filter."
+ },
+ {
+  "id": "com.miui.mishare.connectivity",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Share."
+ },
+ {
+  "id": "com.xiaomi.mi_connect_service",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Connect."
+ },
+ {
+  "id": "com.xiaomi.scanner",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Scanner."
+ },
+ {
+  "id": "com.xiaomi.simactivate.service",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "SIM activation."
+ },
+ {
+  "id": "com.xiaomi.account",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi account."
+ },
+ {
+  "id": "com.xiaomi.joyose",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Performance tuning."
+ },
+ {
+  "id": "com.xiaomi.finddevice",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Find device."
+ },
+ {
+  "id": "com.milink.service",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Mi Link."
+ },
+ {
+  "id": "com.miui.voiceassist",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Voice assistant."
+ },
+ {
+  "id": "com.miui.personalassistant",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "App vault."
+ },
+ {
+  "id": "com.miui.smsextra",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "SMS extras."
+ },
+ {
+  "id": "com.miui.touchassistant",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Quick ball."
+ },
+ {
+  "id": "com.miui.screenrecorder",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Screen recorder."
+ },
+ {
+  "id": "com.miui.core",
+  "risk": "unsafe",
+  "vendor": "xiaomi",
+  "desc": "MIUI core."
+ },
+ {
+  "id": "com.miui.system",
+  "risk": "unsafe",
+  "vendor": "xiaomi",
+  "desc": "MIUI system."
+ },
+ {
+  "id": "miui.systemui.plugin",
+  "risk": "unsafe",
+  "vendor": "xiaomi",
+  "desc": "System UI plugin."
+ },
+ {
+  "id": "com.xiaomi.xmsf",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Xiaomi push services."
+ },
+ {
+  "id": "com.xiaomi.market",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Mi app store."
+ },
+ {
+  "id": "com.miui.packageinstaller",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "MIUI package installer."
+ },
+ {
+  "id": "com.miui.phrase",
+  "risk": "recommended",
+  "vendor": "xiaomi",
+  "desc": "Phrases."
+ },
+ {
+  "id": "com.miui.mediaeditor",
+  "risk": "advanced",
+  "vendor": "xiaomi",
+  "desc": "Editor."
+ }
+]

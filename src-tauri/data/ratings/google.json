@@ -1,0 +1,446 @@
+[
+ {
+  "id": "com.google.android.gms",
+  "risk": "unsafe",
+  "vendor": "google",
+  "desc": "Google Play services; many apps break without it."
+ },
+ {
+  "id": "com.google.android.gsf",
+  "risk": "unsafe",
+  "vendor": "google",
+  "desc": "Google Services Framework; sync and push."
+ },
+ {
+  "id": "com.google.android.modulemetadata",
+  "risk": "unsafe",
+  "vendor": "google",
+  "desc": "Mainline module metadata."
+ },
+ {
+  "id": "com.google.android.apps.nexuslauncher",
+  "risk": "unsafe",
+  "vendor": "google",
+  "desc": "Pixel launcher."
+ },
+ {
+  "id": "com.google.android.setupwizard",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Setup wizard; only needed after a reset."
+ },
+ {
+  "id": "com.google.android.ext.services",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Adjusts notifications and autofill."
+ },
+ {
+  "id": "com.google.android.ext.shared",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Shared extension services."
+ },
+ {
+  "id": "com.google.android.syncadapters.contacts",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Contacts sync."
+ },
+ {
+  "id": "com.google.android.syncadapters.calendar",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Calendar sync."
+ },
+ {
+  "id": "com.google.android.onetimeinitializer",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "First-boot setup."
+ },
+ {
+  "id": "com.google.android.partnersetup",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Partner setup."
+ },
+ {
+  "id": "com.google.android.configupdater",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Config updates."
+ },
+ {
+  "id": "com.google.android.tts",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Text to speech."
+ },
+ {
+  "id": "com.google.android.googlequicksearchbox",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google app, search and Assistant."
+ },
+ {
+  "id": "com.google.android.inputmethod.latin",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Gboard; keep another keyboard installed."
+ },
+ {
+  "id": "com.google.android.gm",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Gmail."
+ },
+ {
+  "id": "com.google.android.gm.lite",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Gmail Go."
+ },
+ {
+  "id": "com.google.android.youtube",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "YouTube; reinstallable."
+ },
+ {
+  "id": "com.google.android.apps.youtube.music",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "YouTube Music."
+ },
+ {
+  "id": "com.google.android.apps.maps",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Maps."
+ },
+ {
+  "id": "com.google.android.apps.photos",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google Photos."
+ },
+ {
+  "id": "com.google.android.apps.docs",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Drive."
+ },
+ {
+  "id": "com.google.android.apps.docs.editors.docs",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Docs."
+ },
+ {
+  "id": "com.google.android.apps.docs.editors.sheets",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Sheets."
+ },
+ {
+  "id": "com.google.android.apps.docs.editors.slides",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Slides."
+ },
+ {
+  "id": "com.google.android.videos",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google TV / Play Movies."
+ },
+ {
+  "id": "com.google.android.music",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Play Music."
+ },
+ {
+  "id": "com.google.android.apps.magazines",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google News."
+ },
+ {
+  "id": "com.google.android.apps.tachyon",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Meet / Duo."
+ },
+ {
+  "id": "com.google.android.apps.meetings",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Meet."
+ },
+ {
+  "id": "com.google.android.talk",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Hangouts."
+ },
+ {
+  "id": "com.google.android.apps.messaging",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google Messages."
+ },
+ {
+  "id": "com.google.android.dialer",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google Phone."
+ },
+ {
+  "id": "com.google.android.contacts",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google Contacts."
+ },
+ {
+  "id": "com.google.android.calendar",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Calendar."
+ },
+ {
+  "id": "com.google.android.keep",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Keep."
+ },
+ {
+  "id": "com.google.android.apps.nbu.files",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Files by Google."
+ },
+ {
+  "id": "com.google.android.apps.wellbeing",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Digital Wellbeing."
+ },
+ {
+  "id": "com.google.android.apps.googleassistant",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Assistant."
+ },
+ {
+  "id": "com.google.android.marvin.talkback",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Accessibility screen reader."
+ },
+ {
+  "id": "com.google.android.apps.turbo",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Device Health Services."
+ },
+ {
+  "id": "com.google.android.apps.restore",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Restore from backup."
+ },
+ {
+  "id": "com.google.android.apps.pixelmigrate",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Pixel data migration."
+ },
+ {
+  "id": "com.google.android.gms.location.history",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Location history."
+ },
+ {
+  "id": "com.google.android.feedback",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Feedback agent."
+ },
+ {
+  "id": "com.google.android.printservice.recommendation",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Print service suggestions."
+ },
+ {
+  "id": "com.google.android.projection.gearhead",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Android Auto."
+ },
+ {
+  "id": "com.google.android.street",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Street View."
+ },
+ {
+  "id": "com.google.android.apps.walletnfcrel",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Google Wallet."
+ },
+ {
+  "id": "com.google.android.apps.chromecast.app",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Home."
+ },
+ {
+  "id": "com.google.android.apps.subscriptions.red",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google One."
+ },
+ {
+  "id": "com.google.android.apps.googleone",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google One."
+ },
+ {
+  "id": "com.google.ar.core",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Play Services for AR."
+ },
+ {
+  "id": "com.google.ar.lens",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Lens AR."
+ },
+ {
+  "id": "com.google.android.apps.cloudprint",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Cloud Print."
+ },
+ {
+  "id": "com.google.android.play.games",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Play Games."
+ },
+ {
+  "id": "com.google.android.gms.policy_sidecar_aps",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Device policy sidecar."
+ },
+ {
+  "id": "com.google.android.safetycore",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "On-device safety features."
+ },
+ {
+  "id": "com.google.android.cellbroadcastreceiver",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Emergency alerts."
+ },
+ {
+  "id": "com.google.android.apps.work.oobconfig",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Work setup."
+ },
+ {
+  "id": "com.google.android.apps.carrierservices",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Carrier services (RCS)."
+ },
+ {
+  "id": "com.google.android.carriersetup",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Carrier setup."
+ },
+ {
+  "id": "com.google.android.euicc",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "eSIM support."
+ },
+ {
+  "id": "com.google.android.apps.setupwizard.searchselector",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Search selector."
+ },
+ {
+  "id": "com.google.android.soundpicker",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Ringtone picker."
+ },
+ {
+  "id": "com.google.android.apps.accessibility.voiceaccess",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Voice Access."
+ },
+ {
+  "id": "com.google.android.accessibility.soundamplifier",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Sound Amplifier."
+ },
+ {
+  "id": "com.google.android.apps.authenticator2",
+  "risk": "advanced",
+  "vendor": "google",
+  "desc": "Authenticator codes; may hold your 2FA."
+ },
+ {
+  "id": "com.google.android.apps.bard",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Gemini."
+ },
+ {
+  "id": "com.google.android.apps.podcasts",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Podcasts."
+ },
+ {
+  "id": "com.google.android.apps.tasks",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Tasks."
+ },
+ {
+  "id": "com.google.android.apps.translate",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Translate."
+ },
+ {
+  "id": "com.google.android.apps.fitness",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Google Fit."
+ },
+ {
+  "id": "com.google.android.apps.classroom",
+  "risk": "recommended",
+  "vendor": "google",
+  "desc": "Classroom."
+ }
+]

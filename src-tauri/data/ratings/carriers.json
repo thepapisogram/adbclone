@@ -1,0 +1,110 @@
+[
+ {
+  "id": "com.vzw.hss.myverizon",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "My Verizon."
+ },
+ {
+  "id": "com.verizon.mips.services",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Verizon services."
+ },
+ {
+  "id": "com.verizon.messaging.vzmsgs",
+  "risk": "advanced",
+  "vendor": "carrier",
+  "desc": "Verizon Messages."
+ },
+ {
+  "id": "com.vcast.mediamanager",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Verizon Cloud."
+ },
+ {
+  "id": "com.verizon.obdm",
+  "risk": "advanced",
+  "vendor": "carrier",
+  "desc": "Verizon device management."
+ },
+ {
+  "id": "com.att.myWireless",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "myAT&T."
+ },
+ {
+  "id": "com.att.dh",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "AT&T device help."
+ },
+ {
+  "id": "com.att.iqi",
+  "risk": "advanced",
+  "vendor": "carrier",
+  "desc": "AT&T diagnostics."
+ },
+ {
+  "id": "com.att.callprotect",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "AT&T Call Protect."
+ },
+ {
+  "id": "com.asurion.android.protech.att",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "AT&T ProTech."
+ },
+ {
+  "id": "com.tmobile.pr.mytmobile",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "T-Mobile app."
+ },
+ {
+  "id": "com.tmobile.services.nameid",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Name ID."
+ },
+ {
+  "id": "com.tmobile.simlock",
+  "risk": "advanced",
+  "vendor": "carrier",
+  "desc": "SIM unlock."
+ },
+ {
+  "id": "com.sprint.ms.smf.services",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Sprint services."
+ },
+ {
+  "id": "com.sprint.zone",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Sprint Zone."
+ },
+ {
+  "id": "com.coremobility.app.vnotes",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Visual voicemail notes."
+ },
+ {
+  "id": "com.vodafone.mCare",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "My Vodafone."
+ },
+ {
+  "id": "com.lookout",
+  "risk": "recommended",
+  "vendor": "carrier",
+  "desc": "Lookout."
+ }
+]
