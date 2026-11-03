@@ -1,0 +1,27 @@
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 1200, height: 800 } });
+  const p = await ctx.newPage();
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
+  const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
+  await p.goto(process.env.BASE || 'http://localhost:4173');
+  await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
+  await p.getByRole('button', { name: 'Storage', exact: true }).click();
+  await p.getByText('What uses space').waitFor();
+  await p.waitForFunction(() => document.querySelectorAll('table.storagetable tbody tr').length > 0, null, { timeout: 10000 });
+  console.log('space table shown:', await p.locator('table.storagetable').first().locator('tbody tr').count() > 0);
+  console.log('caveat shown:', await p.getByText('Sizes are what the phone measured last').count() === 1);
+  await p.getByRole('button', { name: 'Clear all app caches' }).click();
+  await p.getByText(/Caches cleared/).waitFor({ timeout: 10000 });
+  console.log('cache cleanup reports:', true);
+  await p.getByText('Apps you have not opened lately').waitFor();
+  const rows = p.locator('table[aria-label="Unused apps"] tbody tr');
+  await rows.first().waitFor({ timeout: 10000 });
+  console.log('unused list shown:', await rows.count() > 0);
+  console.log('disable disabled until picked:', await p.getByRole('button', { name: /^Disable/ }).last().isDisabled());
+  await rows.first().click();
+  await p.getByRole('button', { name: /^Disable/ }).last().click();
+  console.log('confirm dialog opens:', await p.getByRole('dialog').count() > 0 || await p.getByText(/snapshot/i).count() > 0);
+  console.log('errors', errs); await browser.close();
+})();

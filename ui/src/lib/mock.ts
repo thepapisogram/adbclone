@@ -1,4 +1,4 @@
-import type { ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const IMPACT: Record<string, string> = {
   "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
@@ -408,4 +408,17 @@ export const mock = {
       return { package: pkg, folder: `${dest}/${pkg}`, files: split ? ["base.apk", "split_config.arm64_v8a.apk", "split_config.xxhdpi.apk"] : ["base.apk"], bytes: split ? 61_000_000 : 24_000_000 };
     },
   },
+
+  async storage(_serial: string): Promise<StorageReport> {
+    await delay(300);
+    const apps = this_apps().map((a, i) => ({ package: a.name, appBytes: (40 + ((i * 53) % 400)) * 1_048_576, dataBytes: ((i * 37) % 300) * 1_048_576, cacheBytes: ((i * 71) % 180) * 1_048_576 }));
+    return { available: true, apps: apps.sort((a, b) => b.appBytes + b.dataBytes + b.cacheBytes - (a.appBytes + a.dataBytes + a.cacheBytes)) };
+  },
+  async usage(_serial: string): Promise<UsageReport> {
+    await delay(300);
+    // Some apps have no record at all (the phone only keeps a limited history).
+    const days: Record<string, number> = { "com.android.chrome": 0, "com.whatsapp": 0, "com.spotify.music": 2, "org.mozilla.firefox": 45, "com.discord": 95, "com.instagram.android": 12, "com.google.android.youtube": 70, "com.google.android.apps.maps": 33, "com.samsung.android.game.gamehome": 200 };
+    return { available: true, entries: Object.entries(days).map(([package_, daysAgo]) => ({ package: package_, daysAgo, lastUsed: "2024-06-30 12:00:00", launches: 3 })) };
+  },
 };
+function this_apps() { return apps; }

@@ -143,3 +143,6 @@ td.desc { max-width: 420px; }
 table.installtable { width: 100%; margin-top: 10px; } table.installtable td { vertical-align: top; }
 .backuplist { max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; padding: 4px 8px; }
 .backuprow { display: flex; gap: 8px; align-items: center; padding: 3px 0; cursor: pointer; }
+
+.storage { overflow: auto; flex: 1; min-height: 0; padding-bottom: 20px; }
+table.storagetable { width: 100%; margin-top: 8px; } table.storagetable td, table.storagetable th { padding: 5px 8px; }

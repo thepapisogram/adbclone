@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{storage, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -1253,6 +1253,35 @@ async fn backup_one(serial: String, package: String, dest: String, label: Option
     backup::export(&adb(), &serial, &package, &dest, &backup::ExportInfo { label, version_name, installer }).await
 }
 
+// ---- storage and last opened ----
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StorageReport {
+    /// False when the phone did not report sizes (some Android versions or makers do not).
+    available: bool,
+    apps: Vec<storage::AppStorage>,
+}
+
+#[tauri::command]
+async fn storage_report(serial: String) -> Result<StorageReport, String> {
+    let apps = storage::read_sizes(&adb().with_timeout(Duration::from_secs(60)), &serial).await.map_err(|e| e.to_string())?;
+    Ok(StorageReport { available: !apps.is_empty(), apps })
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct UsageReport {
+    available: bool,
+    entries: Vec<storage::Usage>,
+}
+
+#[tauri::command]
+async fn usage_report(serial: String) -> Result<UsageReport, String> {
+    let entries = storage::read_usage(&adb().with_timeout(Duration::from_secs(90)), &serial).await.map_err(|e| e.to_string())?;
+    Ok(UsageReport { available: !entries.is_empty(), entries })
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1302,7 +1331,8 @@ fn main() {
             history_load, history_save, device_info, health_sample,
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
-            install_inspect, install_item, install_discard, backup_one])
+            install_inspect, install_item, install_discard, backup_one,
+            storage_report, usage_report])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }

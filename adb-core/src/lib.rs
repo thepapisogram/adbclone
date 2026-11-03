@@ -15,6 +15,7 @@ pub mod protect;
 pub mod report;
 pub mod runner;
 pub mod snapshot;
+pub mod storage;
 pub mod tuning;
 pub mod wireless;
 

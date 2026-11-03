@@ -136,3 +136,8 @@ export interface InstallItem { id: string; source: string; kind: string; fileCou
 export interface InspectOut { item?: InstallItem | null; error?: string | null }
 export interface InstallOptions { replace: boolean; allowDowngrade: boolean; allowTest: boolean }
 export interface ExportResult { package: string; folder: string; files: string[]; bytes: number }
+
+export interface AppStorage { package: string; appBytes: number; dataBytes: number; cacheBytes: number }
+export interface StorageReport { available: boolean; apps: AppStorage[] }
+export interface Usage { package: string; lastUsed: string; daysAgo: number; launches?: number | null }
+export interface UsageReport { available: boolean; entries: Usage[] }

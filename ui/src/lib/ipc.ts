@@ -1,4 +1,4 @@
-import type { ExportResult, InspectOut, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { StorageReport, UsageReport, ExportResult, InspectOut, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -24,6 +24,8 @@ export const ipc = {
   deviceInfo: (serial: string): Promise<DeviceInfo> => (inTauri ? call("device_info", { serial }) : mock.deviceInfo(serial)),
   healthSample: (serial: string): Promise<HealthSample> => (inTauri ? call("health_sample", { serial }) : mock.healthSample(serial)),
   protections: (serial: string): Promise<Protection[]> => (inTauri ? call("get_protections", { serial }) : mock.protections(serial)),
+  storage: (serial: string): Promise<StorageReport> => (inTauri ? call("storage_report", { serial }) : mock.storage(serial)),
+  usage: (serial: string): Promise<UsageReport> => (inTauri ? call("usage_report", { serial }) : mock.usage(serial)),
   listRunning: (serial: string): Promise<RunningResponse> =>
     inTauri ? call("list_running", { serial }) : mock.listRunning(serial),
   /** Start finding names and icons; results arrive through the handlers. Calling it again retries. */

@@ -27,6 +27,8 @@ pub fn plan() -> Vec<(&'static str, String)> {
         ("package counts", "echo user=$(pm list packages -3 | wc -l); echo disabled=$(pm list packages -d | wc -l); echo all_including_uninstalled=$(pm list packages -u | wc -l); echo installed=$(pm list packages | wc -l)".into()),
         ("tool availability", "for t in unzip ps top stat df settings cmd dumpsys; do echo \"$t: $(command -v $t || echo missing)\"; done".into()),
         ("app ops and standby sample", "cmd appops get com.android.shell RUN_ANY_IN_BACKGROUND; am get-standby-bucket com.android.shell".into()),
+        ("storage report format (keys only)", "dumpsys diskstats | cut -d: -f1 | cut -c1-60 | head -n 40".into()),
+        ("last-opened format (names hidden)", "dumpsys usagestats | grep -m6 'package=' | sed 's/package=[^ ]*/package=<name>/' | cut -c1-400".into()),
         ("wifi address", "ip -f inet addr show wlan0".into()),
     ]
 }

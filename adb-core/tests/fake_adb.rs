@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{storage, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -539,4 +539,18 @@ fn item_without_files() -> install::InstallItem {
         fs::remove_file(&f).unwrap();
         it
     })
+}
+
+#[tokio::test]
+async fn storage_and_last_opened_come_from_the_phone() {
+    let (adb, d) = setup("storage", false);
+    fs::write(d.join("diskstats.txt"), "Package Names: [\"com.big.game\",\"com.tiny\"]\nApp Sizes: [900000000, 1000]\nApp Data Sizes: [100000000, 10]\nCache Sizes: [50000000, 1]\n").unwrap();
+    fs::write(d.join("usage.txt"), "@@NOW\n2024-06-30 12:00:00\n@@USAGE\n    package=com.big.game totalTimeUsed=\"+1h\" lastTimeUsed=\"2024-03-01 10:00:00\" appLaunchCount=9\n").unwrap();
+    let sizes = storage::read_sizes(&adb, "SER").await.unwrap();
+    assert_eq!((sizes[0].package.as_str(), sizes[0].cache_bytes), ("com.big.game", 50_000_000));
+    let usage = storage::read_usage(&adb, "SER").await.unwrap();
+    assert_eq!((usage[0].package.as_str(), usage[0].days_ago, usage[0].launches), ("com.big.game", 121, Some(9)));
+    // A phone that prints nothing useful gives empty lists, not an error.
+    fs::write(d.join("usage.txt"), "@@NOW\n2024-06-30 12:00:00\n@@USAGE\nSecurityException: denied\n").unwrap();
+    assert!(storage::read_usage(&adb, "SER").await.unwrap().is_empty());
 }
