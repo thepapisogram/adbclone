@@ -16,6 +16,7 @@ An original implementation, inspired by tools like ADB AppControl; it shares no 
 - `ui/` — React UI. In a plain browser (`npm run dev`) it runs on mock data; inside Tauri it uses the real backend.
 
 ## Run
+If adb is not on your computer, the app offers to download Google's official platform-tools into its own folder (from dl.google.com, checked by running it).
 Needs Node 22+, Rust, and `adb` (Android platform-tools) on PATH, or set `ADB_PATH`, or put `platform-tools/` next to the executable. On Linux install the Tauri system libraries (webkit2gtk-4.1, gtk3).
 
 ```bash

@@ -121,3 +121,5 @@ h1.brand img { border-radius: 6px; }
 
 .logs { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .logtable td { padding: 4px 10px; vertical-align: top; } .ok-mark { color: var(--ok); width: 24px; } .bad-mark { color: var(--danger); width: 24px; }
+
+.adbsetup { display: flex; flex-direction: column; gap: 10px; } .adbsetup code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }

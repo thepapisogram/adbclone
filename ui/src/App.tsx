@@ -7,7 +7,7 @@ import { SettingsDialog } from "./components/SettingsDialog";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
 import { pickSerial } from "./lib/pickSerial";
-import type { Action, AppInfo, Device, LabelProgress, NamesStatusInfo, NameSource, PkgState, Risk } from "./lib/types";
+import type { AdbStatus, Action, AppInfo, Device, LabelProgress, NamesStatusInfo, NameSource, PkgState, Risk } from "./lib/types";
 import { addIcons, clearIcons } from "./lib/icons";
 import { AppIcon } from "./components/AppIcon";
 import { NamesStatus } from "./features/names/NamesStatus";
@@ -18,6 +18,7 @@ import { Health } from "./features/health/Health";
 import { Debloat } from "./features/debloat/Debloat";
 import { Tune } from "./features/tuning/Tune";
 import { Logs } from "./features/logs/Logs";
+import { AdbSetup } from "./features/setup/AdbSetup";
 import { DeviceCard } from "./features/deviceinfo/DeviceCard";
 
 type Scope = "all" | "system" | "user";
@@ -51,6 +52,10 @@ export default function App() {
   const connectOpen = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [adbStatus, setAdbStatus] = useState<AdbStatus | null>(null);
+  const [showAdbSetup, setShowAdbSetup] = useState(false);
+  const refreshAdbStatus = useCallback(() => { ipc.adb.status().then(setAdbStatus).catch(() => {}); }, []);
+  useEffect(() => { refreshAdbStatus(); }, [refreshAdbStatus]);
   const { plain } = useSettings();
   useEffect(() => { connectOpen.current = showConnect; }, [showConnect]);
   const [adbWarning, setAdbWarning] = useState("");
@@ -227,7 +232,12 @@ export default function App() {
       </header>
 
       {error && <div className="error" role="alert">{error}</div>}
-      {adbWarning && <div className="error" role="alert">{adbWarning}</div>}
+      {adbWarning && adbStatus?.found !== false && <div className="error" role="alert">{adbWarning}</div>}
+      {adbStatus && !adbStatus.found && (
+        <div className="error" role="alert">
+          adb, the tool that talks to your phone, was not found. <button className="linklike" onClick={() => setShowAdbSetup(true)}>Set it up now</button>
+        </div>
+      )}
       {notice && <div className="notice" role="status">{notice} <button className="linklike" onClick={() => setTab("snapshots")}>Open Snapshots</button></div>}
       <DeviceCard serial={serial} />
       {device?.state === "unauthorized" && <div className="error">Accept the USB debugging prompt on the phone.</div>}
@@ -323,6 +333,15 @@ export default function App() {
       </div>
       </>}
 
+      {showAdbSetup && (
+        <div className="modal-bg" onClick={() => setShowAdbSetup(false)}>
+          <div className="modal wide" role="dialog" aria-label="Set up adb" onClick={(e) => e.stopPropagation()}>
+            <h2>Set up adb</h2>
+            <AdbSetup status={adbStatus} onInstalled={() => { refreshAdbStatus(); refreshDevices(); }} />
+            <div className="modal-actions"><button onClick={() => setShowAdbSetup(false)}>Close</button></div>
+          </div>
+        </div>
+      )}
       {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} />}
       {showConnect && <ConnectDialog devices={devices} onClose={() => setShowConnect(false)} onChanged={onConnectionChanged} />}
 

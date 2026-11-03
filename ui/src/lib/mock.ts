@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -325,5 +325,25 @@ export const mock = {
       return { entries: this.entries.filter((e) => e.seq > seq).map((e) => ({ ...e })), seq: this.seq };
     },
     async clear() { this.entries = []; this.seq++; },
+  },
+
+  adb: {
+    // Open the page with ?noadb=1 to see what a computer without adb looks like.
+    installed: !new URLSearchParams(typeof location === "undefined" ? "" : location.search).has("noadb"),
+    failNext: new URLSearchParams(typeof location === "undefined" ? "" : location.search).has("adbfail"),
+    async status(): Promise<AdbStatus> {
+      await delay(100);
+      return this.installed ? { found: true, source: "appData", path: "C:/Users/you/AppData/Roaming/Coolant/platform-tools/adb.exe", version: "Version 35.0.2-12147458", major: 35 } : { found: false };
+    },
+    download(on: (e: AdbDownloadEvent) => void) {
+      const total = 8_000_000;
+      let got = 0;
+      const t = setInterval(() => {
+        got += 1_000_000;
+        if (this.failNext && got >= 3_000_000) { clearInterval(t); this.failNext = false; on({ stage: "error", received: got, total, message: "could not connect: the network is unreachable" }); return; }
+        if (got < total) on({ stage: "downloading", received: got, total });
+        else { clearInterval(t); this.installed = true; on({ stage: "done", received: total, total }); }
+      }, 250);
+    },
   },
 };

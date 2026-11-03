@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -138,5 +138,16 @@ export const ipc = {
   log: {
     since: (seq: number): Promise<CommandLog> => (inTauri ? call("get_log", { since: seq }) : mock.log.since(seq)),
     clear: (): Promise<void> => (inTauri ? call("clear_log") : mock.log.clear()),
+  },
+
+  adb: {
+    status: (): Promise<AdbStatus> => (inTauri ? call("adb_status") : mock.adb.status()),
+    /** Starts the download; progress and the result arrive through `on`. Returns a function that stops listening. */
+    download: async (on: (e: AdbDownloadEvent) => void): Promise<() => void> => {
+      if (!inTauri) { mock.adb.download(on); return () => {}; }
+      const off = await listen<AdbDownloadEvent>("adb-download", on);
+      try { await call("adb_download"); } catch (e) { off(); throw e; }
+      return off;
+    },
   },
 };

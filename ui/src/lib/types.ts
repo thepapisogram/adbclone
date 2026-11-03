@@ -116,3 +116,6 @@ export interface LabelHandlers {
 
 export interface CommandLogEntry { id: number; seq: number; timeMs: number; command: string; ok: boolean; millis: number; count: number; note?: string | null }
 export interface CommandLog { entries: CommandLogEntry[]; seq: number }
+
+export interface AdbStatus { found: boolean; source?: "env" | "appData" | "nextToApp" | "path" | null; path?: string | null; version?: string | null; major?: number | null }
+export interface AdbDownloadEvent { stage: "downloading" | "unpacking" | "done" | "error"; received: number; total?: number | null; message?: string | null }

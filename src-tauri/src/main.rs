@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{bridge, log as cmdlog, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, log as cmdlog, platform_tools, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -89,24 +89,27 @@ struct ActionResult {
     message: Option<String>,
 }
 
-/// adb lookup order: $ADB_PATH, platform-tools next to the executable, then PATH.
-fn adb() -> AdbRunner {
-    let exe = if cfg!(windows) { "adb.exe" } else { "adb" };
-    if let Ok(p) = std::env::var("ADB_PATH") {
-        return AdbRunner::new(p);
-    }
-    if let Ok(me) = std::env::current_exe() {
-        if let Some(dir) = me.parent() {
-            for cand in [dir.join("platform-tools").join(exe), dir.join(exe)] {
-                if cand.exists() {
-                    return AdbRunner::new(cand);
-                }
-            }
-        }
-    }
-    AdbRunner::new(exe)
+/// Where the app keeps its own files (set at startup); our downloaded adb lives under it.
+static APP_DATA: OnceLock<std::path::PathBuf> = OnceLock::new();
+
+fn find_adb() -> Option<platform_tools::Found> {
+    platform_tools::find_adb(
+        std::env::var("ADB_PATH").ok().as_deref(),
+        APP_DATA.get().map(|p| p.as_path()),
+        std::env::current_exe().ok().as_deref().and_then(|p| p.parent()),
+        std::env::var_os("PATH").as_deref(),
+        platform_tools::current_os(),
+    )
 }
 
+/// adb lookup order: $ADB_PATH, the copy this app downloaded, next to the app, then PATH.
+fn adb() -> AdbRunner {
+    match find_adb() {
+        Some(f) => AdbRunner::new(f.path),
+        // Not found anywhere: the plain name gives the usual "not found" error the UI turns into setup help.
+        None => AdbRunner::new(platform_tools::adb_file_name(platform_tools::current_os())),
+    }
+}
 
 #[tauri::command]
 async fn list_devices() -> Result<Vec<devices::Device>, String> {
@@ -1103,14 +1106,80 @@ fn clear_log() {
     cmdlog::clear();
 }
 
+// ---- setting up adb ----
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AdbStatus {
+    found: bool,
+    /// `env`, `appData`, `nextToApp` or `path`.
+    source: Option<platform_tools::Source>,
+    path: Option<String>,
+    version: Option<String>,
+    major: Option<u32>,
+}
+
+#[tauri::command]
+async fn adb_status() -> AdbStatus {
+    let Some(f) = find_adb() else {
+        return AdbStatus { found: false, source: None, path: None, version: None, major: None };
+    };
+    let out = AdbRunner::new(&f.path).with_timeout(Duration::from_secs(10)).run(&["version"]).await.ok();
+    let major = out.as_deref().and_then(wireless::parse_adb_major);
+    let version = out.as_deref().and_then(|o| o.lines().find(|l| l.trim_start().starts_with("Version")).map(|l| l.trim().to_string()));
+    AdbStatus { found: major.is_some(), source: Some(f.source), path: Some(f.path.to_string_lossy().into_owned()), version, major }
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct AdbDownloadEvent {
+    /// `downloading`, `unpacking`, `done` or `error`.
+    stage: &'static str,
+    received: u64,
+    total: Option<u64>,
+    message: Option<String>,
+}
+
+static ADB_DOWNLOADING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Download Google's platform-tools into the app's own folder. Progress arrives as `adb-download` events.
+#[tauri::command]
+async fn adb_download(app: AppHandle) -> Result<(), String> {
+    let Some(dir) = APP_DATA.get().cloned() else { return Err("The app data folder is not available.".into()) };
+    if ADB_DOWNLOADING.swap(true, Ordering::SeqCst) {
+        return Err("A download is already running.".into());
+    }
+    tauri::async_runtime::spawn(async move {
+        let a2 = app.clone();
+        let progress: platform_tools::Progress = std::sync::Arc::new(move |received, total| {
+            let _ = a2.emit("adb-download", AdbDownloadEvent { stage: "downloading", received, total, message: None });
+        });
+        let url = platform_tools::download_url(platform_tools::current_os());
+        let result = platform_tools::install(&dir, &url, &[platform_tools::GOOGLE_HOST], false, progress).await;
+        let ev = match result {
+            Ok(_) => {
+                let _ = adb().start_server().await;
+                AdbDownloadEvent { stage: "done", received: 0, total: None, message: None }
+            }
+            Err(e) => AdbDownloadEvent { stage: "error", received: 0, total: None, message: Some(e) },
+        };
+        ADB_DOWNLOADING.store(false, Ordering::SeqCst);
+        let _ = app.emit("adb-download", ev);
+    });
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .setup(|app| {
+            let data = app.path().app_data_dir().ok();
+            if let Some(d) = &data {
+                let _ = APP_DATA.set(d.clone()); // before anything looks for adb
+            }
             // Start the adb server once, hidden, instead of leaving it to whichever call comes first.
             tauri::async_runtime::spawn(async { let _ = adb().start_server().await; });
-            let data = app.path().app_data_dir().ok();
             *app.state::<AppState>().data_dir.lock().unwrap() = data.clone();
             if let Some(f) = data.as_ref().map(|d| d.join("tuning.json")) {
                 if let Ok(t) = std::fs::read_to_string(f) {
@@ -1148,7 +1217,7 @@ fn main() {
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
-            device_report, save_text_file, get_log, clear_log])
+            device_report, save_text_file, get_log, clear_log, adb_status, adb_download])
         .run(tauri::generate_context!())
         .expect("error while running Coolant");
 }
