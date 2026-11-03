@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "dev.local.adbmanager",
   "build": {
-    "beforeDevCommand": "npm --prefix ui run dev",
+    "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "npm --prefix ui run build",
+    "beforeBuildCommand": "npm run build",
     "frontendDist": "../ui/dist"
   },
   "app": {
