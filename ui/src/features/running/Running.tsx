@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ipc } from "../../lib/ipc";
 import type { Action, AppInfo, RunningResponse } from "../../lib/types";
 import { SafetyTag } from "../../components/SafetyTag";
+import { AppIcon } from "../../components/AppIcon";
 
 type SortKey = "rss" | "cpu" | "name";
 
@@ -104,7 +105,7 @@ export function Running({ serial, wireless, apps, active, onRequest }: Props) {
             {rows.map((r) => (
               <tr key={r.package} className={selected.has(r.package!) ? "sel" : ""} onClick={() => toggle(r.package!)} title={r.description ?? undefined}>
                 <td className="chk"><input type="checkbox" checked={selected.has(r.package!)} onChange={() => toggle(r.package!)} onClick={(e) => e.stopPropagation()} /></td>
-                <td>{r.label}</td>
+                <td><span className="namecell"><AppIcon name={r.package!} />{r.label}</span></td>
                 <td className="mono">{r.package}</td>
                 <td className="num">{mb(r.rssKb)}</td>
                 <td className="num">{r.cpu == null ? "—" : r.cpu.toFixed(1)}</td>

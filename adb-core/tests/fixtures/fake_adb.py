@@ -17,7 +17,21 @@ def read(name, default=""):
     p = os.path.join(d, name)
     return open(p).read() if os.path.exists(p) else default
 
-if args[:1] == ["version"]:
+if args[:1] == ["push"]:
+    shutil.copy(args[1], os.path.join(d, "pushed.jar"))
+    print(f"{args[1]}: 1 file pushed.")
+elif args[:1] == ["exec-out"] and len(args) > 1 and args[1].startswith("CLASSPATH="):
+    words = args[1].split()
+    mode = words[words.index("dev.adbclone.helper.Main") + 1]
+    wanted = words[words.index("dev.adbclone.helper.Main") + 2:]
+    f = os.path.join(d, f"helper_{mode}.txt")
+    if not os.path.exists(f):
+        sys.stderr.write("app_process: inaccessible or not found\n"); sys.exit(127)
+    for l in open(f).read().splitlines():
+        if mode == "icons" and wanted and '"p":"' in l and not any(f'"p":"{w}"' in l for w in wanted):
+            continue
+        print(l)
+elif args[:1] == ["version"]:
     print("Android Debug Bridge version 1.0.41\nVersion 34.0.4-10411341\nInstalled as /fake/adb")
 elif args[:1] == ["pair"]:
     addr, code = args[1], args[2]
@@ -59,7 +73,9 @@ elif args[:1] == ["pull"]:
     print("1 file pulled")
 elif args[:1] == ["shell"]:
     cmd = " ".join(args[1:])
-    if cmd.startswith(("settings ", "cmd appops ", "am get-standby-bucket", "am set-standby-bucket", "pm trim-caches")) or "@@TUNE" in cmd:
+    if cmd.startswith("rm -f "):
+        open(os.path.join(d, "removed"), "a").write(cmd.split()[-1] + "\n")
+    elif cmd.startswith(("settings ", "cmd appops ", "am get-standby-bucket", "am set-standby-bucket", "pm trim-caches")) or "@@TUNE" in cmd:
         import json
         tp = os.path.join(d, "tunedb.json")
         t = json.load(open(tp)) if os.path.exists(tp) else {"settings": {}, "appops": {}, "standby": {}}

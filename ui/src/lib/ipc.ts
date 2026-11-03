@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, DetailItem, IconItem, LabelHandlers, NamesStatusInfo, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -25,14 +25,19 @@ export const ipc = {
   healthSample: (serial: string): Promise<HealthSample> => (inTauri ? call("health_sample", { serial }) : mock.healthSample(serial)),
   listRunning: (serial: string): Promise<RunningResponse> =>
     inTauri ? call("list_running", { serial }) : mock.listRunning(serial),
-  /** Start resolving real names; results arrive through `onLabels` / `onLabelProgress`. */
-  loadLabels: async (serial: string, onLabels: (l: LabelItem[]) => void, onProgress: (p: LabelProgress) => void) => {
-    if (!inTauri) { mock.loadLabels(onLabels, onProgress); return () => {}; }
-    const offs = [await listen<LabelItem[]>("labels", onLabels), await listen<LabelProgress>("labels-progress", onProgress)];
+  /** Start finding names and icons; results arrive through the handlers. Calling it again retries. */
+  loadLabels: async (serial: string, h: LabelHandlers) => {
+    if (!inTauri) { mock.loadLabels(h); return () => {}; }
+    const offs = [
+      await listen<LabelItem[]>("labels", h.onLabels),
+      await listen<LabelProgress>("labels-progress", h.onProgress),
+      await listen<NamesStatusInfo>("names-status", h.onStatus),
+      await listen<DetailItem[]>("bridge-details", h.onDetails),
+      await listen<IconItem[]>("icons", h.onIcons),
+    ];
     await call("load_labels", { serial });
     return () => offs.forEach((f) => f());
   },
-
   wireless: {
     check: (): Promise<AdbCheck> => (inTauri ? call("adb_check") : mock.wireless.check()),
     discover: (): Promise<MdnsService[]> => (inTauri ? call("wireless_discover") : mock.wireless.discover()),

@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -227,12 +227,55 @@ async fn list_running(state: State<'_, AppState>, serial: String) -> Result<Runn
 struct LabelItem {
     name: String,
     label: String,
+    /// Where the name came from: `helper`, `file` or `cache`.
+    source: &'static str,
 }
 
 #[derive(Serialize, Clone)]
 struct LabelProgress {
     done: usize,
     total: usize,
+}
+
+#[derive(Serialize, Clone)]
+struct Unresolved {
+    name: String,
+    reason: String,
+}
+
+/// How the names were found, and why some were not.
+#[derive(Serialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+struct NamesStatus {
+    helper: usize,
+    file: usize,
+    cached: usize,
+    unresolved: Vec<Unresolved>,
+    /// Why the on-device helper could not be used, if it could not.
+    helper_message: Option<String>,
+    finished: bool,
+}
+
+/// Extra facts the helper reports about each app.
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct DetailItem {
+    name: String,
+    launchable: bool,
+    installer: String,
+    version_name: String,
+    version_code: i64,
+    first_install: i64,
+    last_update: i64,
+    target_sdk: i64,
+    updated_system: bool,
+}
+
+#[derive(Serialize, Clone)]
+struct IconItem {
+    name: String,
+    /// PNG, base64.
+    png: String,
 }
 
 fn save_label_cache(state: &AppState) {
@@ -248,7 +291,206 @@ fn save_label_cache(state: &AppState) {
     }
 }
 
-/// Starts resolving real app names in the background; results arrive as `labels` events.
+/// A name that is just the package id is not a name.
+fn real_name(label: &str, package: &str) -> bool {
+    let l = label.trim();
+    !l.is_empty() && l != package
+}
+
+/// Icons are cached as `<package>-<last update>.b64`, so an updated app gets a fresh icon.
+fn icon_file(dir: &std::path::Path, pkg: &str, last_update: i64) -> Option<std::path::PathBuf> {
+    packages::valid_name(pkg).then(|| dir.join(format!("{pkg}-{last_update}.b64")))
+}
+
+/// Fetch icons through the helper (cached on disk), user apps first. Deletes the helper when done.
+async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remote: String, mut apps: Vec<bridge::BridgeApp>) {
+    let state = app.state::<AppState>();
+    let alive = || state.label_generation.load(Ordering::SeqCst) == gen;
+    apps.sort_by_key(|x| x.system);
+    let dir = data_subdir(&state, "icons").ok();
+    let mut need: Vec<&bridge::BridgeApp> = Vec::new();
+    let mut cached: Vec<IconItem> = Vec::new();
+    for x in &apps {
+        let hit = dir.as_ref().and_then(|d| icon_file(d, &x.package, x.last_update)).and_then(|f| std::fs::read_to_string(f).ok());
+        match hit {
+            Some(png) if !png.is_empty() => cached.push(IconItem { name: x.package.clone(), png }),
+            _ => need.push(x),
+        }
+    }
+    for chunk in cached.chunks(60) {
+        let _ = app.emit("icons", chunk.to_vec());
+    }
+    for batch in need.chunks(40) {
+        if !alive() {
+            break;
+        }
+        let names: Vec<String> = batch.iter().map(|x| x.package.clone()).collect();
+        let Ok(res) = bridge::run(&a, &serial, &remote, "icons", &names, Duration::from_secs(120)).await else { continue };
+        let mut out = Vec::new();
+        for l in res.parsed.lines {
+            if let bridge::Line::Icon { package, png_base64 } = l {
+                if let Some(x) = batch.iter().find(|x| x.package == package) {
+                    if let Some(f) = dir.as_ref().and_then(|d| icon_file(d, &package, x.last_update)) {
+                        if let Some(parent) = f.parent() {
+                            let _ = std::fs::create_dir_all(parent);
+                        }
+                        let _ = std::fs::write(f, &png_base64);
+                    }
+                }
+                out.push(IconItem { name: package, png: png_base64 });
+            }
+        }
+        if !out.is_empty() {
+            let _ = app.emit("icons", out);
+        }
+    }
+    bridge::cleanup(&a, &serial, &remote).await;
+}
+
+/// Names for every app: helper first (all apps, in the phone's own words), then reading the app files for
+/// whatever is still unnamed. Reasons are kept for anything that stays unnamed.
+async fn names_pipeline(app: AppHandle, serial: String, gen: u64, a: AdbRunner, todo: Vec<(String, String)>, all_names: Vec<String>) {
+    let state = app.state::<AppState>();
+    let alive = || state.label_generation.load(Ordering::SeqCst) == gen;
+    let total = all_names.len();
+    let mut status = NamesStatus::default();
+    let mut named: HashSet<String> = HashSet::new();
+
+    // 1. The on-device helper.
+    let mut icons_handle = None;
+    match bridge::push(&a, &serial).await {
+        Err(e) => status.helper_message = Some(format!("could not start the helper: {e}")),
+        Ok(remote) => match bridge::run(&a, &serial, &remote, "apps", &[], Duration::from_secs(90)).await {
+            Err(e) => {
+                status.helper_message = Some(format!("the helper did not run: {e}"));
+                bridge::cleanup(&a, &serial, &remote).await;
+            }
+            Ok(res) => {
+                let apps: Vec<bridge::BridgeApp> = res.parsed.lines.iter().filter_map(|l| if let bridge::Line::App(x) = l { Some(x.clone()) } else { None }).collect();
+                if apps.is_empty() {
+                    status.helper_message = Some(res.failure_reason());
+                    bridge::cleanup(&a, &serial, &remote).await;
+                } else {
+                    if !res.parsed.complete {
+                        status.helper_message = Some("the helper stopped early; the file method covers the rest".into());
+                    }
+                    let items: Vec<LabelItem> = apps
+                        .iter()
+                        .filter(|x| real_name(&x.label, &x.package))
+                        .map(|x| LabelItem { name: x.package.clone(), label: x.label.trim().to_string(), source: "helper" })
+                        .collect();
+                    named.extend(items.iter().map(|i| i.name.clone()));
+                    status.helper = items.len();
+                    for chunk in items.chunks(200) {
+                        let _ = app.emit("labels", chunk.to_vec());
+                    }
+                    let details: Vec<DetailItem> = apps
+                        .iter()
+                        .map(|x| DetailItem {
+                            name: x.package.clone(),
+                            launchable: x.launchable,
+                            installer: x.installer.clone(),
+                            version_name: x.version_name.clone(),
+                            version_code: x.version_code,
+                            first_install: x.first_install,
+                            last_update: x.last_update,
+                            target_sdk: x.target_sdk,
+                            updated_system: x.updated_system,
+                        })
+                        .collect();
+                    for chunk in details.chunks(200) {
+                        let _ = app.emit("bridge-details", chunk.to_vec());
+                    }
+                    icons_handle = Some(tauri::async_runtime::spawn(icons_task(app.clone(), serial.clone(), gen, a.clone(), remote, apps)));
+                }
+            }
+        },
+    }
+    let _ = app.emit("names-status", status.clone());
+    let _ = app.emit("labels-progress", LabelProgress { done: named.len(), total });
+
+    // 2. Reading the app files, only for what is still unnamed.
+    let rest: Vec<(String, String)> = todo.into_iter().filter(|(n, _)| !named.contains(n)).collect();
+    let with_path: HashSet<&String> = rest.iter().map(|(n, _)| n).collect();
+    for n in &all_names {
+        if !named.contains(n) && !with_path.contains(n) {
+            status.unresolved.push(Unresolved { name: n.clone(), reason: "the phone gave no file for this app".into() });
+        }
+    }
+    let mut done = named.len() + status.unresolved.len();
+    for batch in rest.chunks(100) {
+        if !alive() {
+            return; // a newer load (or device switch) superseded this one
+        }
+        let paths: Vec<&str> = batch.iter().map(|(_, p)| p.as_str()).collect();
+        let stats = labels::stat_files(&a, &serial, &paths).await.unwrap_or_default();
+        let key = |path: &str| stats.get(path).map(|(s, m)| format!("{path}|{s}|{m}"));
+
+        let mut ready: Vec<LabelItem> = Vec::new();
+        let mut missing: Vec<(String, String, Option<String>)> = Vec::new();
+        {
+            let cache = state.label_cache.lock().unwrap();
+            for (name, path) in batch {
+                let k = key(path);
+                match k.as_ref().and_then(|k| cache.get(k)) {
+                    Some(l) => ready.push(LabelItem { name: name.clone(), label: l.clone(), source: "cache" }),
+                    None => missing.push((name.clone(), path.clone(), k)),
+                }
+            }
+        }
+        done += ready.len();
+        status.cached += ready.len();
+        if !ready.is_empty() {
+            let _ = app.emit("labels", ready);
+        }
+        // Resolve the rest, four at a time.
+        for group in missing.chunks(4) {
+            if !alive() {
+                return;
+            }
+            let tasks: Vec<_> = group
+                .iter()
+                .cloned()
+                .map(|(name, path, k)| {
+                    let (a, serial) = (a.clone(), serial.clone());
+                    tauri::async_runtime::spawn(async move {
+                        let r = labels::resolve(&a, &serial, &path).await;
+                        (name, k, r)
+                    })
+                })
+                .collect();
+            let mut out = Vec::new();
+            for t in tasks {
+                let Ok((name, k, r)) = t.await else { continue };
+                match r.label {
+                    Some(label) => {
+                        if let Some(k) = k {
+                            state.label_cache.lock().unwrap().insert(k, label.clone());
+                        }
+                        status.file += 1;
+                        out.push(LabelItem { name, label, source: "file" });
+                    }
+                    None => status.unresolved.push(Unresolved { name, reason: r.reason.unwrap_or_else(|| "unknown".into()) }),
+                }
+            }
+            done += group.len();
+            if !out.is_empty() {
+                let _ = app.emit("labels", out);
+            }
+            let _ = app.emit("labels-progress", LabelProgress { done: done.min(total), total });
+        }
+        save_label_cache(&state);
+    }
+    if let Some(h) = icons_handle {
+        let _ = h.await;
+    }
+    status.finished = true;
+    let _ = app.emit("names-status", status);
+    let _ = app.emit("labels-progress", LabelProgress { done: total, total });
+}
+
+/// Starts finding real names (and icons) for every app in the background. Results arrive as events:
+/// `labels`, `labels-progress`, `names-status`, `bridge-details`, `icons`. Calling it again retries.
 #[tauri::command]
 async fn load_labels(app: AppHandle, state: State<'_, AppState>, serial: String) -> Result<(), String> {
     let gen = state.label_generation.fetch_add(1, Ordering::SeqCst) + 1;
@@ -260,77 +502,11 @@ async fn load_labels(app: AppHandle, state: State<'_, AppState>, serial: String)
         .into_iter()
         .map(|p| p.name)
         .collect();
+    let all_names: Vec<String> = all.iter().map(|p| p.name.clone()).collect();
     // Third-party apps first: they are what people look for.
-    let mut todo: Vec<(String, String)> =
-        all.into_iter().filter_map(|p| p.apk_path.map(|path| (p.name, path))).collect();
+    let mut todo: Vec<(String, String)> = all.into_iter().filter_map(|p| p.apk_path.map(|path| (p.name, path))).collect();
     todo.sort_by_key(|(name, _)| system.contains(name));
-
-    tauri::async_runtime::spawn(async move {
-        let state = app.state::<AppState>();
-        let total = todo.len();
-        let mut done = 0usize;
-        for batch in todo.chunks(100) {
-            if state.label_generation.load(Ordering::SeqCst) != gen {
-                return; // a newer load (or device switch) superseded this one
-            }
-            let paths: Vec<&str> = batch.iter().map(|(_, p)| p.as_str()).collect();
-            let stats = labels::stat_files(&a, &serial, &paths).await.unwrap_or_default();
-            let key = |path: &str| stats.get(path).map(|(s, m)| format!("{path}|{s}|{m}"));
-
-            let mut ready: Vec<LabelItem> = Vec::new();
-            let mut missing: Vec<(String, String, Option<String>)> = Vec::new();
-            {
-                let cache = state.label_cache.lock().unwrap();
-                for (name, path) in batch {
-                    let k = key(path);
-                    match k.as_ref().and_then(|k| cache.get(k)) {
-                        Some(l) => ready.push(LabelItem { name: name.clone(), label: l.clone() }),
-                        None => missing.push((name.clone(), path.clone(), k)),
-                    }
-                }
-            }
-            done += ready.len();
-            if !ready.is_empty() {
-                let _ = app.emit("labels", ready);
-            }
-            // Resolve the rest, four at a time.
-            for group in missing.chunks(4) {
-                if state.label_generation.load(Ordering::SeqCst) != gen {
-                    return;
-                }
-                let tasks: Vec<_> = group
-                    .iter()
-                    .cloned()
-                    .map(|(name, path, k)| {
-                        let (a, serial) = (a.clone(), serial.clone());
-                        tauri::async_runtime::spawn(async move {
-                            let label = labels::fetch_label(&a, &serial, &path).await.ok().flatten();
-                            (name, k, label)
-                        })
-                    })
-                    .collect();
-                let mut out = Vec::new();
-                for t in tasks {
-                    if let Ok((name, k, label)) = t.await {
-                        if let Some(label) = label {
-                            if let Some(k) = k {
-                                state.label_cache.lock().unwrap().insert(k, label.clone());
-                            }
-                            out.push(LabelItem { name, label });
-                        }
-                    }
-                }
-                done += group.len();
-                if !out.is_empty() {
-                    let _ = app.emit("labels", out);
-                }
-                let _ = app.emit("labels-progress", LabelProgress { done: done.min(total), total });
-            }
-            let _ = app.emit("labels-progress", LabelProgress { done: done.min(total), total });
-            save_label_cache(&state);
-        }
-        let _ = app.emit("labels-progress", LabelProgress { done: total, total });
-    });
+    tauri::async_runtime::spawn(names_pipeline(app, serial, gen, a, todo, all_names));
     Ok(())
 }
 

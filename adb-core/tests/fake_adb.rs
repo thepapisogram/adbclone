@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{bridge, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -14,7 +14,7 @@ fn setup(name: &str, no_unzip: bool) -> (AdbRunner, PathBuf) {
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).unwrap();
     let fx = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    for f in ["literal.apk", "reference.apk", "entities.apk", "nolabel.apk"] {
+    for f in ["literal.apk", "reference.apk", "entities.apk", "nolabel.apk", "activityref.apk", "activityliteral.apk"] {
         fs::copy(fx.join(f), dir.join(f)).unwrap();
     }
     fs::write(dir.join("snap1.txt"), SNAP1).unwrap();
@@ -325,7 +325,7 @@ async fn report_collects_scrubs_and_survives_failing_sections() {
     write_db(&d, &[("com.sys.a", true, "enabled"), ("com.user.b", false, "enabled")]);
 
     let sections = report::collect(&adb, "R58M123ABC").await;
-    assert_eq!(sections.len(), report::plan().len() + 1, "every planned section plus the adb version");
+    assert_eq!(sections.len(), report::plan().len() + 2, "every planned section plus the helper check and the adb version");
     let get = |n: &str| sections.iter().find(|s| s.name == n).unwrap_or_else(|| panic!("missing {n}"));
 
     assert!(get("device info (parser input)").ok && get("device info (parser input)").output.contains("<serial>"));
@@ -334,6 +334,9 @@ async fn report_collects_scrubs_and_survives_failing_sections() {
     assert!(get("wifi address").output.contains("<ip>") && get("wifi address").output.contains("<mac>") && get("wifi address").output.contains("<email>"));
     // The fake phone cannot run shell loops: those sections fail, and the report still has everything else.
     assert!(!get("build info").ok && get("build info").output.starts_with("FAILED"));
+    let helper = get("on-device helper (names and icons)");
+    assert!(!helper.ok, "the fake phone has no helper output in this test");
+    assert!(helper.output.contains("selftest failed") || helper.output.contains("not found") || helper.output.contains("complete: false"), "{}", helper.output);
     let v = get("adb on this computer");
     assert!(v.ok && v.output.contains("Version 34") && !v.output.contains("Installed as"));
 
@@ -342,4 +345,90 @@ async fn report_collects_scrubs_and_survives_failing_sections() {
         assert!(!text.contains(secret), "{secret} leaked into the report");
     }
     assert!(text.contains("=== build info [FAILED] ===") && text.contains("=== health (parser input) [ok] ==="));
+}
+
+// ---- on-device helper (bridge) ----
+
+const APPS_OUT: &str = "WARNING: some runtime noise\nACB1 {\"p\":\"com.google.android.gm\",\"n\":\"Gmail\",\"s\":1,\"u\":1,\"e\":1,\"in\":1,\"v\":\"1.0\",\"vc\":7,\"fi\":1,\"lu\":2,\"t\":34,\"i\":\"com.android.vending\",\"l\":1}\nACB1 {\"p\":\"com.vendor.hidden\",\"n\":\"Vendor Hidden Service\",\"s\":1,\"u\":0,\"e\":0,\"in\":0,\"v\":\"\",\"vc\":1,\"fi\":0,\"lu\":0,\"t\":30,\"i\":\"\",\"l\":0}\nACB1 {\"error\":\"com.broken: label: NullPointerException\"}\nACB1 DONE\n";
+
+#[tokio::test]
+async fn helper_push_run_and_cleanup() {
+    let (adb, d) = setup("helper", false);
+    fs::write(d.join("helper_apps.txt"), APPS_OUT).unwrap();
+    let remote = bridge::push(&adb, "SER").await.unwrap();
+    assert_eq!(fs::read(d.join("pushed.jar")).unwrap(), bridge::HELPER_JAR, "the embedded helper is what gets copied");
+    let r = bridge::run(&adb, "SER", &remote, "apps", &[], std::time::Duration::from_secs(20)).await.unwrap();
+    assert!(r.parsed.complete);
+    let apps: Vec<_> = r.parsed.lines.iter().filter_map(|l| if let bridge::Line::App(a) = l { Some(a) } else { None }).collect();
+    assert_eq!(apps.len(), 2);
+    assert_eq!((apps[1].label.as_str(), apps[1].installed, apps[1].enabled), ("Vendor Hidden Service", false, false), "apps removed for the user are still named");
+    assert_eq!(r.errors(), ["com.broken: label: NullPointerException"], "one broken app does not hide the rest");
+    bridge::cleanup(&adb, "SER", &remote).await;
+    assert!(fs::read_to_string(d.join("removed")).unwrap().contains("adbclone-helper-"));
+}
+
+#[tokio::test]
+async fn helper_icons_only_for_requested_packages() {
+    let (adb, d) = setup("helper-icons", false);
+    fs::write(d.join("helper_icons.txt"), "ACB1 {\"p\":\"a.one\",\"png\":\"AAAA\"}\nACB1 {\"p\":\"b.two\",\"png\":\"BBBB\"}\nACB1 DONE\n").unwrap();
+    let r = bridge::run(&adb, "SER", "/data/local/tmp/adbclone-helper-x.jar", "icons", &["b.two".to_string()], std::time::Duration::from_secs(20)).await.unwrap();
+    let icons: Vec<_> = r.parsed.lines.iter().filter_map(|l| if let bridge::Line::Icon { package, .. } = l { Some(package.clone()) } else { None }).collect();
+    assert_eq!(icons, ["b.two"]);
+}
+
+#[tokio::test]
+async fn helper_failure_is_explained_not_fatal() {
+    let (adb, _d) = setup("helper-fail", false);
+    // No canned output: the fake phone says app_process is missing, like an unusual ROM would.
+    let r = bridge::run(&adb, "SER", "/data/local/tmp/adbclone-helper-x.jar", "apps", &[], std::time::Duration::from_secs(20)).await.unwrap();
+    assert!(r.parsed.lines.is_empty() && !r.parsed.complete);
+    assert!(r.failure_reason().contains("not found"), "{}", r.failure_reason());
+}
+
+#[tokio::test]
+async fn helper_rejects_unsafe_input() {
+    let (adb, _d) = setup("helper-bad", false);
+    let t = std::time::Duration::from_secs(5);
+    assert!(bridge::run(&adb, "SER", "/x.jar", "apps; reboot", &[], t).await.is_err());
+    assert!(bridge::run(&adb, "SER", "/x.jar", "icons", &["a.b; reboot".to_string()], t).await.is_err());
+}
+
+// ---- name resolution reasons ----
+
+#[tokio::test]
+async fn resolve_uses_launcher_name_and_explains_misses() {
+    let (adb, _d) = setup("resolve", false);
+    let r = labels::resolve(&adb, "SER", "/system/app/activityref.apk").await;
+    assert_eq!(r.label.as_deref(), Some("Launcher Label"));
+    assert_eq!(r.reason, None);
+
+    let none = labels::resolve(&adb, "SER", "/system/app/nolabel.apk").await;
+    assert_eq!(none.label, None);
+    assert_eq!(none.reason.as_deref(), Some("the app declares no name"), "readable files, no name: do not waste a full pull");
+
+    let missing = labels::resolve(&adb, "SER", "/system/app/gone.apk").await;
+    assert!(missing.label.is_none() && missing.reason.as_deref().unwrap().contains("copying the file failed"), "{missing:?}");
+
+    let odd = labels::resolve(&adb, "SER", "/system/app/we ird;name.apk").await;
+    assert!(odd.reason.as_deref().unwrap().contains("unusual characters"));
+}
+
+#[tokio::test]
+async fn resolve_falls_back_to_full_pull_for_launcher_names_too() {
+    let (adb, _d) = setup("resolve-pull", true); // phone without unzip
+    let r = labels::resolve(&adb, "SER", "/system/app/activityliteral.apk").await;
+    assert_eq!(r.label.as_deref(), Some("Literal Launcher"));
+}
+
+#[tokio::test]
+async fn report_describes_a_working_helper_without_app_names() {
+    let (adb, d) = setup("report-helper", false);
+    fs::write(d.join("helper_selftest.txt"), "ACB1 {\"sdk\":34,\"release\":\"14\",\"uid\":2000,\"context\":true,\"packages\":2,\"problems\":[]}\nACB1 DONE\n").unwrap();
+    fs::write(d.join("helper_apps.txt"), format!("{}", APPS_OUT)).unwrap();
+    let sections = report::collect(&adb, "R58M123ABC").await;
+    let h = sections.iter().find(|s| s.name.starts_with("on-device helper")).unwrap();
+    assert!(h.ok, "{}", h.output);
+    assert!(h.output.contains("\"sdk\":34") && h.output.contains("apps listed: 2, with a real name: 2"), "{}", h.output);
+    assert!(h.output.contains("error kinds: label: NullPointerException") || h.output.contains("NullPointerException"));
+    assert!(!h.output.contains("Gmail") && !h.output.contains("com.google.android.gm") && !h.output.contains("com.broken"), "no app names or ids in the helper section: {}", h.output);
 }

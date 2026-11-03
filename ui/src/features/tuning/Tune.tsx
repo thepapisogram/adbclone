@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ipc } from "../../lib/ipc";
+import { AppIcon } from "../../components/AppIcon";
 import type { AppInfo, HealthSample, RunningRow, StepResult, TuningInfo } from "../../lib/types";
 
 const errText = (e: unknown) => String(e instanceof Error ? e.message : e);
@@ -123,7 +124,7 @@ export function Tune({ serial, apps, active }: Props) {
               return (
                 <tr key={n} className={picked.has(n) ? "sel" : ""} onClick={() => { setTouched(true); setPicked((s) => { const x = new Set(s); x.has(n) ? x.delete(n) : x.add(n); return x; }); }}>
                   <td className="chk"><input type="checkbox" checked={picked.has(n)} aria-label={`Select ${a?.label ?? n}`} onChange={() => {}} /></td>
-                  <td><div>{a?.label ?? n} {a?.system && <span className="pill">system</span>}</div><div className="mono muted">{n}</div></td>
+                  <td><div className="namecell"><AppIcon name={n} /><div><div>{a?.label ?? n} {a?.system && <span className="pill">system</span>}</div><div className="mono muted">{n}</div></div></div></td>
                   <td className="num">{r.cpu == null ? "—" : r.cpu.toFixed(1)}</td>
                   <td className="num">{mb(r.rssKb)}</td>
                   <td>{restrictedNow.has(n) ? <span className="pill thermal-ok">restricted</span> : <span className="muted">normal</span>}</td>

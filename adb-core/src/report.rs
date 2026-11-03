@@ -1,6 +1,6 @@
 //! "Save device report": the raw output of everything the app reads, so parsers can be fixed from a real phone.
 //! Read-only; personal details are scrubbed before the text is shown.
-use crate::{deviceinfo, health, processes, tuning, AdbRunner};
+use crate::{bridge, deviceinfo, health, processes, tuning, AdbRunner};
 use regex::{Captures, Regex};
 use serde::Serialize;
 use std::{sync::OnceLock, time::Duration};
@@ -77,6 +77,7 @@ pub async fn collect(adb: &AdbRunner, serial: &str) -> Vec<Section> {
         };
         out.push(Section { name: name.to_string(), command, ok, output: truncate(&scrub(&text, serial), MAX_SECTION) });
     }
+    out.push(helper_section(&adb, serial).await);
     // Host side: which adb the app is using (the install path line is dropped, it can contain a user name).
     let (ok, text) = match adb.run(&["version"]).await {
         Ok(t) => (true, t.lines().filter(|l| !l.starts_with("Installed as")).collect::<Vec<_>>().join("\n")),
@@ -84,6 +85,61 @@ pub async fn collect(adb: &AdbRunner, serial: &str) -> Vec<Section> {
     };
     out.push(Section { name: "adb on this computer".into(), command: "adb version".into(), ok, output: scrub(&text, serial) });
     out
+}
+
+/// Tries the on-device helper and describes what happened, without app names (counts and error kinds only).
+async fn helper_section(adb: &AdbRunner, serial: &str) -> Section {
+    let name = "on-device helper (names and icons)".to_string();
+    let command = "push helper, run: selftest, apps".to_string();
+    let remote = match bridge::push(adb, serial).await {
+        Ok(r) => r,
+        Err(e) => return Section { name, command, ok: false, output: scrub(&format!("could not start the helper: {e}"), serial) },
+    };
+    let mut text = String::new();
+    let mut ok = true;
+    match bridge::run(adb, serial, &remote, "selftest", &[], Duration::from_secs(30)).await {
+        Ok(r) => {
+            for l in &r.parsed.lines {
+                match l {
+                    bridge::Line::Selftest(v) => text.push_str(&format!("selftest: {v}\n")),
+                    bridge::Line::Error(e) => text.push_str(&format!("selftest error: {e}\n")),
+                    _ => {}
+                }
+            }
+            text.push_str(&format!("selftest complete: {}, exit code: {:?}\n", r.parsed.complete, r.exit_code));
+            if !r.stderr.trim().is_empty() {
+                text.push_str(&format!("selftest stderr: {}\n", r.stderr.trim()));
+            }
+            ok &= r.parsed.complete;
+        }
+        Err(e) => {
+            text.push_str(&format!("selftest failed: {e}\n"));
+            ok = false;
+        }
+    }
+    match bridge::run(adb, serial, &remote, "apps", &[], Duration::from_secs(90)).await {
+        Ok(r) => {
+            let apps = r.parsed.lines.iter().filter(|l| matches!(l, bridge::Line::App(_))).count();
+            let named = r.parsed.lines.iter().filter(|l| matches!(l, bridge::Line::App(a) if !a.label.is_empty() && a.label != a.package)).count();
+            let mut kinds: Vec<String> = r.errors().iter().map(|e| e.split_once(": ").map_or(e.clone(), |(_, rest)| rest.to_string())).collect();
+            kinds.sort();
+            kinds.dedup();
+            text.push_str(&format!("apps listed: {apps}, with a real name: {named}, complete: {}\n", r.parsed.complete));
+            if !kinds.is_empty() {
+                text.push_str(&format!("error kinds: {}\n", kinds.into_iter().take(10).collect::<Vec<_>>().join(" | ")));
+            }
+            if !r.stderr.trim().is_empty() {
+                text.push_str(&format!("apps stderr: {}\n", r.stderr.trim()));
+            }
+            ok &= apps > 0;
+        }
+        Err(e) => {
+            text.push_str(&format!("apps run failed: {e}\n"));
+            ok = false;
+        }
+    }
+    bridge::cleanup(adb, serial, &remote).await;
+    Section { name, command, ok, output: truncate(&scrub(&text, serial), MAX_SECTION) }
 }
 
 pub struct Meta<'a> {

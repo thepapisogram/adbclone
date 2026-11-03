@@ -2,7 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
-import type { Action, AppInfo, Device, LabelProgress, PkgState, Risk } from "./lib/types";
+import { pickSerial } from "./lib/pickSerial";
+import type { Action, AppInfo, Device, LabelProgress, NamesStatusInfo, NameSource, PkgState, Risk } from "./lib/types";
+import { addIcons, clearIcons } from "./lib/icons";
+import { AppIcon } from "./components/AppIcon";
+import { NamesStatus } from "./features/names/NamesStatus";
 import { SafetyTag } from "./components/SafetyTag";
 import { Running } from "./features/running/Running";
 import { Snapshots } from "./features/snapshots/Snapshots";
@@ -44,15 +48,22 @@ export default function App() {
   useEffect(() => { connectOpen.current = showConnect; }, [showConnect]);
   const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
-  const labelMap = useRef(new Map<string, string>());
+  const labelMap = useRef(new Map<string, { label: string; source: NameSource }>());
+  const detailMap = useRef(new Map<string, AppInfo["details"]>());
+  const [namesStatus, setNamesStatus] = useState<NamesStatusInfo | null>(null);
+  const [namesRun, setNamesRun] = useState(0);
+  const missing = useRef(0);
 
   /** Refresh the device list; `select` picks a just-connected device once it is ready. */
   const refreshDevices = useCallback(async (select?: string) => {
     try {
       const d = await ipc.listDevices();
       setDevices(d);
-      const ready = (x: string) => d.some((y) => y.serial === x && y.state === "device");
-      setSerial((cur) => (select && ready(select) ? select : cur && ready(cur) ? cur : d.find((x) => x.state === "device")?.serial ?? ""));
+      setSerial((cur) => {
+        const r = pickSerial(cur, d, select, missing.current);
+        missing.current = r.misses;
+        return r.serial;
+      });
       setError("");
     } catch (e) { setError(String(e)); }
   }, []);
@@ -70,7 +81,7 @@ export default function App() {
     try {
       const list = await ipc.listApps(s);
       // Keep any real names that already arrived.
-      setApps(list.map((a) => (labelMap.current.has(a.name) ? { ...a, label: labelMap.current.get(a.name)! } : a)));
+      setApps(list.map((a) => { const l = labelMap.current.get(a.name); return { ...a, ...(l ? { label: l.label, nameSource: l.source } : {}), details: detailMap.current.get(a.name) }; }));
       setSelected(new Set()); setError("");
     }
     catch (e) { setError(String(e)); }
@@ -93,25 +104,35 @@ export default function App() {
   }, [refreshDevices]);
   useEffect(() => { loadApps(serial); }, [serial, loadApps]);
 
-  // Real app names stream in from the backend after the list is shown.
+  // Real names, details and icons stream in from the backend after the list is shown.
   useEffect(() => {
     labelMap.current = new Map();
+    detailMap.current = new Map();
+    clearIcons();
     setLabelProgress(null);
+    setNamesStatus(null);
     if (!serial) return;
     let cancelled = false;
     let off = () => {};
-    ipc.loadLabels(
-      serial,
-      (items) => {
+    ipc.loadLabels(serial, {
+      onLabels: (items) => {
         if (cancelled) return;
-        for (const i of items) labelMap.current.set(i.name, i.label);
-        const m = new Map(items.map((i) => [i.name, i.label]));
-        setApps((prev) => prev.map((a) => (m.has(a.name) ? { ...a, label: m.get(a.name)! } : a)));
+        for (const i of items) labelMap.current.set(i.name, { label: i.label, source: i.source ?? "file" });
+        const m = new Map(items.map((i) => [i.name, i]));
+        setApps((prev) => prev.map((a) => { const i = m.get(a.name); return i ? { ...a, label: i.label, nameSource: i.source ?? "file" } : a; }));
       },
-      (p) => !cancelled && setLabelProgress(p),
-    ).then((f) => (cancelled ? f() : (off = f))).catch(() => {});
+      onProgress: (p) => !cancelled && setLabelProgress(p),
+      onStatus: (st) => !cancelled && setNamesStatus(st),
+      onDetails: (items) => {
+        if (cancelled) return;
+        for (const { name, ...d } of items) detailMap.current.set(name, d);
+        const m = new Map(items.map((i) => [i.name, i]));
+        setApps((prev) => prev.map((a) => { const d = m.get(a.name); if (!d) return a; const { name: _n, ...rest } = d; return { ...a, details: rest }; }));
+      },
+      onIcons: (items) => !cancelled && addIcons(items),
+    }).then((f) => (cancelled ? f() : (off = f))).catch(() => {});
     return () => { cancelled = true; off(); };
-  }, [serial]);
+  }, [serial, namesRun]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -229,7 +250,8 @@ export default function App() {
       </div>
 
       <div className="actions">
-        <span>{selected.size} selected · {visible.length} shown · {counts.total} total · {counts.disabled} disabled · {counts.removed} uninstalled{labelProgress && labelProgress.done < labelProgress.total && ` · loading names ${labelProgress.done}/${labelProgress.total}`}</span>
+        <span>{selected.size} selected · {visible.length} shown · {counts.total} total · {counts.disabled} disabled · {counts.removed} uninstalled</span>
+        <NamesStatus status={namesStatus} progress={labelProgress} onRetry={() => setNamesRun((n) => n + 1)} nameOf={(p) => apps.find((a) => a.name === p)?.label ?? p} />
         <div className="spacer" />
         {(["disable", "enable", "uninstall", "restore"] as Action[]).map((a) => (
           <button key={a} className={a === "uninstall" ? "danger" : ""} disabled={busy || eligible(a).length === 0}
@@ -255,9 +277,9 @@ export default function App() {
             </thead>
             <tbody>
               {visible.map((a) => (
-                <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={a.description ?? undefined}>
+                <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={[a.description, a.details?.versionName && `Version ${a.details.versionName}`, a.details?.installer && `Installed by ${a.details.installer}`, a.details && (a.details.launchable ? "Has a launcher icon" : "No launcher icon")].filter(Boolean).join(" · ") || undefined}>
                   <td className="chk"><input type="checkbox" checked={selected.has(a.name)} onChange={() => toggle(a.name)} onClick={(e) => e.stopPropagation()} /></td>
-                  <td>{a.label}</td>
+                  <td><span className="namecell"><AppIcon name={a.name} /><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span></span></td>
                   <td className="mono">{a.name}</td>
                   <td>{a.system ? "System" : "User"}</td>
                   <td><span className={`pill ${a.state}`}>{a.state}</span></td>

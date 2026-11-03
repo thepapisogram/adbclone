@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -84,18 +84,29 @@ export const mock = {
     // Like the real backend, start with names guessed from the package id.
     return apps.map((a) => ({ ...a, label: guess(a.name) }));
   },
-  /** Streams the real names in a few batches, like the Rust backend does. */
-  loadLabels(onLabels: (l: LabelItem[]) => void, onProgress: (p: LabelProgress) => void) {
+  /** Streams names, details and icons in a few batches, like the Rust backend does. */
+  loadLabels(h: LabelHandlers) {
     const total = apps.length;
     const batches = 5;
     const size = Math.ceil(total / batches);
+    const colors = ["#2563eb", "#16a34a", "#d97706", "#9333ea", "#dc2626", "#0891b2"];
+    const icon = (name: string, label: string) => {
+      const c = colors[[...name].reduce((x, ch) => x + ch.charCodeAt(0), 0) % colors.length];
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${c}"/><text x="32" y="43" font-size="30" text-anchor="middle" fill="#fff" font-family="sans-serif">${label.charAt(0).toUpperCase()}</text></svg>`;
+      return { name, png: btoa(svg), mime: "image/svg+xml" };
+    };
+    // Apps the helper "cannot name" (to show the unresolved list); everything else gets a real name.
+    const unnamed = new Set(["com.vendor.unknownservice"]);
     for (let i = 0; i < batches; i++) {
       setTimeout(() => {
         const part = apps.slice(i * size, (i + 1) * size);
-        onLabels(part.map((a) => ({ name: a.name, label: a.label })));
-        onProgress({ done: Math.min(total, (i + 1) * size), total });
+        h.onLabels(part.filter((a) => !unnamed.has(a.name)).map((a) => ({ name: a.name, label: a.label, source: i === 4 ? "file" as const : "helper" as const })));
+        h.onDetails(part.map((a, k) => ({ name: a.name, launchable: !a.system || k % 3 === 0, installer: a.system ? "" : "com.android.vending", versionName: "1." + k, versionCode: 100 + k, firstInstall: 1_700_000_000_000, lastUpdate: 1_710_000_000_000, targetSdk: 34, updatedSystem: false })));
+        h.onProgress({ done: Math.min(total, (i + 1) * size), total });
       }, 500 + i * 450);
     }
+    setTimeout(() => h.onStatus({ helper: total - 6 - 1, file: 6, cached: 0, unresolved: [{ name: "com.vendor.unknownservice", reason: "the app declares no name" }], helperMessage: null, finished: true }), 500 + batches * 450);
+    apps.forEach((a, i) => setTimeout(() => h.onIcons([icon(a.name, a.label)]), 700 + i * 60));
   },
   _tick: 0,
   async listRunning(_serial: string): Promise<RunningResponse> {

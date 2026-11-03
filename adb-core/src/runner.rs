@@ -15,6 +15,14 @@ fn quiet(cmd: &mut Command) {
     let _ = cmd;
 }
 
+/// Everything a finished adb process produced.
+#[derive(Debug, Clone)]
+pub struct Output {
+    pub code: Option<i32>,
+    pub stdout: Vec<u8>,
+    pub stderr: String,
+}
+
 /// Thin async wrapper around the `adb` executable.
 #[derive(Clone, Debug)]
 pub struct AdbRunner {
@@ -39,19 +47,33 @@ impl AdbRunner {
 
     /// Like `run`, but returns raw stdout (for binary data such as `exec-out`).
     pub async fn run_bytes(&self, args: &[&str]) -> Result<Vec<u8>, AdbError> {
-        let mut cmd = Command::new(&self.adb_path);
-        cmd.args(args).kill_on_drop(true);
-        quiet(&mut cmd);
-        let out = tokio::time::timeout(self.timeout, cmd.output())
-            .await
-            .map_err(|_| AdbError::Timeout(self.timeout))??;
-        if !out.status.success() {
-            return Err(AdbError::Failed {
-                code: out.status.code(),
-                stderr: String::from_utf8_lossy(&out.stderr).trim().to_string(),
-            });
+        let out = self.run_full(args).await?;
+        if out.code != Some(0) {
+            return Err(AdbError::Failed { code: out.code, stderr: out.stderr.trim().to_string() });
         }
         Ok(out.stdout)
+    }
+
+    /// Run and return everything, including stderr and the exit code. Errors only if adb could not be
+    /// started or took too long: a non-zero exit is reported in the result, not as an error.
+    pub async fn run_full(&self, args: &[&str]) -> Result<Output, AdbError> {
+        let mut attempt = 0;
+        loop {
+            let mut cmd = Command::new(&self.adb_path);
+            cmd.args(args).kill_on_drop(true);
+            quiet(&mut cmd);
+            match tokio::time::timeout(self.timeout, cmd.output()).await.map_err(|_| AdbError::Timeout(self.timeout))? {
+                Ok(out) => {
+                    return Ok(Output { code: out.status.code(), stdout: out.stdout, stderr: String::from_utf8_lossy(&out.stderr).into_owned() })
+                }
+                // A just-written executable can be briefly "busy" while another thread is spawning (Linux).
+                Err(e) if e.kind() == std::io::ErrorKind::ExecutableFileBusy && attempt < 5 => {
+                    attempt += 1;
+                    tokio::time::sleep(Duration::from_millis(25)).await;
+                }
+                Err(e) => return Err(e.into()),
+            }
+        }
     }
 
     /// Start the adb server now (hidden), so it is not started lazily by some later call.

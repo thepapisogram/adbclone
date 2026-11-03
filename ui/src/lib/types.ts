@@ -18,6 +18,15 @@ export interface AppInfo {
   disableSafety: Safety;
   uninstallSafety: Safety;
   description?: string | null;
+  /** Where the shown name came from; unset means it is only a guess from the package id. */
+  nameSource?: NameSource;
+  /** Facts reported by the on-device helper. */
+  details?: AppDetails;
+}
+
+export interface AppDetails {
+  launchable: boolean; installer: string; versionName: string; versionCode: number;
+  firstInstall: number; lastUpdate: number; targetSdk: number; updatedSystem: boolean;
 }
 
 export interface ActionResult {
@@ -44,7 +53,8 @@ export interface RunningResponse {
   cores: number;
 }
 
-export interface LabelItem { name: string; label: string }
+export type NameSource = "helper" | "file" | "cache";
+export interface LabelItem { name: string; label: string; source?: NameSource }
 export interface LabelProgress { done: number; total: number }
 
 export interface MdnsService { name: string; kind: "pairing" | "connect" | "other"; address: string }
@@ -91,3 +101,15 @@ export interface StepResult { label: string; ok: boolean; message?: string | nul
 
 export interface ReportSection { name: string; ok: boolean; bytes: number }
 export interface ReportOut { text: string; sections: ReportSection[] }
+
+export interface Unresolved { name: string; reason: string }
+export interface NamesStatusInfo { helper: number; file: number; cached: number; unresolved: Unresolved[]; helperMessage?: string | null; finished: boolean }
+export interface DetailItem extends AppDetails { name: string }
+export interface IconItem { name: string; png: string; mime?: string }
+export interface LabelHandlers {
+  onLabels: (l: LabelItem[]) => void;
+  onProgress: (p: LabelProgress) => void;
+  onStatus: (s: NamesStatusInfo) => void;
+  onDetails: (d: DetailItem[]) => void;
+  onIcons: (i: IconItem[]) => void;
+}
