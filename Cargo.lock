@@ -9,6 +9,7 @@ dependencies = [
  "apk-info",
  "getrandom 0.4.3",
  "qrcode",
+ "regex",
  "serde",
  "serde_json",
  "thiserror 1.0.69",

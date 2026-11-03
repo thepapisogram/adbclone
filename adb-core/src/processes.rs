@@ -4,7 +4,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 
 /// One shell command printing everything we need, split by `@@` markers.
-const SNAPSHOT_CMD: &str = "echo @@STAT; grep '^cpu' /proc/stat; echo @@MEM; head -3 /proc/meminfo; \
+pub const SNAPSHOT_CMD: &str = "echo @@STAT; grep '^cpu' /proc/stat; echo @@MEM; head -3 /proc/meminfo; \
 echo @@PS; ps -A -o PID,UID,RSS,NAME; echo @@PROC; cat /proc/[0-9]*/stat 2>/dev/null";
 
 #[derive(Debug, Clone, PartialEq)]

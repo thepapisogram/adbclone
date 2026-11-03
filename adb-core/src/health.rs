@@ -4,7 +4,7 @@ use crate::deviceinfo::section;
 use crate::{AdbError, AdbRunner};
 use serde::Serialize;
 
-const CMD: &str = "echo @@BATT; dumpsys battery; echo @@THERMAL; dumpsys thermalservice 2>/dev/null; \
+pub const CMD: &str = "echo @@BATT; dumpsys battery; echo @@THERMAL; dumpsys thermalservice 2>/dev/null; \
 echo @@ZONES; for z in /sys/class/thermal/thermal_zone*; do echo \"$(cat $z/type 2>/dev/null) $(cat $z/temp 2>/dev/null)\"; done; \
 echo @@CPU; for c in /sys/devices/system/cpu/cpu[0-9]*; do echo \"${c##*/} $(cat $c/cpufreq/scaling_cur_freq 2>/dev/null) $(cat $c/cpufreq/cpuinfo_max_freq 2>/dev/null)\"; done";
 

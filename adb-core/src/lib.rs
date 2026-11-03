@@ -6,6 +6,7 @@ pub mod health;
 pub mod labels;
 pub mod packages;
 pub mod processes;
+pub mod report;
 pub mod runner;
 pub mod snapshot;
 pub mod tuning;

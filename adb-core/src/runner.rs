@@ -2,6 +2,19 @@ use crate::error::AdbError;
 use std::{path::PathBuf, time::Duration};
 use tokio::process::Command;
 
+/// Windows flag: do not create a console window for the child process.
+pub const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+/// `adb.exe` is a console program. A windowless GUI app that starts one without this flag makes Windows
+/// open a console window for every single call, and this app calls adb constantly. Every place that
+/// starts a process must go through here.
+fn quiet(cmd: &mut Command) {
+    #[cfg(windows)]
+    cmd.creation_flags(CREATE_NO_WINDOW);
+    #[cfg(not(windows))]
+    let _ = cmd;
+}
+
 /// Thin async wrapper around the `adb` executable.
 #[derive(Clone, Debug)]
 pub struct AdbRunner {
@@ -28,6 +41,7 @@ impl AdbRunner {
     pub async fn run_bytes(&self, args: &[&str]) -> Result<Vec<u8>, AdbError> {
         let mut cmd = Command::new(&self.adb_path);
         cmd.args(args).kill_on_drop(true);
+        quiet(&mut cmd);
         let out = tokio::time::timeout(self.timeout, cmd.output())
             .await
             .map_err(|_| AdbError::Timeout(self.timeout))??;
@@ -40,10 +54,34 @@ impl AdbRunner {
         Ok(out.stdout)
     }
 
+    /// Start the adb server now (hidden), so it is not started lazily by some later call.
+    pub async fn start_server(&self) -> Result<(), AdbError> {
+        self.run(&["start-server"]).await.map(|_| ())
+    }
+
     /// Run `adb -s <serial> shell <args...>`.
     pub async fn shell(&self, serial: &str, args: &[&str]) -> Result<String, AdbError> {
         let mut full = vec!["-s", serial, "shell"];
         full.extend_from_slice(args);
         self.run(&full).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn no_window_flag_matches_the_documented_windows_value() {
+        assert_eq!(CREATE_NO_WINDOW, 134_217_728, "CREATE_NO_WINDOW is 0x08000000");
+    }
+
+    #[tokio::test]
+    async fn quiet_does_not_break_spawning() {
+        // Runs on every platform; on Windows this exercises the flagged spawn path.
+        let echo = if cfg!(windows) { "cmd" } else { "echo" };
+        let args: Vec<&str> = if cfg!(windows) { vec!["/c", "echo", "hi"] } else { vec!["hi"] };
+        let out = AdbRunner::new(echo).run(&args).await.unwrap();
+        assert!(out.contains("hi"));
     }
 }

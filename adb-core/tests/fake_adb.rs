@@ -1,5 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
-use adb_core::{tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+#![cfg(unix)]
+use adb_core::{report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -311,4 +312,34 @@ async fn unsafe_names_never_reach_the_phone() {
     let bad2 = tuning::Target::Setting { ns: "secure".into(), key: "adb_enabled".into() };
     assert!(tuning::apply(&adb, "SER", &bad2, "0", "g", "l", 1).await.is_err());
     tuning::trim_caches(&adb, "SER").await.unwrap();
+}
+
+// ---- device report ----
+
+#[tokio::test]
+async fn report_collects_scrubs_and_survives_failing_sections() {
+    let (adb, d) = setup("report", false);
+    fs::write(d.join("deviceinfo.txt"), "@@PROPS\nSamsung\nSM-G973F\n12\n31\n2023-11-01\n@@DF\nFilesystem 1K-blocks Used Available Use% Mounted on\n/dev/x 100 40 60 40% /data\n@@BATT\n  level: 73\n  serial: R58M123ABC\n").unwrap();
+    fs::write(d.join("health.txt"), "@@BATT\n  level: 50\n  temperature: 300\n@@THERMAL\n@@ZONES\n@@CPU\n").unwrap();
+    fs::write(d.join("ipaddr.txt"), "22: wlan0: <UP>\n    inet 192.168.1.20/24 scope global wlan0\n    link/ether 3c:5a:b4:01:02:03 owner@example.com\n").unwrap();
+    write_db(&d, &[("com.sys.a", true, "enabled"), ("com.user.b", false, "enabled")]);
+
+    let sections = report::collect(&adb, "R58M123ABC").await;
+    assert_eq!(sections.len(), report::plan().len() + 1, "every planned section plus the adb version");
+    let get = |n: &str| sections.iter().find(|s| s.name == n).unwrap_or_else(|| panic!("missing {n}"));
+
+    assert!(get("device info (parser input)").ok && get("device info (parser input)").output.contains("<serial>"));
+    assert!(get("health (parser input)").ok && get("processes (parser input)").ok && get("tuning status (parser input)").ok);
+    assert!(get("system packages").ok && get("system packages").output.contains("com.sys.a") && !get("system packages").output.contains("com.user.b"));
+    assert!(get("wifi address").output.contains("<ip>") && get("wifi address").output.contains("<mac>") && get("wifi address").output.contains("<email>"));
+    // The fake phone cannot run shell loops: those sections fail, and the report still has everything else.
+    assert!(!get("build info").ok && get("build info").output.starts_with("FAILED"));
+    let v = get("adb on this computer");
+    assert!(v.ok && v.output.contains("Version 34") && !v.output.contains("Installed as"));
+
+    let text = report::render(&report::Meta { app_version: "9.9.9", unix_time: 1 }, &sections);
+    for secret in ["R58M123ABC", "192.168.1.20", "3c:5a:b4:01:02:03", "owner@example.com"] {
+        assert!(!text.contains(secret), "{secret} leaked into the report");
+    }
+    assert!(text.contains("=== build info [FAILED] ===") && text.contains("=== health (parser input) [ok] ==="));
 }

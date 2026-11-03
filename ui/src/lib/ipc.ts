@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, ReportOut, StepResult, TuningInfo, DeviceInfo, HealthSample, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, SavedDevice } from "./types";
 import { mock } from "./mock";
 
 const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -110,5 +110,23 @@ export const ipc = {
     trimCaches: (serial: string): Promise<void> => (inTauri ? call("tuning_trim_caches", { serial }) : new Promise((r) => setTimeout(r, 600))),
     cooldown: (serial: string, apps: string[], stop: boolean): Promise<StepResult[]> =>
       inTauri ? call("tuning_cooldown", { serial, apps, stop }) : mock.tuning.cooldown(serial, apps, stop),
+  },
+
+  report: {
+    collect: (serial: string): Promise<ReportOut> => (inTauri ? call("device_report", { serial }) : mock.report()),
+    /** Asks where to save (native dialog in the app, a download in the browser). Resolves false if cancelled. */
+    save: async (text: string): Promise<boolean> => {
+      if (inTauri) {
+        const { save } = await import("@tauri-apps/plugin-dialog");
+        const path = await save({ defaultPath: "device-report.txt", filters: [{ name: "Text", extensions: ["txt"] }] });
+        if (!path) return false;
+        await call("save_text_file", { path, text });
+        return true;
+      }
+      const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+      Object.assign(document.createElement("a"), { href: url, download: "device-report.txt" }).click();
+      URL.revokeObjectURL(url);
+      return true;
+    },
   },
 };

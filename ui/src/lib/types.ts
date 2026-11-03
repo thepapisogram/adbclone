@@ -88,3 +88,6 @@ export type TuningTarget = { kind: "setting"; ns: string; key: string } | { kind
 export interface TuningRecord { id: string; serial: string; group: string; label: string; target: TuningTarget; prev?: string | null; applied: string; time: number }
 export interface TuningInfo { status: TuningStatus; refreshSupported: boolean; records: TuningRecord[] }
 export interface StepResult { label: string; ok: boolean; message?: string | null }
+
+export interface ReportSection { name: string; ok: boolean; bytes: number }
+export interface ReportOut { text: string; sections: ReportSection[] }

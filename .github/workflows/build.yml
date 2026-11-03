@@ -9,6 +9,9 @@ jobs:
         with: { node-version: 22 }
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+      - name: Rust unit tests (do not block the build)
+        run: cargo test -p adb-core --lib
+        continue-on-error: true
       - run: npm ci
         working-directory: ui
       - run: ui/node_modules/.bin/tauri build

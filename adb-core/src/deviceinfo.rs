@@ -2,7 +2,7 @@
 use crate::{AdbError, AdbRunner};
 use serde::Serialize;
 
-const CMD: &str = "echo @@PROPS; getprop ro.product.manufacturer; getprop ro.product.model; \
+pub const CMD: &str = "echo @@PROPS; getprop ro.product.manufacturer; getprop ro.product.model; \
 getprop ro.build.version.release; getprop ro.build.version.sdk; getprop ro.build.version.security_patch; \
 echo @@DF; df -k /data; echo @@BATT; dumpsys battery";
 

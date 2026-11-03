@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AdbCheck, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { Action, ActionResult, AdbCheck, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, LabelItem, LabelProgress, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -285,5 +285,14 @@ export const mock = {
       if (stop) out.push(...apps.map((n) => ({ label: `Stop ${n}`, ok: true })));
       return out;
     },
+  },
+
+  async report(): Promise<ReportOut> {
+    await delay(1200);
+    const names = ["build info", "device info (parser input)", "health (parser input)", "processes (parser input)", "tuning status (parser input)", "system packages", "package counts", "tool availability", "app ops and standby sample", "wifi address", "adb on this computer"];
+    const text = ["adbclone device report", "app version: 0.1.0 (mock)", "created (unix time): 1700000000", "This report only reads information from the phone; nothing was changed.",
+      "Serial numbers, e-mail addresses, IP/MAC addresses and long ID numbers were replaced with placeholders.", "Read it before sharing.", "",
+      ...names.flatMap((n) => [`=== ${n} [ok] ===`, "$ (mock command)", "(sample output)", ""])].join("\n");
+    return { text, sections: names.map((name) => ({ name, ok: true, bytes: 120 })) };
   },
 };

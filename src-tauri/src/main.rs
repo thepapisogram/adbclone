@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -876,11 +876,45 @@ async fn tuning_cooldown(state: State<'_, AppState>, serial: String, apps: Vec<S
     Ok(out)
 }
 
+// ---- device report ----
+
+#[derive(Serialize)]
+struct ReportSection {
+    name: String,
+    ok: bool,
+    bytes: usize,
+}
+
+#[derive(Serialize)]
+struct ReportOut {
+    text: String,
+    sections: Vec<ReportSection>,
+}
+
+#[tauri::command]
+async fn device_report(serial: String) -> Result<ReportOut, String> {
+    let sections = report::collect(&adb(), &serial).await;
+    let text = report::render(&report::Meta { app_version: env!("CARGO_PKG_VERSION"), unix_time: now_secs() }, &sections);
+    let sections = sections.iter().map(|s| ReportSection { name: s.name.clone(), ok: s.ok, bytes: s.output.len() }).collect();
+    Ok(ReportOut { text, sections })
+}
+
+/// Write text the user chose to save (from the save dialog). Limited in size.
+#[tauri::command]
+fn save_text_file(path: String, text: String) -> Result<(), String> {
+    if text.len() > 5_000_000 {
+        return Err("That is too large to save.".into());
+    }
+    std::fs::write(&path, text).map_err(|e| format!("Could not write {path}: {e}"))
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .setup(|app| {
+            // Start the adb server once, hidden, instead of leaving it to whichever call comes first.
+            tauri::async_runtime::spawn(async { let _ = adb().start_server().await; });
             let data = app.path().app_data_dir().ok();
             *app.state::<AppState>().data_dir.lock().unwrap() = data.clone();
             if let Some(f) = data.as_ref().map(|d| d.join("tuning.json")) {
@@ -918,7 +952,8 @@ fn main() {
             wireless_qr_start, wireless_qr_cancel, wireless_qr_wait, saved_devices, forget_device, wireless_reconnect,
             snapshot_create, snapshot_list, snapshot_delete, snapshot_plan, snapshot_restore, snapshot_export, snapshot_import,
             history_load, history_save, device_info, health_sample,
-            tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown])
+            tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
+            device_report, save_text_file])
         .run(tauri::generate_context!())
         .expect("error while running ADB Manager");
 }

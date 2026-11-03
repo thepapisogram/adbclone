@@ -239,7 +239,7 @@ pub struct Status {
     pub max_fps: Option<f32>,
 }
 
-const STATUS_CMD: &str = "echo @@TUNE; for k in window_animation_scale low_power; do echo \"global.$k $(settings get global $k)\"; done; \
+pub const STATUS_CMD: &str = "echo @@TUNE; for k in window_animation_scale low_power; do echo \"global.$k $(settings get global $k)\"; done; \
 echo \"system.peak_refresh_rate $(settings get system peak_refresh_rate)\"; echo @@FPS; dumpsys display | grep -o 'fps=[0-9.]*'";
 
 pub fn parse_status(text: &str) -> Status {

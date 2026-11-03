@@ -39,7 +39,9 @@ export default function App() {
   const [snapVersion, setSnapVersion] = useState(0);
   const [notice, setNotice] = useState("");
   const historyReady = useRef(false);
+  const connectOpen = useRef(false);
   const [showConnect, setShowConnect] = useState(false);
+  useEffect(() => { connectOpen.current = showConnect; }, [showConnect]);
   const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
   const labelMap = useRef(new Map<string, string>());
@@ -86,7 +88,7 @@ export default function App() {
   useEffect(() => {
     ipc.wireless.check().then((c) => setAdbWarning(c.ok ? "" : c.message)).catch(() => {});
     // Notice phones being plugged in, unplugged or dropping off Wi-Fi.
-    const t = setInterval(() => { if (!document.hidden) refreshDevices(); }, 5000);
+    const t = setInterval(() => { if (!document.hidden && !connectOpen.current) refreshDevices(); }, 5000);
     return () => clearInterval(t);
   }, [refreshDevices]);
   useEffect(() => { loadApps(serial); }, [serial, loadApps]);
