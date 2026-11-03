@@ -11,9 +11,14 @@ describe("parseSettings", () => {
     expect(parseSettings('"text"')).toEqual(DEFAULT_SETTINGS);
   });
   it("keeps valid values and fixes only the invalid ones", () => {
-    expect(parseSettings('{"theme":"dark","plain":false,"language":"es"}')).toEqual({ theme: "dark", plain: false, language: "es" });
+    expect(parseSettings('{"theme":"dark","plain":false,"language":"es"}')).toEqual({ theme: "dark", plain: false, language: "es", guideSeen: false });
     expect(parseSettings('{"theme":"neon","plain":"yes","language":"../x"}')).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings('{"theme":"light"}')).toEqual({ ...DEFAULT_SETTINGS, theme: "light" });
+  });
+  it("remembers that the guide was seen, and only accepts a real boolean", () => {
+    expect(parseSettings('{"guideSeen":true}').guideSeen).toBe(true);
+    expect(parseSettings('{"guideSeen":"yes"}').guideSeen).toBe(false);
+    expect(DEFAULT_SETTINGS.guideSeen).toBe(false);
   });
   it("plain-language mode is on by default", () => {
     expect(DEFAULT_SETTINGS.plain).toBe(true);

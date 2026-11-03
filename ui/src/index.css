@@ -123,3 +123,11 @@ h1.brand img { border-radius: 6px; }
 .logtable td { padding: 4px 10px; vertical-align: top; } .ok-mark { color: var(--ok); width: 24px; } .bad-mark { color: var(--danger); width: 24px; }
 
 .adbsetup { display: flex; flex-direction: column; gap: 10px; } .adbsetup code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+
+.guide { max-height: 92vh; overflow: auto; } .guide h3 { margin: 16px 0 6px; font-size: 14px; }
+ul.checks { list-style: none; padding: 0; margin: 0 0 8px; } ul.checks li { padding: 2px 0; }
+.makernote { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0; } .makernote ul { margin: 4px 0 0; padding-left: 18px; }
+.guide { max-height: 92vh; overflow: auto; } .guide h3 { margin: 16px 0 6px; font-size: 14px; }
+ul.checks { list-style: none; padding: 0; margin: 0 0 8px; } ul.checks li { padding: 2px 0; }
+.makernote { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 6px 0; } .makernote ul { margin: 4px 0 0; padding-left: 18px; }
+ol.steps { padding-left: 20px; line-height: 1.5; }

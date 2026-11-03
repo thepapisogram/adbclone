@@ -3,6 +3,7 @@ const { chromium } = require('playwright');
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1200, height: 800 } });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
   const base = process.env.BASE || 'http://localhost:4173';
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ guideSeen: true })); });
   await p.goto(base);
   await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
   // Plain-language mode is the default.

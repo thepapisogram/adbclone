@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const errs = [];
   const open = async (query) => {
     const p = await browser.newPage({ viewport: { width: 1200, height: 800 } });
-    await p.addInitScript(() => localStorage.setItem('coolant.settings', JSON.stringify({ plain: false })));
+    await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
     p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
     await p.goto(base + query);
     await p.waitForSelector('.devicecard, .error');

@@ -6,9 +6,11 @@ export interface Settings {
   /** Plain-language mode: show app names and a one-line reason, hide package names and other technical text. */
   plain: boolean;
   language: string;
+  /** The getting-started guide has been shown (and closed) once. */
+  guideSeen: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { theme: "system", plain: true, language: "en" };
+export const DEFAULT_SETTINGS: Settings = { theme: "system", plain: true, language: "en", guideSeen: false };
 const KEY = "coolant.settings";
 
 /** Read settings from stored text, replacing anything missing or invalid with the default. Never throws. */
@@ -18,6 +20,7 @@ export function parseSettings(raw: string | null | undefined): Settings {
   return {
     theme: v.theme === "light" || v.theme === "dark" || v.theme === "system" ? v.theme : DEFAULT_SETTINGS.theme,
     plain: typeof v.plain === "boolean" ? v.plain : DEFAULT_SETTINGS.plain,
+    guideSeen: typeof v.guideSeen === "boolean" ? v.guideSeen : DEFAULT_SETTINGS.guideSeen,
     language: typeof v.language === "string" && /^[a-z]{2}(-[A-Za-z]{2,4})?$/.test(v.language) ? v.language : DEFAULT_SETTINGS.language,
   };
 }

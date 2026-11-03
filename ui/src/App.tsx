@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
 import { BRAND } from "./brand";
-import { useSettings } from "./lib/settings";
+import { updateSettings, useSettings } from "./lib/settings";
 import { reasonOf } from "./lib/reason";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
@@ -19,6 +19,7 @@ import { Debloat } from "./features/debloat/Debloat";
 import { Tune } from "./features/tuning/Tune";
 import { Logs } from "./features/logs/Logs";
 import { AdbSetup } from "./features/setup/AdbSetup";
+import { Guide } from "./features/guide/Guide";
 import { DeviceCard } from "./features/deviceinfo/DeviceCard";
 
 type Scope = "all" | "system" | "user";
@@ -56,7 +57,9 @@ export default function App() {
   const [showAdbSetup, setShowAdbSetup] = useState(false);
   const refreshAdbStatus = useCallback(() => { ipc.adb.status().then(setAdbStatus).catch(() => {}); }, []);
   useEffect(() => { refreshAdbStatus(); }, [refreshAdbStatus]);
-  const { plain } = useSettings();
+  const { plain, guideSeen } = useSettings();
+  const [showGuide, setShowGuide] = useState(false);
+  const closeGuide = () => { setShowGuide(false); updateSettings({ guideSeen: true }); };
   useEffect(() => { connectOpen.current = showConnect; }, [showConnect]);
   const [adbWarning, setAdbWarning] = useState("");
   const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
@@ -228,6 +231,7 @@ export default function App() {
           <button onClick={async () => { try { await ipc.wireless.disconnect(serial); } catch (e) { setError(String(e)); } refreshDevices(); }}>Disconnect</button>
         )}
         <button className="primary" onClick={() => setShowConnect(true)}>Connect…</button>
+        <button onClick={() => setShowGuide(true)} aria-label="Help getting started" title="Getting started">?</button>
         <button onClick={() => setShowSettings(true)} aria-label="Settings" title="Settings">⚙</button>
       </header>
 
@@ -333,6 +337,10 @@ export default function App() {
       </div>
       </>}
 
+      {(showGuide || !guideSeen) && (
+        <Guide adbStatus={adbStatus} devices={devices} serial={serial} onAdbInstalled={() => { refreshAdbStatus(); refreshDevices(); }}
+          onOpenConnect={() => setShowConnect(true)} onClose={closeGuide} />
+      )}
       {showAdbSetup && (
         <div className="modal-bg" onClick={() => setShowAdbSetup(false)}>
           <div className="modal wide" role="dialog" aria-label="Set up adb" onClick={(e) => e.stopPropagation()}>

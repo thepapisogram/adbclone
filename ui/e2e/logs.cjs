@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1200, height: 800 }, permissions: ['clipboard-read', 'clipboard-write'] });
   const p = await ctx.newPage();
-  await p.addInitScript(() => localStorage.setItem('coolant.settings', JSON.stringify({ plain: false })));
+  await p.addInitScript(() => { if (!localStorage.getItem('coolant.settings')) localStorage.setItem('coolant.settings', JSON.stringify({ plain: false, guideSeen: true })); });
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type()==='error' && errs.push(m.text()));
   await p.goto(process.env.BASE || 'http://localhost:4173');
   await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
