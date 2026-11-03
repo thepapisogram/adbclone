@@ -3,354 +3,586 @@
   "id": "com.miui.analytics",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Analytics."
+  "desc": "Analytics.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.miui.msa.global",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "MIUI ads service."
+  "desc": "MIUI ads service.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.miui.systemAdSolution",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Ad solution."
+  "desc": "Ad solution.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.xiaomi.mipicks",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "GetApps store."
+  "desc": "GetApps store.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.miui.cloudservice",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi Cloud."
+  "desc": "Mi Cloud.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.miui.cloudbackup",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi Cloud backup."
+  "desc": "Mi Cloud backup.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.miui.cloudservice.sysbase",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi Cloud base."
+  "desc": "Mi Cloud base.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.xiaomi.payment",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi payment."
+  "desc": "Mi payment.",
+  "category": "payments",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Payments and wallet features stop working."
  },
  {
   "id": "com.mipay.wallet",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi Pay."
+  "desc": "Mi Pay.",
+  "category": "payments",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Payments and wallet features stop working."
  },
  {
   "id": "com.miui.bugreport",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Bug report."
+  "desc": "Bug report.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.miui.miservice",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Services and feedback."
+  "desc": "Services and feedback.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.xiaomi.glgm",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Games."
+  "desc": "Games.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.xiaomi.gamecenter.sdk.service",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Game center SDK."
+  "desc": "Game center SDK.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.miui.player",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Music."
+  "desc": "Music.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.videoplayer",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Video player."
+  "desc": "Video player.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.mi.android.globalFileexplorer",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "File manager."
+  "desc": "File manager.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.miui.gallery",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Gallery."
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.miui.notes",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Notes."
+  "desc": "Notes.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.weather2",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Weather."
+  "desc": "Weather.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.compass",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Compass."
+  "desc": "Compass.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.calculator",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Calculator."
+  "desc": "Calculator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.browser",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Mi Browser."
+  "desc": "Mi Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.mi.globalbrowser",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Mi Browser."
+  "desc": "Mi Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.xiaomi.discover",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "App suggestions and updates."
+  "desc": "App suggestions and updates.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.miui.yellowpage",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Yellow pages."
+  "desc": "Yellow pages.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.hybrid",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Quick apps."
+  "desc": "Quick apps.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.miui.cleaner",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Cleaner."
+  "desc": "Cleaner.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.securitycenter",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Security app."
+  "desc": "Security app.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.securitycore",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Security core."
+  "desc": "Security core.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.securityadd",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Security add-on."
+  "desc": "Security add-on.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.powerkeeper",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Battery manager."
+  "desc": "Battery manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.home",
   "risk": "unsafe",
   "vendor": "xiaomi",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.miui.miwallpaper",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Wallpaper service."
+  "desc": "Wallpaper service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.contentcatcher",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Content catcher."
+  "desc": "Content catcher.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.miui.catcherpatch",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Catcher patch."
+  "desc": "Catcher patch.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.miui.daemon",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "System daemon."
+  "desc": "System daemon.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.fm",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "FM radio."
+  "desc": "FM radio.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.antispam",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Spam filter."
+  "desc": "Spam filter.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.miui.mishare.connectivity",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Mi Share."
+  "desc": "Mi Share.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.xiaomi.mi_connect_service",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Mi Connect."
+  "desc": "Mi Connect.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.xiaomi.scanner",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Scanner."
+  "desc": "Scanner.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.xiaomi.simactivate.service",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "SIM activation."
+  "desc": "SIM activation.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.xiaomi.account",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi account."
+  "desc": "Mi account.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.xiaomi.joyose",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Performance tuning."
+  "desc": "Performance tuning.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.xiaomi.finddevice",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Find device."
+  "desc": "Find device.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "You can no longer locate this phone remotely."
  },
  {
   "id": "com.milink.service",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Mi Link."
+  "desc": "Mi Link.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.voiceassist",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Voice assistant."
+  "desc": "Voice assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
  },
  {
   "id": "com.miui.personalassistant",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "App vault."
+  "desc": "App vault.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.smsextra",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "SMS extras."
+  "desc": "SMS extras.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.touchassistant",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Quick ball."
+  "desc": "Quick ball.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.screenrecorder",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Screen recorder."
+  "desc": "Screen recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.core",
   "risk": "unsafe",
   "vendor": "xiaomi",
-  "desc": "MIUI core."
+  "desc": "MIUI core.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.miui.system",
   "risk": "unsafe",
   "vendor": "xiaomi",
-  "desc": "MIUI system."
+  "desc": "MIUI system.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "miui.systemui.plugin",
   "risk": "unsafe",
   "vendor": "xiaomi",
-  "desc": "System UI plugin."
+  "desc": "System UI plugin.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.xiaomi.xmsf",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Xiaomi push services."
+  "desc": "Xiaomi push services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.xiaomi.market",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Mi app store."
+  "desc": "Mi app store.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.miui.packageinstaller",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "MIUI package installer."
+  "desc": "MIUI package installer.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Installing apps from files may stop working."
  },
  {
   "id": "com.miui.phrase",
   "risk": "recommended",
   "vendor": "xiaomi",
-  "desc": "Phrases."
+  "desc": "Phrases.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.miui.mediaeditor",
   "risk": "advanced",
   "vendor": "xiaomi",
-  "desc": "Editor."
+  "desc": "Editor.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  }
 ]

@@ -3,108 +3,180 @@
   "id": "com.vzw.hss.myverizon",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "My Verizon."
+  "desc": "My Verizon.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.verizon.mips.services",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Verizon services."
+  "desc": "Verizon services.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.verizon.messaging.vzmsgs",
   "risk": "advanced",
   "vendor": "carrier",
-  "desc": "Verizon Messages."
+  "desc": "Verizon Messages.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.vcast.mediamanager",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Verizon Cloud."
+  "desc": "Verizon Cloud.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.verizon.obdm",
   "risk": "advanced",
   "vendor": "carrier",
-  "desc": "Verizon device management."
+  "desc": "Verizon device management.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.att.myWireless",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "myAT&T."
+  "desc": "myAT&T.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.att.dh",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "AT&T device help."
+  "desc": "AT&T device help.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.att.iqi",
   "risk": "advanced",
   "vendor": "carrier",
-  "desc": "AT&T diagnostics."
+  "desc": "AT&T diagnostics.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.att.callprotect",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "AT&T Call Protect."
+  "desc": "AT&T Call Protect.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.asurion.android.protech.att",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "AT&T ProTech."
+  "desc": "AT&T ProTech.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.tmobile.pr.mytmobile",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "T-Mobile app."
+  "desc": "T-Mobile app.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.tmobile.services.nameid",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Name ID."
+  "desc": "Name ID.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.tmobile.simlock",
   "risk": "advanced",
   "vendor": "carrier",
-  "desc": "SIM unlock."
+  "desc": "SIM unlock.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.sprint.ms.smf.services",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "carrier",
-  "desc": "Sprint services."
+  "desc": "Sprint services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.sprint.zone",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Sprint Zone."
+  "desc": "Sprint Zone.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.coremobility.app.vnotes",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Visual voicemail notes."
+  "desc": "Visual voicemail notes.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.vodafone.mCare",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "My Vodafone."
+  "desc": "My Vodafone.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  },
  {
   "id": "com.lookout",
   "risk": "recommended",
   "vendor": "carrier",
-  "desc": "Lookout."
+  "desc": "Lookout.",
+  "category": "carrier",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Account, billing or support features from your carrier may stop. Calls and data keep working."
  }
 ]

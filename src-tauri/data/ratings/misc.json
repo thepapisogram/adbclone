@@ -3,126 +3,208 @@
   "id": "com.qualcomm.qti.services.systemhelper",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Qualcomm system helper."
+  "desc": "Qualcomm system helper.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.qti.qms.service.telemetry",
   "risk": "recommended",
   "vendor": "chipset",
-  "desc": "Qualcomm telemetry."
+  "desc": "Qualcomm telemetry.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.qualcomm.location",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Qualcomm location."
+  "desc": "Qualcomm location.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.timeservice",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Qualcomm time service."
+  "desc": "Qualcomm time service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.qti.telephonyservice",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Qualcomm telephony."
+  "desc": "Qualcomm telephony.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qti.qualcomm.deviceinfo",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Device info."
+  "desc": "Device info.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.qti.cne",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Connectivity engine."
+  "desc": "Connectivity engine.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.qti.ims",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "IMS."
+  "desc": "IMS.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.embms",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Broadcast multimedia."
+  "desc": "Broadcast multimedia.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.qualcomm.atfwd",
   "risk": "unsafe",
   "vendor": "chipset",
-  "desc": "Modem AT command forwarder."
+  "desc": "Modem AT command forwarder.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.mediatek.ims",
   "risk": "unsafe",
   "vendor": "chipset",
-  "desc": "IMS."
+  "desc": "IMS.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.mediatek.callrecorder",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Call recorder."
+  "desc": "Call recorder.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.mdmlsample",
   "risk": "recommended",
   "vendor": "chipset",
-  "desc": "Modem log sample."
+  "desc": "Modem log sample.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.mediatek.batterywarning",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Battery warning."
+  "desc": "Battery warning.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.engineermode",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Engineer mode."
+  "desc": "Engineer mode.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.gnssdebugreport",
   "risk": "recommended",
   "vendor": "chipset",
-  "desc": "GNSS debug."
+  "desc": "GNSS debug.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.mediatek.location.lppe.main",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Location."
+  "desc": "Location.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.camera",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "Camera."
+  "desc": "Camera.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.simprocessor",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "SIM processor."
+  "desc": "SIM processor.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.mediatek.mtklogger",
   "risk": "recommended",
   "vendor": "chipset",
-  "desc": "MTK logger."
+  "desc": "MTK logger.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.mediatek.omacp",
   "risk": "advanced",
   "vendor": "chipset",
-  "desc": "OMA client provisioning."
+  "desc": "OMA client provisioning.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "low",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  }
 ]

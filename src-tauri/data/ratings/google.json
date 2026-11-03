@@ -3,444 +3,773 @@
   "id": "com.google.android.gms",
   "risk": "unsafe",
   "vendor": "google",
-  "desc": "Google Play services; many apps break without it."
+  "desc": "Google Play services; many apps break without it.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.gsf",
   "risk": "unsafe",
   "vendor": "google",
-  "desc": "Google Services Framework; sync and push."
+  "desc": "Google Services Framework; sync and push.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.modulemetadata",
   "risk": "unsafe",
   "vendor": "google",
-  "desc": "Mainline module metadata."
+  "desc": "Mainline module metadata.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.apps.nexuslauncher",
   "risk": "unsafe",
   "vendor": "google",
-  "desc": "Pixel launcher."
+  "desc": "Pixel launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.setupwizard",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Setup wizard; only needed after a reset."
+  "desc": "Setup wizard; only needed after a reset.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.ext.services",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Adjusts notifications and autofill."
+  "desc": "Adjusts notifications and autofill.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.ext.shared",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Shared extension services."
+  "desc": "Shared extension services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.syncadapters.contacts",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Contacts sync."
+  "desc": "Contacts sync.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.syncadapters.calendar",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Calendar sync."
+  "desc": "Calendar sync.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.onetimeinitializer",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "First-boot setup."
+  "desc": "First-boot setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.partnersetup",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Partner setup."
+  "desc": "Partner setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.configupdater",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Config updates."
+  "desc": "Config updates.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.tts",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Text to speech."
+  "desc": "Text to speech.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Spoken text (navigation voice, screen readers) stops working."
  },
  {
   "id": "com.google.android.googlequicksearchbox",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google app, search and Assistant."
+  "desc": "Google app, search and Assistant.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "high",
+  "impact": "Google search, the search bar and Google Assistant stop working."
  },
  {
   "id": "com.google.android.inputmethod.latin",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Gboard; keep another keyboard installed."
+  "desc": "Gboard; keep another keyboard installed.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "The Google keyboard stops working; make sure another keyboard is turned on first."
  },
  {
   "id": "com.google.android.gm",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Gmail."
+  "desc": "Gmail.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.gm.lite",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Gmail Go."
+  "desc": "Gmail Go.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.youtube",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "YouTube; reinstallable."
+  "desc": "YouTube; reinstallable.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.youtube.music",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "YouTube Music."
+  "desc": "YouTube Music.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.maps",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Maps."
+  "desc": "Google Maps.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "Google Maps stops working. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.photos",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google Photos."
+  "desc": "Google Photos.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Photo backup and the Photos app stop working. Make sure your photos are safe first.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.docs",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Drive."
+  "desc": "Google Drive.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.docs.editors.docs",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Docs."
+  "desc": "Google Docs.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.docs.editors.sheets",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Sheets."
+  "desc": "Google Sheets.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.docs.editors.slides",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Slides."
+  "desc": "Google Slides.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.videos",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google TV / Play Movies."
+  "desc": "Google TV / Play Movies.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.google.android.music",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Play Music."
+  "desc": "Play Music.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.magazines",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google News."
+  "desc": "Google News.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.tachyon",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Meet / Duo."
+  "desc": "Google Meet / Duo.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.google.android.apps.meetings",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Meet."
+  "desc": "Google Meet.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.talk",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Hangouts."
+  "desc": "Hangouts.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.messaging",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google Messages."
+  "desc": "Google Messages.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.google.android.dialer",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google Phone."
+  "desc": "Google Phone.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.google.android.contacts",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google Contacts."
+  "desc": "Google Contacts.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.google.android.calendar",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Calendar."
+  "desc": "Google Calendar.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.keep",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Keep."
+  "desc": "Google Keep.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.nbu.files",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Files by Google."
+  "desc": "Files by Google.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.wellbeing",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Digital Wellbeing."
+  "desc": "Digital Wellbeing.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.googleassistant",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Assistant."
+  "desc": "Assistant.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
  },
  {
   "id": "com.google.android.marvin.talkback",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Accessibility screen reader."
+  "desc": "Accessibility screen reader.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "The screen reader for people with low vision stops working."
  },
  {
   "id": "com.google.android.apps.turbo",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Device Health Services."
+  "desc": "Device Health Services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.apps.restore",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Restore from backup."
+  "desc": "Restore from backup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.apps.pixelmigrate",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "google",
-  "desc": "Pixel data migration."
+  "desc": "Pixel data migration.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.gms.location.history",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Location history."
+  "desc": "Location history.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.feedback",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Feedback agent."
+  "desc": "Feedback agent.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.google.android.printservice.recommendation",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Print service suggestions."
+  "desc": "Print service suggestions.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.projection.gearhead",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Android Auto."
+  "desc": "Android Auto.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.street",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Street View."
+  "desc": "Street View.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.walletnfcrel",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Google Wallet."
+  "desc": "Google Wallet.",
+  "category": "payments",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Payments and wallet features stop working."
  },
  {
   "id": "com.google.android.apps.chromecast.app",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Home."
+  "desc": "Google Home.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.subscriptions.red",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google One."
+  "desc": "Google One.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.googleone",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google One."
+  "desc": "Google One.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.ar.core",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Play Services for AR."
+  "desc": "Google Play Services for AR.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.ar.lens",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Lens AR."
+  "desc": "Google Lens AR.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.cloudprint",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Cloud Print."
+  "desc": "Cloud Print.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.play.games",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Play Games."
+  "desc": "Play Games.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.gms.policy_sidecar_aps",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Device policy sidecar."
+  "desc": "Device policy sidecar.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.safetycore",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "On-device safety features."
+  "desc": "On-device safety features.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.cellbroadcastreceiver",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Emergency alerts."
+  "desc": "Emergency alerts.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Emergency alerts (severe weather, safety) stop arriving."
  },
  {
   "id": "com.google.android.apps.work.oobconfig",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Work setup."
+  "desc": "Work setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.apps.carrierservices",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Carrier services (RCS)."
+  "desc": "Carrier services (RCS).",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.carriersetup",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Carrier setup."
+  "desc": "Carrier setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.euicc",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "eSIM support."
+  "desc": "eSIM support.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.apps.setupwizard.searchselector",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "google",
-  "desc": "Search selector."
+  "desc": "Search selector.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.soundpicker",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Ringtone picker."
+  "desc": "Ringtone picker.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.google.android.apps.accessibility.voiceaccess",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Voice Access."
+  "desc": "Voice Access.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.accessibility.soundamplifier",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Sound Amplifier."
+  "desc": "Sound Amplifier.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.authenticator2",
   "risk": "advanced",
   "vendor": "google",
-  "desc": "Authenticator codes; may hold your 2FA."
+  "desc": "Authenticator codes; may hold your 2FA.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Your 2-step login codes may stop working. Move them to another app first.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.bard",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Gemini."
+  "desc": "Gemini.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.podcasts",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Podcasts."
+  "desc": "Google Podcasts.",
+  "category": "discontinued",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "The maker has stopped developing this app.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.tasks",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Tasks."
+  "desc": "Google Tasks.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.translate",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Translate."
+  "desc": "Translate.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.fitness",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Google Fit."
+  "desc": "Google Fit.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  },
  {
   "id": "com.google.android.apps.classroom",
   "risk": "recommended",
   "vendor": "google",
-  "desc": "Classroom."
+  "desc": "Classroom.",
+  "category": "google-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this Google app. You can reinstall it from the Play Store.",
+  "reinstall": "store"
  }
 ]

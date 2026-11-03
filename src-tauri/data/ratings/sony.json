@@ -3,84 +3,139 @@
   "id": "com.sonyericsson.home",
   "risk": "unsafe",
   "vendor": "sony",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.sonymobile.xperiatransfermobile",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Xperia Transfer."
+  "desc": "Xperia Transfer.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.moviecreator",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Movie Creator."
+  "desc": "Movie Creator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.cinemapro",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Cinema Pro."
+  "desc": "Cinema Pro.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.photopro",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Photo Pro."
+  "desc": "Photo Pro.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonyericsson.music",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Music."
+  "desc": "Music.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.androidapp.walkmate",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Walk Mate."
+  "desc": "Walk Mate.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sony.nfx.app.sfrc",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "News Suite."
+  "desc": "News Suite.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.xperiaservices",
   "risk": "advanced",
   "vendor": "sony",
-  "desc": "Xperia services."
+  "desc": "Xperia services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.sonymobile.sketch",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Sketch."
+  "desc": "Sketch.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.lifelog",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Lifelog."
+  "desc": "Lifelog.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonyericsson.album",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Album."
+  "desc": "Album.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.email",
   "risk": "recommended",
   "vendor": "sony",
-  "desc": "Email."
+  "desc": "Email.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.sonymobile.entrance",
   "risk": "advanced",
   "vendor": "sony",
-  "desc": "Setup."
+  "desc": "Setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  }
 ]

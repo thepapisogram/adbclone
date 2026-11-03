@@ -3,186 +3,311 @@
   "id": "com.coloros.gamespace",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Game Space."
+  "desc": "Game Space.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  },
  {
   "id": "com.coloros.video",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Video."
+  "desc": "Video.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.heytap.music",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Music."
+  "desc": "Music.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.heytap.browser",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Browser."
+  "desc": "Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.heytap.market",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "App Market."
+  "desc": "App Market.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.heytap.cloud",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Cloud."
+  "desc": "Cloud.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.nearme.gamecenter",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Game Center."
+  "desc": "Game Center.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.oppo.launcher",
   "risk": "unsafe",
   "vendor": "oppo",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.coloros.safecenter",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Phone Manager."
+  "desc": "Phone Manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.coloros.phonemanager",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Phone Manager."
+  "desc": "Phone Manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.oplus.battery",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Battery manager."
+  "desc": "Battery manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.oplus.games",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Games."
+  "desc": "Games.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  },
  {
   "id": "com.oneplus.membership",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Membership."
+  "desc": "Membership.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.oneplus.opbackup",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Clone phone / backup."
+  "desc": "Clone phone / backup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.oneplus.card",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Cards."
+  "desc": "Cards.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.oneplus.brickmode",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Zen mode."
+  "desc": "Zen mode.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.oneplus.gamespace",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Game Space."
+  "desc": "Game Space.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  },
  {
   "id": "net.oneplus.launcher",
   "risk": "unsafe",
   "vendor": "oppo",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "net.oneplus.odm",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "OEM services."
+  "desc": "OEM services.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.oneplus.account",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "OnePlus account."
+  "desc": "OnePlus account.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.oneplus.screenrecord",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Screen recorder."
+  "desc": "Screen recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.oneplus.deskclock",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Clock."
+  "desc": "Clock.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Alarms and timers may stop working."
  },
  {
   "id": "com.oneplus.camera",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Camera."
+  "desc": "Camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.oneplus.gallery",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "Gallery."
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.oneplus.filemanager",
   "risk": "advanced",
   "vendor": "oppo",
-  "desc": "File manager."
+  "desc": "File manager.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.opos.ads",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Ads service."
+  "desc": "Ads service.",
+  "category": "ads-telemetry",
+  "tier": "safe",
+  "confidence": "medium",
+  "impact": "Stops usage reports, ads or diagnostics. Nothing you use directly."
  },
  {
   "id": "com.coloros.assistantscreen",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Smart sidebar / assistant screen."
+  "desc": "Smart sidebar / assistant screen.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
  },
  {
   "id": "com.coloros.soundrecorder",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Recorder."
+  "desc": "Recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.coloros.calculator",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Calculator."
+  "desc": "Calculator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.coloros.weather.service",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Weather."
+  "desc": "Weather.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.coloros.note",
   "risk": "recommended",
   "vendor": "oppo",
-  "desc": "Notes."
+  "desc": "Notes.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  }
 ]

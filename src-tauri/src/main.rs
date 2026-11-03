@@ -22,6 +22,12 @@ struct AppInfo {
     disable_safety: &'static str,
     uninstall_safety: &'static str,
     description: Option<String>,
+    tier: &'static str,
+    category: Option<String>,
+    impact: Option<String>,
+    confidence: &'static str,
+    reinstall: Option<String>,
+    duplicate_of: Option<String>,
 }
 
 static RATINGS: OnceLock<ratings::Ratings> = OnceLock::new();
@@ -133,6 +139,12 @@ async fn list_apps(serial: String) -> Result<Vec<AppInfo>, String> {
                 risk: rule.as_ref().map_or("unknown", |r| r.risk),
                 disable_safety: rule.as_ref().map_or("unknown", |r| r.disable.as_str()),
                 uninstall_safety: rule.as_ref().map_or("unknown", |r| r.uninstall.as_str()),
+                tier: rule.as_ref().map_or("unrated", |r| r.tier),
+                category: rule.as_ref().and_then(|r| r.category.clone()),
+                impact: rule.as_ref().map(|r| r.impact.clone()).filter(|i| !i.is_empty()),
+                confidence: rule.as_ref().map_or("low", |r| r.confidence),
+                reinstall: rule.as_ref().and_then(|r| r.reinstall.clone()),
+                duplicate_of: rule.as_ref().and_then(|r| r.duplicate_of.clone()),
                 description: rule.map(|r| r.desc),
                 name: p.name,
             }

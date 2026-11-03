@@ -3,102 +3,168 @@
   "id": "com.huawei.android.launcher",
   "risk": "unsafe",
   "vendor": "huawei",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.huawei.systemmanager",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "Phone manager."
+  "desc": "Phone manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.huawei.hwid",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "Huawei ID."
+  "desc": "Huawei ID.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.huawei.appmarket",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "AppGallery."
+  "desc": "AppGallery.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.huawei.music",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Music."
+  "desc": "Music.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.himovie.overseas",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Video."
+  "desc": "Video.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.browser",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Browser."
+  "desc": "Browser.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.health",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Health."
+  "desc": "Health.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.fastapp",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Quick apps."
+  "desc": "Quick apps.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.huawei.android.hwouc",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "System updater."
+  "desc": "System updater.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.huawei.android.totemweather",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Weather."
+  "desc": "Weather.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.notepad",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Notepad."
+  "desc": "Notepad.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.huawei.wallet",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "Wallet."
+  "desc": "Wallet.",
+  "category": "payments",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Payments and wallet features stop working."
  },
  {
   "id": "com.hihonor.id",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "Honor ID."
+  "desc": "Honor ID.",
+  "category": "cloud-sync",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Sign-in, backup and sync with the maker's cloud stop. Other apps from the maker may need it."
  },
  {
   "id": "com.hihonor.appmarket",
   "risk": "recommended",
   "vendor": "huawei",
-  "desc": "Honor app store."
+  "desc": "Honor app store.",
+  "category": "store",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "Installs and updates from this store stop. Apps you already have keep working."
  },
  {
   "id": "com.hihonor.android.launcher",
   "risk": "unsafe",
   "vendor": "huawei",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.hihonor.systemmanager",
   "risk": "advanced",
   "vendor": "huawei",
-  "desc": "Phone manager."
+  "desc": "Phone manager.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  }
 ]

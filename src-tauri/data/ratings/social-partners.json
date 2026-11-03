@@ -3,180 +3,324 @@
   "id": "com.facebook.appmanager",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Preinstalled Facebook updater."
+  "desc": "Preinstalled Facebook updater.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
  },
  {
   "id": "com.facebook.services",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Preinstalled Facebook service."
+  "desc": "Preinstalled Facebook service.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
  },
  {
   "id": "com.facebook.system",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Preinstalled Facebook installer."
+  "desc": "Preinstalled Facebook installer.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
  },
  {
   "id": "com.facebook.katana",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Facebook."
+  "desc": "Facebook.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.facebook.orca",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Messenger."
+  "desc": "Messenger.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.instagram.android",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Instagram."
+  "desc": "Instagram.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.office.officehubrow",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Microsoft 365."
+  "desc": "Microsoft 365.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.office.word",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Word."
+  "desc": "Word.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.office.excel",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Excel."
+  "desc": "Excel.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.office.powerpoint",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "PowerPoint."
+  "desc": "PowerPoint.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.office.outlook",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Outlook."
+  "desc": "Outlook.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.skydrive",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "OneDrive."
+  "desc": "OneDrive.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.appmanager",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Link to Windows."
+  "desc": "Link to Windows.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.microsoft.translator",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Translator."
+  "desc": "Translator.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.skype.raider",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Skype."
+  "desc": "Skype.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.linkedin.android",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "LinkedIn."
+  "desc": "LinkedIn.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.amazon.mShop.android.shopping",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Amazon Shopping."
+  "desc": "Amazon Shopping.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.amazon.appmanager",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Amazon app manager."
+  "desc": "Amazon app manager.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
  },
  {
   "id": "com.amazon.kindle",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Kindle."
+  "desc": "Kindle.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.amazon.avod.thirdpartyclient",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Prime Video."
+  "desc": "Prime Video.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.amazon.dee.app",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Alexa."
+  "desc": "Alexa.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.amazon.mp3",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Amazon Music."
+  "desc": "Amazon Music.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.audible.application",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Audible."
+  "desc": "Audible.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.netflix.mediaclient",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Netflix."
+  "desc": "Netflix.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.netflix.partner.activation",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Netflix activation."
+  "desc": "Netflix activation.",
+  "category": "partner-stub",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A helper for a preinstalled partner app. Nothing else depends on it; the app itself keeps working or can be reinstalled."
  },
  {
   "id": "com.spotify.music",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Spotify."
+  "desc": "Spotify.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "high",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "flipboard.app",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Flipboard."
+  "desc": "Flipboard.",
+  "category": "preinstalled-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. You can reinstall it from the store.",
+  "reinstall": "store"
  },
  {
   "id": "com.touchtype.swiftkey",
   "risk": "advanced",
   "vendor": "partner",
-  "desc": "SwiftKey keyboard."
+  "desc": "SwiftKey keyboard.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "The SwiftKey keyboard stops working; make sure another keyboard is turned on first."
  },
  {
   "id": "com.king.candycrushsaga",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Candy Crush."
+  "desc": "Candy Crush.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  },
  {
   "id": "com.king.candycrushsodasaga",
   "risk": "recommended",
   "vendor": "partner",
-  "desc": "Candy Crush Soda."
+  "desc": "Candy Crush Soda.",
+  "category": "game-hub",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose the game launcher or its overlay. Games still run.",
+  "reinstall": "store"
  }
 ]

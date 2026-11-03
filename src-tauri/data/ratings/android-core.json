@@ -3,649 +3,1041 @@
   "id": "android",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Android framework package."
+  "desc": "Android framework package.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.systemui",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Status bar, navigation and lock screen."
+  "desc": "Status bar, navigation and lock screen.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.settings",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Device settings."
+  "desc": "Device settings.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.phone",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Telephony stack."
+  "desc": "Telephony stack.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.telephony",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "SMS/MMS and telephony storage."
+  "desc": "SMS/MMS and telephony storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.contacts",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Contacts storage."
+  "desc": "Contacts storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.settings",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Settings storage."
+  "desc": "Settings storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.media",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Media storage."
+  "desc": "Media storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.media.module",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Media storage module."
+  "desc": "Media storage module.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.downloads",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Download manager."
+  "desc": "Download manager.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.downloads.ui",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Downloads UI."
+  "desc": "Downloads UI.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.providers.calendar",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Calendar storage."
+  "desc": "Calendar storage.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.providers.blockednumber",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Blocked numbers storage."
+  "desc": "Blocked numbers storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.providers.userdictionary",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "User dictionary storage."
+  "desc": "User dictionary storage.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.providers.partnerbookmarks",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Partner bookmarks."
+  "desc": "Partner bookmarks.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.providers.tv",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "TV provider; unused on phones."
+  "desc": "TV provider; unused on phones.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.server.telecom",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Call handling."
+  "desc": "Call handling.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.bluetooth",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Bluetooth stack."
+  "desc": "Bluetooth stack.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.nfc",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "NFC service."
+  "desc": "NFC service.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.shell",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "ADB shell; needed by this app."
+  "desc": "ADB shell; needed by this app.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.packageinstaller",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Installs and removes apps."
+  "desc": "Installs and removes apps.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.packageinstaller",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Installs and removes apps."
+  "desc": "Installs and removes apps.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.permissioncontroller",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Runtime permission prompts."
+  "desc": "Runtime permission prompts.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.permissioncontroller",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Runtime permission prompts."
+  "desc": "Runtime permission prompts.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.keychain",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Certificate and key storage."
+  "desc": "Certificate and key storage.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.certinstaller",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Certificate installer."
+  "desc": "Certificate installer.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.captiveportallogin",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Wi-Fi sign-in pages."
+  "desc": "Wi-Fi sign-in pages.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.networkstack",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Network stack."
+  "desc": "Network stack.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.networkstack.inprocess",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Network stack."
+  "desc": "Network stack.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.networkstack",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Network stack."
+  "desc": "Network stack.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.captiveportallogin",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Wi-Fi sign-in pages."
+  "desc": "Wi-Fi sign-in pages.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.cellbroadcastreceiver",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Emergency alerts; keep for safety."
+  "desc": "Emergency alerts; keep for safety.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Emergency alerts (severe weather, safety) stop arriving."
  },
  {
   "id": "com.android.cellbroadcastservice",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Emergency alerts service."
+  "desc": "Emergency alerts service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Emergency alerts (severe weather, safety) stop arriving."
  },
  {
   "id": "com.android.emergency",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Emergency information."
+  "desc": "Emergency information.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Emergency information on the lock screen stops working."
  },
  {
   "id": "com.android.mms.service",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "MMS handling."
+  "desc": "MMS handling.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.mms",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Stock messaging app."
+  "desc": "Stock messaging app.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.location.fused",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Fused location provider."
+  "desc": "Fused location provider.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.webview",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "System WebView; many apps need it."
+  "desc": "System WebView; many apps need it.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.webview",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "System WebView; many apps need it."
+  "desc": "System WebView; many apps need it.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.google.android.trichromelibrary",
   "risk": "unsafe",
   "vendor": "android",
   "desc": "Shared library for WebView/Chrome.",
-  "prefix": true
+  "prefix": true,
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.launcher3",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Default launcher on many devices."
+  "desc": "Default launcher on many devices.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.inputdevices",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Input device handling."
+  "desc": "Input device handling.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.externalstorage",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "External storage access."
+  "desc": "External storage access.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.mtp",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "USB file transfer."
+  "desc": "USB file transfer.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.intentresolver",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "App chooser dialogs."
+  "desc": "App chooser dialogs.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.wifi.resources",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Wi-Fi resources."
+  "desc": "Wi-Fi resources.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.connectivity.resources",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Connectivity resources."
+  "desc": "Connectivity resources.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.carrierconfig",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Carrier configuration."
+  "desc": "Carrier configuration.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.carrierdefaultapp",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Carrier setup prompts."
+  "desc": "Carrier setup prompts.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.managedprovisioning",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Work profile setup."
+  "desc": "Work profile setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.proxyhandler",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Proxy handling."
+  "desc": "Proxy handling.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.se",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Secure element service."
+  "desc": "Secure element service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.statementservice",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "App link verification."
+  "desc": "App link verification.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.storagemanager",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Storage cleanup."
+  "desc": "Storage cleanup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.settings.intelligence",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Settings search and suggestions."
+  "desc": "Settings search and suggestions.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.vpndialogs",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "VPN consent dialog."
+  "desc": "VPN consent dialog.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.documentsui",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Files picker."
+  "desc": "Files picker.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "File pickers (choosing a photo or file in an app) may stop working."
  },
  {
   "id": "com.google.android.documentsui",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Files picker."
+  "desc": "Files picker.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "File pickers (choosing a photo or file in an app) may stop working."
  },
  {
   "id": "com.android.companiondevicemanager",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Pairing with watches."
+  "desc": "Pairing with watches.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.ons",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Opportunistic network service."
+  "desc": "Opportunistic network service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.sdksandbox",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Privacy sandbox runtime."
+  "desc": "Privacy sandbox runtime.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.healthconnect.controller",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Health Connect UI."
+  "desc": "Health Connect UI.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.ondevicepersonalization.services",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "On-device personalization."
+  "desc": "On-device personalization.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.rkpdapp",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Remote key provisioning."
+  "desc": "Remote key provisioning.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.simappdialog",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "SIM app dialog."
+  "desc": "SIM app dialog.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.backupconfirm",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Backup confirmation."
+  "desc": "Backup confirmation.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.localtransport",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Local backup transport."
+  "desc": "Local backup transport.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.sharedstoragebackup",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Shared storage backup."
+  "desc": "Shared storage backup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.pacprocessor",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Proxy auto-config."
+  "desc": "Proxy auto-config.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.stk",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "SIM Toolkit carrier menu."
+  "desc": "SIM Toolkit carrier menu.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.wallpaperbackup",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Wallpaper backup."
+  "desc": "Wallpaper backup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.wallpapercropper",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Wallpaper cropper."
+  "desc": "Wallpaper cropper.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.wallpaper",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Wallpaper picker."
+  "desc": "Wallpaper picker.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.android.chrome",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Chrome browser."
+  "desc": "Chrome browser.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "high",
+  "impact": "Chrome stops working; make sure you have another browser."
  },
  {
   "id": "com.android.vending",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Google Play Store."
+  "desc": "Google Play Store.",
+  "category": "store",
+  "tier": "aggressive",
+  "confidence": "high",
+  "impact": "You can no longer install or update apps from the Play Store."
  },
  {
   "id": "com.android.contacts",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Stock contacts."
+  "desc": "Stock contacts.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.dialer",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Stock phone dialer."
+  "desc": "Stock phone dialer.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.camera2",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Stock camera."
+  "desc": "Stock camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.inputmethod.latin",
   "risk": "advanced",
   "vendor": "android",
-  "desc": "Stock keyboard; keep another keyboard installed."
+  "desc": "Stock keyboard; keep another keyboard installed.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.deskclock",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "android",
-  "desc": "Clock."
+  "desc": "Clock.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Alarms and timers may stop working."
  },
  {
   "id": "com.android.calendar",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Calendar."
+  "desc": "Calendar.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.calculator2",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Calculator."
+  "desc": "Calculator.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.email",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Email."
+  "desc": "Email.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.gallery3d",
-  "risk": "recommended",
+  "risk": "advanced",
   "vendor": "android",
-  "desc": "Gallery."
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.android.htmlviewer",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "HTML viewer."
+  "desc": "HTML viewer.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.musicfx",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Equalizer."
+  "desc": "Equalizer.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.soundrecorder",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Sound recorder."
+  "desc": "Sound recorder.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.printspooler",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Printing."
+  "desc": "Printing.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.bips",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Built-in print service."
+  "desc": "Built-in print service.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.traceur",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "System tracing."
+  "desc": "System tracing.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.egg",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Easter egg."
+  "desc": "Easter egg.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.dreams.basic",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Screensaver."
+  "desc": "Screensaver.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.dreams.phototable",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Photo screensaver."
+  "desc": "Photo screensaver.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.bookmarkprovider",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Bookmark provider."
+  "desc": "Bookmark provider.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.dynsystem",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Dynamic system updates."
+  "desc": "Dynamic system updates.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.apps.tag",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "NFC tag viewer."
+  "desc": "NFC tag viewer.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.android.bluetoothmidiservice",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Bluetooth MIDI."
+  "desc": "Bluetooth MIDI.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.wallpaper.livepicker",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Live wallpaper picker."
+  "desc": "Live wallpaper picker.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.hotwordenrollment.okgoogle",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Hotword enrollment."
+  "desc": "Hotword enrollment.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
  },
  {
   "id": "com.android.hotwordenrollment.xgoogle",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Hotword enrollment."
+  "desc": "Hotword enrollment.",
+  "category": "assistant",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "The voice assistant and its wake word stop working."
  },
  {
   "id": "com.android.protips",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Tips."
+  "desc": "Tips.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.android.noisefield",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Live wallpaper."
+  "desc": "Live wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.magicsmoke",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Live wallpaper."
+  "desc": "Live wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.galaxy4",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Live wallpaper."
+  "desc": "Live wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.phasebeam",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Live wallpaper."
+  "desc": "Live wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.musicvis",
   "risk": "recommended",
   "vendor": "android",
-  "desc": "Music visualisation wallpaper."
+  "desc": "Music visualisation wallpaper.",
+  "category": "aosp-extra",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A leftover extra such as a screensaver, live wallpaper or test tool. Nothing you use depends on it."
  },
  {
   "id": "com.android.cts.priv.ctsshim",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Compatibility shim."
+  "desc": "Compatibility shim.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.android.cts.ctsshim",
   "risk": "unsafe",
   "vendor": "android",
-  "desc": "Compatibility shim."
+  "desc": "Compatibility shim.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  }
 ]

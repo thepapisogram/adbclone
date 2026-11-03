@@ -3,90 +3,149 @@
   "id": "com.motorola.ccc.notification",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Notifications service."
+  "desc": "Notifications service.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.motorola.moto",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "Moto app."
+  "desc": "Moto app.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.motorola.actions",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Moto Actions."
+  "desc": "Moto Actions.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.motorola.genie",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "Moto Help."
+  "desc": "Moto Help.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.motorola.help",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "Help."
+  "desc": "Help.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.motorola.setup",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Setup."
+  "desc": "Setup.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.motorola.motocare",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "Moto Care."
+  "desc": "Moto Care.",
+  "category": "help-promo",
+  "tier": "safe",
+  "confidence": "high",
+  "impact": "A tips, help or promotional app. Nothing else depends on it."
  },
  {
   "id": "com.motorola.android.fmradio",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "FM radio."
+  "desc": "FM radio.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.motorola.camera3",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Camera."
+  "desc": "Camera.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.motorola.launcher3",
   "risk": "unsafe",
   "vendor": "motorola",
-  "desc": "System launcher."
+  "desc": "System launcher.",
+  "category": "core-system",
+  "confidence": "high",
+  "impact": "Can stop the phone from working properly. Never remove."
  },
  {
   "id": "com.motorola.gallery",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Gallery."
+  "desc": "Gallery.",
+  "category": "core-app",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "One of the phone's main apps (calls, messages, camera, keyboard, browser, files, clock or home screen). Make sure another one is set up first."
  },
  {
   "id": "com.motorola.dolby.dolbyui",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Dolby audio."
+  "desc": "Dolby audio.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.motorola.timeweatherwidget",
   "risk": "recommended",
   "vendor": "motorola",
-  "desc": "Time and weather widget."
+  "desc": "Time and weather widget.",
+  "category": "vendor-app",
+  "tier": "balanced",
+  "confidence": "medium",
+  "impact": "You lose this app. Make sure you have another one for the same job first."
  },
  {
   "id": "com.motorola.ccc.devicemanagement",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Device management."
+  "desc": "Device management.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  },
  {
   "id": "com.motorola.faceunlock",
   "risk": "advanced",
   "vendor": "motorola",
-  "desc": "Face unlock."
+  "desc": "Face unlock.",
+  "category": "system-service",
+  "tier": "aggressive",
+  "confidence": "medium",
+  "impact": "Features of the maker's system (battery care, security scan, cleaner, sync, setup) may stop working."
  }
 ]
