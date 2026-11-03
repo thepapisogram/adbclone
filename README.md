@@ -19,4 +19,6 @@ cd ui && npx tauri build                  # installers / executable
 `.github/workflows/build.yml` builds Windows, macOS and Linux artifacts.
 
 ## Status
-Not yet tested against a real device or emulator; parsers are tested against fixtures only.
+Features: app list with real names (read from APKs, cached), disable/enable/uninstall/restore with undo, a Running tab (RAM, CPU, force stop) and safe-to-disable / safe-to-uninstall tags from ~465 own ratings.
+
+Not yet tested against a real device or emulator. Parsers and the label/process pipelines are tested against fixtures and a fake `adb` (`adb-core/tests`).

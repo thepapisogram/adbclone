@@ -1,4 +1,4 @@
-import type { Action, ActionResult, AppInfo, Device } from "./types";
+import type { Action, ActionResult, AppInfo, Device, LabelItem, LabelProgress, RunningResponse, Safety } from "./types";
 
 const apps: AppInfo[] = [
   ["com.google.android.youtube", "YouTube", true, "recommended", "Video app; reinstallable from Play Store."],
@@ -29,6 +29,8 @@ const apps: AppInfo[] = [
 ].map(([name, label, system, risk, description]) => ({
   name: name as string,
   label: label as string,
+  disableSafety: ({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" } as Record<string, Safety>)[risk as string],
+  uninstallSafety: ({ recommended: "safe", advanced: "caution", unsafe: "unsafe", unknown: "unknown" } as Record<string, Safety>)[risk as string],
   system: system as boolean,
   state: "enabled" as const,
   risk: risk as AppInfo["risk"],
@@ -36,6 +38,7 @@ const apps: AppInfo[] = [
 }));
 apps[18].state = "disabled";
 
+const guess = (n: string) => { const l = n.split(".").pop() ?? n; return l.charAt(0).toUpperCase() + l.slice(1); };
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms));
 
 export const mock = {
@@ -48,7 +51,46 @@ export const mock = {
   },
   async listApps(_serial: string): Promise<AppInfo[]> {
     await delay();
-    return apps.map((a) => ({ ...a }));
+    // Like the real backend, start with names guessed from the package id.
+    return apps.map((a) => ({ ...a, label: guess(a.name) }));
+  },
+  /** Streams the real names in a few batches, like the Rust backend does. */
+  loadLabels(onLabels: (l: LabelItem[]) => void, onProgress: (p: LabelProgress) => void) {
+    const total = apps.length;
+    const batches = 5;
+    const size = Math.ceil(total / batches);
+    for (let i = 0; i < batches; i++) {
+      setTimeout(() => {
+        const part = apps.slice(i * size, (i + 1) * size);
+        onLabels(part.map((a) => ({ name: a.name, label: a.label })));
+        onProgress({ done: Math.min(total, (i + 1) * size), total });
+      }, 500 + i * 450);
+    }
+  },
+  _tick: 0,
+  async listRunning(_serial: string): Promise<RunningResponse> {
+    await delay(150);
+    this._tick++;
+    const rows = apps
+      .filter((a) => a.state === "enabled")
+      .map((a, i) => {
+        const base = 40_000 + ((i * 37_117) % 260_000);
+        const wobble = 1 + Math.sin(this._tick / 3 + i) * 0.08;
+        return {
+          package: a.name,
+          rssKb: Math.round(base * wobble),
+          cpu: this._tick === 1 ? null : Math.max(0, Math.round((((i * 7) % 11) / 2 + Math.random() * 3) * 10) / 10),
+          processes: 1 + (i % 3),
+          risk: a.risk,
+          disableSafety: a.disableSafety,
+          uninstallSafety: a.uninstallSafety,
+          description: a.description,
+        };
+      });
+    rows.push({ package: null as unknown as string, rssKb: 610_000, cpu: this._tick === 1 ? null : 12.4, processes: 94,
+      risk: "unknown", disableSafety: "unknown", uninstallSafety: "unknown", description: "Kernel threads and system daemons" });
+    rows.sort((a, b) => b.rssKb - a.rssKb);
+    return { rows, memTotalKb: 3_862_908, memAvailableKb: 1_450_000, cores: 8 };
   },
   async applyAction(_serial: string, action: Action, names: string[]): Promise<ActionResult[]> {
     await delay(400);
@@ -57,6 +99,7 @@ export const mock = {
       if (!a) return { name, ok: false, message: "Package not found" };
       if (name === "com.android.systemui" && action !== "enable")
         return { name, ok: false, message: "Failure [DELETE_FAILED_DEVICE_POLICY_MANAGER]" };
+      if (action === "stop") return { name, ok: true };
       a.state = action === "disable" ? "disabled" : action === "uninstall" ? "uninstalled" : "enabled";
       return { name, ok: true };
     });

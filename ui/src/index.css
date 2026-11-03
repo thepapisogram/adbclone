@@ -36,3 +36,15 @@ tbody tr { cursor: pointer; } tbody tr:hover { background: var(--panel); } tr.se
 .modal h2 { margin: 0 0 10px; font-size: 16px; } .modal ul { padding-left: 18px; margin: 8px 0; }
 .warn { background: color-mix(in srgb, var(--warn) 16%, transparent); padding: 8px 10px; border-radius: 6px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+.tabs { display: flex; gap: 2px; margin-left: 10px; }
+.tabs button { border-radius: 6px 6px 0 0; }
+.tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+th.num { text-align: right; }
+.running { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.empty-state { padding: 60px; text-align: center; color: var(--muted); }
+.note { margin: 0; padding: 6px 14px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
+label.inline { display: inline-flex; align-items: center; gap: 4px; }
+.pill.safety-safe { color: var(--ok); } .pill.safety-caution { color: var(--warn); }
+.pill.safety-unsafe { color: var(--danger); font-weight: 600; } .pill.safety-unknown { color: var(--muted); }

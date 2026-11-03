@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
-import type { Action, AppInfo, Device, PkgState, Risk } from "./lib/types";
+import type { Action, AppInfo, Device, LabelProgress, PkgState, Risk } from "./lib/types";
+import { SafetyTag } from "./components/SafetyTag";
+import { Running } from "./features/running/Running";
 
 type Scope = "all" | "system" | "user";
 type StateFilter = "any" | PkgState;
 interface LogEntry { time: string; action: Action; name: string; ok: boolean; message?: string; prev: PkgState }
 
 const riskOrder: Record<Risk, number> = { recommended: 0, advanced: 1, unknown: 2, unsafe: 3 };
-const undoOf: Record<Action, Action> = { disable: "enable", enable: "disable", uninstall: "restore", restore: "uninstall" };
-const labelOf: Record<Action, string> = { disable: "Disable", enable: "Enable", uninstall: "Uninstall", restore: "Restore" };
+const undoOf: Partial<Record<Action, Action>> = { disable: "enable", enable: "disable", uninstall: "restore", restore: "uninstall" };
+const labelOf: Record<Action, string> = { disable: "Disable", enable: "Enable", uninstall: "Uninstall", restore: "Restore", stop: "Force stop" };
 
 export default function App() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -26,6 +28,9 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
+  const [tab, setTab] = useState<"apps" | "running">("apps");
+  const [labelProgress, setLabelProgress] = useState<LabelProgress | null>(null);
+  const labelMap = useRef(new Map<string, string>());
 
   const refreshDevices = useCallback(async () => {
     try {
@@ -39,13 +44,38 @@ export default function App() {
   const loadApps = useCallback(async (s: string) => {
     if (!s) { setApps([]); return; }
     setLoading(true);
-    try { setApps(await ipc.listApps(s)); setSelected(new Set()); setError(""); }
+    try {
+      const list = await ipc.listApps(s);
+      // Keep any real names that already arrived.
+      setApps(list.map((a) => (labelMap.current.has(a.name) ? { ...a, label: labelMap.current.get(a.name)! } : a)));
+      setSelected(new Set()); setError("");
+    }
     catch (e) { setError(String(e)); }
     finally { setLoading(false); }
   }, []);
 
   useEffect(() => { refreshDevices(); }, [refreshDevices]);
   useEffect(() => { loadApps(serial); }, [serial, loadApps]);
+
+  // Real app names stream in from the backend after the list is shown.
+  useEffect(() => {
+    labelMap.current = new Map();
+    setLabelProgress(null);
+    if (!serial) return;
+    let cancelled = false;
+    let off = () => {};
+    ipc.loadLabels(
+      serial,
+      (items) => {
+        if (cancelled) return;
+        for (const i of items) labelMap.current.set(i.name, i.label);
+        const m = new Map(items.map((i) => [i.name, i.label]));
+        setApps((prev) => prev.map((a) => (m.has(a.name) ? { ...a, label: m.get(a.name)! } : a)));
+      },
+      (p) => !cancelled && setLabelProgress(p),
+    ).then((f) => (cancelled ? f() : (off = f))).catch(() => {});
+    return () => { cancelled = true; off(); };
+  }, [serial]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -93,6 +123,10 @@ export default function App() {
       <header>
         <h1>App Manager</h1>
         {ipc.isMock && <span className="badge mock" title="Running in a browser without the Rust backend">mock data</span>}
+        <nav className="tabs">
+          <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>Apps</button>
+          <button className={tab === "running" ? "active" : ""} onClick={() => setTab("running")}>Running</button>
+        </nav>
         <div className="spacer" />
         <select value={serial} onChange={(e) => setSerial(e.target.value)} aria-label="Device">
           <option value="">{devices.length ? "Select device…" : "No devices"}</option>
@@ -108,6 +142,11 @@ export default function App() {
       {error && <div className="error" role="alert">{error}</div>}
       {device?.state === "unauthorized" && <div className="error">Accept the USB debugging prompt on the phone.</div>}
 
+      {tab === "running" && (
+        <Running serial={serial} apps={apps} active onRequest={(action, names) => setPending({ action, names })} />
+      )}
+
+      {tab === "apps" && <>
       <div className="toolbar">
         <input type="search" placeholder="Search name or package…" value={query} onChange={(e) => setQuery(e.target.value)} />
         <select value={scope} onChange={(e) => setScope(e.target.value as Scope)} aria-label="Type">
@@ -123,7 +162,7 @@ export default function App() {
       </div>
 
       <div className="actions">
-        <span>{selected.size} selected · {visible.length} shown · {counts.total} total · {counts.disabled} disabled · {counts.removed} uninstalled</span>
+        <span>{selected.size} selected · {visible.length} shown · {counts.total} total · {counts.disabled} disabled · {counts.removed} uninstalled{labelProgress && labelProgress.done < labelProgress.total && ` · loading names ${labelProgress.done}/${labelProgress.total}`}</span>
         <div className="spacer" />
         {(["disable", "enable", "uninstall", "restore"] as Action[]).map((a) => (
           <button key={a} className={a === "uninstall" ? "danger" : ""} disabled={busy || eligible(a).length === 0}
@@ -143,21 +182,24 @@ export default function App() {
                 <th onClick={() => sortBy("label")}>App {sort.key === "label" && (sort.dir === 1 ? "▲" : "▼")}</th>
                 <th onClick={() => sortBy("name")}>Package {sort.key === "name" && (sort.dir === 1 ? "▲" : "▼")}</th>
                 <th>Type</th><th>State</th>
-                <th onClick={() => sortBy("risk")}>Risk {sort.key === "risk" && (sort.dir === 1 ? "▲" : "▼")}</th>
+                <th onClick={() => sortBy("risk")}>Rating {sort.key === "risk" && (sort.dir === 1 ? "▲" : "▼")}</th>
+                <th title="Is it safe to disable?">Disable</th><th title="Is it safe to uninstall?">Uninstall</th>
               </tr>
             </thead>
             <tbody>
               {visible.map((a) => (
-                <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={a.description}>
+                <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={a.description ?? undefined}>
                   <td className="chk"><input type="checkbox" checked={selected.has(a.name)} onChange={() => toggle(a.name)} onClick={(e) => e.stopPropagation()} /></td>
                   <td>{a.label}</td>
                   <td className="mono">{a.name}</td>
                   <td>{a.system ? "System" : "User"}</td>
                   <td><span className={`pill ${a.state}`}>{a.state}</span></td>
                   <td><span className={`pill risk-${a.risk}`}>{a.risk === "unknown" ? "unrated" : a.risk}</span></td>
+                  <td><SafetyTag kind="Disable" value={a.disableSafety} /></td>
+                  <td><SafetyTag kind="Uninstall" value={a.uninstallSafety} /></td>
                 </tr>
               ))}
-              {!visible.length && <tr><td colSpan={6} className="empty">{serial ? (loading ? "Loading apps…" : "No apps match.") : "Connect a device with USB debugging enabled and select it above."}</td></tr>}
+              {!visible.length && <tr><td colSpan={8} className="empty">{serial ? (loading ? "Loading apps…" : "No apps match.") : "Connect a device with USB debugging enabled and select it above."}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -170,22 +212,23 @@ export default function App() {
               <div key={i} className={`entry ${e.ok ? "" : "fail"}`}>
                 <div><b>{labelOf[e.action]}</b> <span className="mono">{e.name}</span></div>
                 <div className="muted">{e.time} · {e.ok ? "ok" : e.message ?? "failed"}</div>
-                {e.ok && <button disabled={busy} onClick={() => run(undoOf[e.action], [e.name])}>Undo</button>}
+                {e.ok && undoOf[e.action] && <button disabled={busy} onClick={() => run(undoOf[e.action]!, [e.name])}>Undo</button>}
               </div>
             ))}
           </aside>
         )}
       </div>
+      </>}
 
       {pending && (
         <div className="modal-bg" onClick={() => !busy && setPending(null)}>
           <div className="modal" role="dialog" onClick={(e) => e.stopPropagation()}>
             <h2>{labelOf[pending.action]} {pending.names.length} app{pending.names.length > 1 ? "s" : ""}?</h2>
-            {unsafeCount(pending.names) > 0 && pending.action !== "enable" && pending.action !== "restore" && (
+            {unsafeCount(pending.names) > 0 && (pending.action === "disable" || pending.action === "uninstall") && (
               <p className="warn">⚠ {unsafeCount(pending.names)} selected app(s) are rated <b>unsafe</b>. Removing core system packages can cause a bootloop.</p>
             )}
             <ul>{pending.names.slice(0, 8).map((n) => <li key={n} className="mono">{n}</li>)}{pending.names.length > 8 && <li>…and {pending.names.length - 8} more</li>}</ul>
-            <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : "Reversible from the History panel."}</p>
+            <p className="muted">{pending.action === "uninstall" ? "Removed for the current user only; can be restored later." : pending.action === "stop" ? "Stops the app now; it may restart on its own." : "Reversible from the History panel."}</p>
             <div className="modal-actions">
               <button onClick={() => setPending(null)} disabled={busy}>Cancel</button>
               <button className={pending.action === "uninstall" ? "danger" : "primary"} disabled={busy} onClick={() => run(pending.action, pending.names)}>{busy ? "Working…" : labelOf[pending.action]}</button>
