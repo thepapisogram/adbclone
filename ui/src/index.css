@@ -108,3 +108,6 @@ textarea.reportbox { width: 100%; height: 280px; font: 12px ui-monospace, monosp
 .appicon.ph { background: var(--panel); border: 1px solid var(--line); }
 .namecell { display: inline-flex; align-items: center; gap: 8px; }
 .guess { color: var(--muted); font-style: italic; }
+
+h1.brand { display: inline-flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+h1.brand img { border-radius: 6px; }

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Coolant</title>
+  <defs>
+    <linearGradient id="bg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#2DD4BF"/>
+      <stop offset="0.45" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#4338CA"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.2" r="0.8">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#BAE6FD"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0B1B6B" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" rx="0" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="0" fill="url(#glow)"/>
+  <g filter="url(#soft)">
+    <!-- the "C": a ring open to the right, like a cooling loop -->
+    <path d="M703.5 351.3 A250 250 0 1 0 703.5 672.7" fill="none" stroke="#ffffff" stroke-width="112" stroke-linecap="round"/>
+    <!-- the coolant drop -->
+    <path d="M512 372 C512 372 436 466 436 534 a76 76 0 0 0 152 0 C588 466 512 372 512 372 Z" fill="url(#drop)"/>
+  </g>
+  <path d="M488 520 a26 26 0 0 0 -22 30" fill="none" stroke="#2563EB" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>
+</svg>

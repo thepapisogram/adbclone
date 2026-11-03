@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ipc } from "./lib/ipc";
+import { BRAND } from "./brand";
 import { ConnectDialog } from "./features/connect/ConnectDialog";
 import { isWireless } from "./lib/types";
 import { pickSerial } from "./lib/pickSerial";
@@ -190,7 +191,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>App Manager</h1>
+        <h1 className="brand"><img src="/logo.svg" width="26" height="26" alt="" />{BRAND.name}</h1>
         {ipc.isMock && <span className="badge mock" title="Running in a browser without the Rust backend">mock data</span>}
         <nav className="tabs">
           <button className={tab === "apps" ? "active" : ""} onClick={() => setTab("apps")}>Apps</button>

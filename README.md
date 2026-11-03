@@ -1,4 +1,10 @@
-# adbclone
+<p align="center"><img src="brand/out/icon-1024.png" width="120" alt="Coolant logo"></p>
+
+# Coolant
+
+**Debloat. Cool down. Speed up.** An Android cleaner that runs on your computer: no root, works over USB or Wi-Fi, takes a safety snapshot before every removal.
+
+(The repository is still called `adbclone`; the product name lives in `ui/src/brand.ts`, `src-tauri/tauri.conf.json` and `brand/`.)
 
 A cross-platform desktop app for managing Android apps over ADB (no root): list, disable, uninstall for the current user, restore, with safety ratings. Built with Tauri 2 (Rust) and React + TypeScript.
 

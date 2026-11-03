@@ -1131,5 +1131,5 @@ fn main() {
             tuning_status, tuning_toggle, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file])
         .run(tauri::generate_context!())
-        .expect("error while running ADB Manager");
+        .expect("error while running Coolant");
 }
