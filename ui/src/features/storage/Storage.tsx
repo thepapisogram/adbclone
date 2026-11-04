@@ -4,6 +4,7 @@ import type { Action, AppInfo, AppStorage, Usage } from "../../lib/types";
 import { AppIcon } from "../../components/AppIcon";
 import { useSettings } from "../../lib/settings";
 import { unusedApps, usageMap } from "./unused";
+import { applyCleared, clearedCount, fmtFreed, rememberCleared } from "./cleared";
 
 const errText = (e: unknown) => String(e instanceof Error ? e.message : e);
 const size = (b: number) => (b >= 1_073_741_824 ? `${(b / 1_073_741_824).toFixed(2)} GB` : b >= 1_048_576 ? `${Math.round(b / 1_048_576)} MB` : b > 0 ? `${Math.max(1, Math.round(b / 1024))} KB` : "—");
@@ -20,7 +21,8 @@ interface Props {
 
 export function Storage({ serial, apps, protections, busy, active, onRequest }: Props) {
   const { plain } = useSettings();
-  const [sizes, setSizes] = useState<AppStorage[] | null>(null);
+  const [raw, setSizes] = useState<AppStorage[] | null>(null);
+  const [clearedTick, setClearedTick] = useState(0);
   const [usage, setUsage] = useState<Usage[] | null>(null);
   const [error, setError] = useState("");
   const [includeSystem, setIncludeSystem] = useState(false);
@@ -37,6 +39,9 @@ export function Storage({ serial, apps, protections, busy, active, onRequest }: 
   }, [serial]);
   useEffect(() => { if (active) load(); }, [active, load]);
 
+  // What the phone reports, with apps we just cleaned shown as cleared until the phone re-measures them.
+  const sizes = useMemo(() => (raw ? applyCleared(serial, raw) : null), [raw, serial, clearedTick]); // eslint-disable-line react-hooks/exhaustive-deps
+  const stale = raw ? clearedCount(serial, raw) : 0;
   const byName = useMemo(() => new Map(apps.map((a) => [a.name, a])), [apps]);
   const sizeOf = useMemo(() => new Map((sizes ?? []).map((s) => [s.package, s])), [sizes]);
   const totalOf = (s: AppStorage) => s.appBytes + s.dataBytes + s.cacheBytes;
@@ -70,9 +75,18 @@ export function Storage({ serial, apps, protections, busy, active, onRequest }: 
               <label className="inline"><input type="checkbox" checked={includeSystem} onChange={(e) => setIncludeSystem(e.target.checked)} /> Include apps that came with the phone</label>
               <div className="spacer" />
               <span className="muted">Caches add up to <b>{size(cacheTotal)}</b></span>
-              <button disabled={cleaning} onClick={async () => { setCleaning(true); setCleanMsg("Clearing…"); try { await ipc.tuning.trimCaches(serial); setCleanMsg("Caches cleared. Apps may open a little slower the first time."); load(); } catch (e) { setCleanMsg(errText(e)); } finally { setCleaning(false); } }}>Clear all app caches</button>
+              <button disabled={cleaning} onClick={async () => {
+                setCleaning(true); setCleanMsg("Clearing…");
+                try {
+                  const freed = rememberCleared(serial, raw ?? []);
+                  await ipc.tuning.trimCaches(serial);
+                  setClearedTick((n) => n + 1);
+                  setCleanMsg(freed > 0 ? `Caches cleared: about ${fmtFreed(freed)} freed. Apps may open a little slower the first time.` : "Caches cleared. Apps may open a little slower the first time.");
+                } catch (e) { setCleanMsg(errText(e)); } finally { setCleaning(false); }
+              }}>Clear all app caches</button>
             </div>
-            {cleanMsg && <p className="muted small">{cleanMsg}</p>}
+            {cleanMsg && <p className="muted small" role="status">{cleanMsg}</p>}
+            {stale > 0 && <p className="muted small">{stale} app{stale === 1 ? " is" : "s are"} shown as cleared because Android has not re-measured {stale === 1 ? "it" : "them"} yet; it refreshes its own size figures every so often. <button className="linklike" onClick={load}>Measure again</button></p>}
             <table className="storagetable">
               <thead><tr><th>App</th><th className="num">App</th><th className="num">Its data</th><th className="num">Cache</th><th className="num">Total</th></tr></thead>
               <tbody>

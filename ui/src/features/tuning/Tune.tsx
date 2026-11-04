@@ -3,6 +3,7 @@ import { ipc } from "../../lib/ipc";
 import { AppIcon } from "../../components/AppIcon";
 import { useSettings } from "../../lib/settings";
 import { AnimationSpeeds } from "./AnimationSpeeds";
+import { fmtFreed, rememberCleared } from "../storage/cleared";
 import { PROFILES, profileOps, type Profile } from "./profiles";
 import { addHistory, clearHistory, drainPerHour, loadHistory, type Entry } from "../../lib/history";
 import type { AppInfo, HealthSample, RunningRow, StepResult, TuningInfo } from "../../lib/types";
@@ -227,7 +228,7 @@ export function Tune({ serial, apps, active }: Props) {
       <section className="block">
         <h3>One-off cleanup</h3>
         <div className="row">
-          <button disabled={busy} onClick={async () => { setBusy(true); setCleanMsg("Clearing caches…"); try { await ipc.tuning.trimCaches(serial); setCleanMsg("Caches cleared. Apps may open a little slower the first time."); } catch (e) { setCleanMsg(errText(e)); } finally { setBusy(false); } }}>Clear all app caches</button>
+          <button disabled={busy} onClick={async () => { setBusy(true); setCleanMsg("Clearing caches…"); try { const before = await ipc.storage(serial).then((r) => rememberCleared(serial, r.apps)).catch(() => 0); await ipc.tuning.trimCaches(serial); setCleanMsg(before > 0 ? `Caches cleared: about ${fmtFreed(before)} freed. Apps may open a little slower the first time.` : "Caches cleared. Apps may open a little slower the first time."); } catch (e) { setCleanMsg(errText(e)); } finally { setBusy(false); } }}>Clear all app caches</button>
           <span className="muted small">{cleanMsg || "Frees storage. Cannot be undone, but caches rebuild by themselves."}</span>
         </div>
       </section>
