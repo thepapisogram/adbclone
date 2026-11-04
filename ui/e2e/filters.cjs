@@ -8,6 +8,7 @@ const { chromium } = require('playwright');
   await p.waitForFunction(() => /Names: \d+ from the phone/.test(document.body.innerText), null, { timeout: 20000 });
   const rows = () => p.locator('tbody tr').count();
   const all = await rows();
+  await p.locator('details.morefilters summary').click();
   // Category
   const cat = p.getByLabel('Category');
   console.log('category filter lists the kinds present:', (await cat.locator('option').allTextContents()).some(t => t.startsWith('partner helper')));

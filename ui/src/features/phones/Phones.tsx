@@ -36,8 +36,8 @@ export function Phones({ devices, serial, active, onUse }: Props) {
   return (
     <div className="storage">
       {msg && <div className={`status ${msg.kind}`} role={msg.kind === "error" ? "alert" : "status"}>{msg.text}</div>}
-      <p className="muted small">Every connected phone at a glance. "Use this phone" switches the other tabs to it. When you disable or remove apps, you can tick "also do this on" other phones in the confirmation window.</p>
-      <div className="presetgrid" aria-label="Connected phones">
+      <p className="muted small">"Use this phone" switches the other tabs to it. When you disable or remove apps, you can tick "also do this on" other phones in the confirmation window.</p>
+      <div className="presetgrid phonegrid" aria-label="Connected phones">
         {devices.map((d) => {
           const c = cards[d.serial];
           const isReady = d.state === "device";

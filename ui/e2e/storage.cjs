@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
   await p.goto(process.env.BASE || 'http://localhost:4173');
   await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
   await p.getByRole('button', { name: 'Storage', exact: true }).click();
-  await p.getByText('What uses space').waitFor();
+  await p.getByRole('heading', { name: 'What uses space' }).waitFor();
   await p.waitForFunction(() => document.querySelectorAll('table.storagetable tbody tr').length > 0, null, { timeout: 10000 });
   console.log('space table shown:', await p.locator('table.storagetable').first().locator('tbody tr').count() > 0);
   console.log('caveat shown:', await p.getByText('Sizes are what the phone measured last').count() === 1);
