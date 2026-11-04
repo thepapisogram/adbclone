@@ -25,13 +25,14 @@ import org.json.JSONObject;
  * and exits. Nothing is installed and nothing is changed on the phone. Modes:
  *   selftest         what works on this phone
  *   apps             name and details of every package
- *   icons <pkg...>   64x64 PNG icons (base64) for the listed packages
+ *   icons <pkg...>   96x96 PNG icons (base64) for the listed packages
+ *   details <pkg>    permissions (with granted state), the app's own description, category
  */
 public final class Main {
     private static final int FLAG_INSTALLED = 0x00800000;      // ApplicationInfo.FLAG_INSTALLED
     private static final int GET_UNINSTALLED_PACKAGES = 0x2000;  // also list apps removed for this user
     private static final int GET_DISABLED_COMPONENTS = 0x200;
-    private static final int ICON_SIZE = 64;
+    private static final int ICON_SIZE = 96;
 
     private static PrintStream out;
 
@@ -51,6 +52,8 @@ public final class Main {
                 Set<String> wanted = new HashSet<String>();
                 for (int i = 1; i < args.length; i++) wanted.add(args[i]);
                 icons(wanted);
+            } else if ("details".equals(mode)) {
+                if (args.length < 2) error("details needs a package name"); else details(args[1]);
             } else {
                 error("unknown mode: " + mode);
             }
@@ -83,7 +86,10 @@ public final class Main {
     private static String describe(Throwable t) {
         Throwable root = t;
         while (root.getCause() != null && root.getCause() != root) root = root.getCause();
-        return root.getClass().getName() + ": " + root.getMessage();
+        StringBuilder sb = new StringBuilder(root.getClass().getName()).append(": ").append(root.getMessage());
+        StackTraceElement[] st = root.getStackTrace();
+        for (int i = 0; i < st.length && i < 3; i++) sb.append(" @ ").append(st[i].getClassName()).append('.').append(st[i].getMethodName());
+        return sb.toString();
     }
 
     // ---- android access ----
@@ -138,6 +144,8 @@ public final class Main {
                 try {
                     Drawable d = first.applicationInfo.loadIcon(pm);
                     o.put("sampleIcon", d != null);
+                    String png = encode(d);
+                    o.put("iconEncoded", png != null && png.length() > 100);
                 } catch (Throwable t) {
                     problems.put("icon: " + describe(t));
                 }
@@ -201,13 +209,58 @@ public final class Main {
         for (PackageInfo pi : packages(pm)) {
             if (!wanted.isEmpty() && !wanted.contains(pi.packageName)) continue;
             try {
-                Drawable d = pi.applicationInfo.loadIcon(pm);
+                Drawable d;
+                try {
+                    d = pi.applicationInfo.loadIcon(pm);
+                } catch (Throwable first) {
+                    d = pm.getApplicationIcon(pi.packageName);
+                }
                 String png = encode(d);
                 if (png != null) line(new JSONObject().put("p", pi.packageName).put("png", png).toString());
             } catch (Throwable t) {
                 error(pi.packageName + ": icon: " + describe(t));
             }
         }
+    }
+
+    private static void details(String pkg) throws Exception {
+        PackageManager pm = context().getPackageManager();
+        int flags = 0x1000 /* GET_PERMISSIONS */ | GET_UNINSTALLED_PACKAGES;
+        PackageInfo pi;
+        try {
+            pi = pm.getPackageInfo(pkg, flags);
+        } catch (Throwable t) {
+            pi = pm.getPackageInfo(pkg, 0x1000);
+        }
+        JSONObject o = new JSONObject();
+        o.put("p", pkg);
+        JSONArray perms = new JSONArray();
+        if (pi.requestedPermissions != null) {
+            for (int i = 0; i < pi.requestedPermissions.length; i++) {
+                int granted = 0;
+                if (pi.requestedPermissionsFlags != null && i < pi.requestedPermissionsFlags.length) {
+                    granted = (pi.requestedPermissionsFlags[i] & 2 /* REQUESTED_PERMISSION_GRANTED */) != 0 ? 1 : 0;
+                }
+                perms.put(new JSONObject().put("n", pi.requestedPermissions[i]).put("g", granted));
+            }
+        }
+        o.put("perms", perms);
+        ApplicationInfo ai = pi.applicationInfo;
+        if (ai != null) {
+            try {
+                CharSequence d = ai.loadDescription(pm);
+                o.put("d", d == null ? "" : d.toString().trim());
+            } catch (Throwable ignored) {
+                o.put("d", "");
+            }
+            try {
+                o.put("c", ApplicationInfo.class.getField("category").getInt(ai)); // API 26+, so read by name
+            } catch (Throwable ignored) {
+                o.put("c", -1);
+            }
+            o.put("src", ai.sourceDir == null ? "" : ai.sourceDir);
+        }
+        line(o.toString());
     }
 
     private static String encode(Drawable d) throws Exception {

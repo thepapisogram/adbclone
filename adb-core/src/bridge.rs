@@ -57,8 +57,28 @@ pub enum Line {
     App(BridgeApp),
     Icon { package: String, png_base64: String },
     Selftest(Value),
+    Details(AppExtra),
     Error(String),
     Done,
+}
+
+/// Things only the phone knows about one app: what it asks permission for, and its own description.
+#[derive(Debug, Clone, PartialEq, Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct AppExtra {
+    pub package: String,
+    /// (permission name, currently granted)
+    pub permissions: Vec<(String, bool)>,
+    /// The `android:description` the developer wrote (rare; empty when there is none).
+    pub description: String,
+    /// `ApplicationInfo.category` (Android 8+), -1 when unknown.
+    pub category: i64,
+    pub source_dir: String,
+}
+
+/// Permission names are dotted identifiers; anything else is dropped rather than shown.
+pub fn permission_ok(n: &str) -> bool {
+    !n.is_empty() && n.len() <= 200 && n.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '$'))
 }
 
 /// Parse one output line. Anything that does not start with the protocol marker is ignored (noise from
@@ -78,6 +98,18 @@ pub fn parse_line(raw: &str) -> Option<Line> {
     if v.get("png").is_some() {
         let package = s("p");
         return valid_name(&package).then(|| Line::Icon { package, png_base64: s("png") });
+    }
+    if let Some(perms) = v.get("perms").and_then(Value::as_array) {
+        let package = s("p");
+        if !valid_name(&package) {
+            return None;
+        }
+        let permissions = perms
+            .iter()
+            .filter_map(|p| Some((p.get("n")?.as_str()?.to_string(), p.get("g").and_then(Value::as_i64).unwrap_or(0) != 0)))
+            .filter(|(n, _)| permission_ok(n))
+            .collect();
+        return Some(Line::Details(AppExtra { package, permissions, description: s("d").chars().take(500).collect(), category: v.get("c").and_then(Value::as_i64).unwrap_or(-1), source_dir: s("src") }));
     }
     if v.get("sdk").is_some() && v.get("problems").is_some() {
         return Some(Line::Selftest(v));
@@ -163,12 +195,14 @@ pub async fn push(adb: &AdbRunner, serial: &str) -> Result<String, AdbError> {
     if out.code != Some(0) {
         return Err(AdbError::Device(format!("could not copy the helper to the phone: {}", out.stderr.trim())));
     }
+    // Newer Android versions refuse to load code from a file that anyone can still write to.
+    let _ = adb.shell(serial, &[&format!("chmod 444 {remote}")]).await;
     Ok(remote)
 }
 
 /// Run the helper in one mode. `args` are package names (validated).
 pub async fn run(adb: &AdbRunner, serial: &str, remote: &str, mode: &str, args: &[String], timeout: Duration) -> Result<RunResult, AdbError> {
-    if !["selftest", "apps", "icons"].contains(&mode) {
+    if !["selftest", "apps", "icons", "details"].contains(&mode) {
         return Err(AdbError::Device("unknown helper mode".into()));
     }
     if args.iter().any(|a| !valid_name(a)) {
@@ -189,6 +223,148 @@ pub async fn cleanup(adb: &AdbRunner, serial: &str, remote: &str) {
     if remote.starts_with("/data/local/tmp/adbclone-helper-") && remote.ends_with(".jar") && !remote.contains(' ') {
         let _ = adb.shell(serial, &[&format!("rm -f {remote}")]).await;
     }
+}
+
+/// Permissions from `dumpsys package <pkg>`: the "requested permissions" list, with granted state taken
+/// from any `name: granted=true|false` line (install and runtime permissions).
+pub fn parse_dumpsys_permissions(text: &str) -> Vec<(String, bool)> {
+    let mut requested: Vec<String> = Vec::new();
+    let mut granted: std::collections::HashMap<String, bool> = std::collections::HashMap::new();
+    let mut in_requested = false;
+    let mut base_indent = 0;
+    for l in text.lines() {
+        let indent = l.len() - l.trim_start().len();
+        let t = l.trim();
+        if t == "requested permissions:" {
+            in_requested = true;
+            base_indent = indent;
+            continue;
+        }
+        if in_requested {
+            if indent > base_indent && permission_ok(t.trim_end_matches(':')) && !t.contains(' ') {
+                requested.push(t.trim_end_matches(':').to_string());
+                continue;
+            }
+            in_requested = false;
+        }
+        if let Some((name, rest)) = t.split_once(": granted=") {
+            if permission_ok(name) {
+                granted.insert(name.to_string(), rest.starts_with("true"));
+            }
+        }
+    }
+    requested.dedup();
+    requested.into_iter().map(|n| { let g = granted.get(&n).copied().unwrap_or(false); (n, g) }).collect()
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CheckStep {
+    pub name: String,
+    pub ok: bool,
+    pub detail: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CheckReport {
+    pub steps: Vec<CheckStep>,
+    pub verdict: String,
+    pub works: bool,
+}
+
+/// A plain-words hint for the most common reasons the helper cannot run.
+pub fn hint_for(detail: &str) -> &'static str {
+    let d = detail.to_ascii_lowercase();
+    if d.contains("unauthorized") {
+        "Accept the USB debugging prompt on the phone, then try again."
+    } else if d.contains("device offline") || d.contains("no devices") || d.contains("not found") && d.contains("device") {
+        "The phone is not connected right now. Reconnect it and try again."
+    } else if d.contains("permission denied") || d.contains("securityexception") || d.contains("not allowed") {
+        "The phone's security settings blocked it. On Xiaomi/Redmi/POCO turn on \"USB debugging (Security settings)\"; on Oppo/Realme/Vivo allow installing/debugging over USB in Developer options."
+    } else if d.contains("inaccessible or not found") || d.contains("app_process") {
+        "This phone could not start the helper program (app_process). Names will come from reading app files instead."
+    } else if d.contains("no space") {
+        "The phone has no free space for the 5 KB helper file."
+    } else if d.contains("timed out") || d.contains("timeout") {
+        "The phone took too long to answer. Try again, and keep the screen on."
+    } else {
+        "Send this result with the device report so it can be fixed for your phone."
+    }
+}
+
+pub fn summarize(steps: &[CheckStep]) -> (String, bool) {
+    match steps.iter().find(|s| !s.ok) {
+        None => ("Works: Coolant can read names, icons and details straight from this phone.".into(), true),
+        Some(f) => (format!("Not working at the step \"{}\": {} {}", f.name, f.detail, hint_for(&f.detail)), false),
+    }
+}
+
+/// Try every part of the helper path on this phone and say, step by step, what worked. Changes nothing
+/// on the phone except a tiny temporary file that is deleted at the end.
+pub async fn check(adb: &AdbRunner, serial: &str) -> CheckReport {
+    let mut steps: Vec<CheckStep> = Vec::new();
+    let step = |name: &str, ok: bool, detail: String| CheckStep { name: name.into(), ok, detail };
+    let remote = match push(adb, serial).await {
+        Ok(r) => {
+            steps.push(step("Copy the helper to the phone", true, "copied".into()));
+            r
+        }
+        Err(e) => {
+            steps.push(step("Copy the helper to the phone", false, e.to_string()));
+            let (verdict, works) = summarize(&steps);
+            return CheckReport { steps, verdict, works };
+        }
+    };
+    // Start it.
+    match run(adb, serial, &remote, "selftest", &[], Duration::from_secs(40)).await {
+        Err(e) => steps.push(step("Start the helper", false, e.to_string())),
+        Ok(res) => match res.parsed.lines.iter().find_map(|l| if let Line::Selftest(v) = l { Some(v.clone()) } else { None }) {
+            None => steps.push(step("Start the helper", false, res.failure_reason())),
+            Some(v) => {
+                let problems: Vec<String> = v.get("problems").and_then(Value::as_array).map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect()).unwrap_or_default();
+                let g = |k: &str| v.get(k).and_then(Value::as_i64).unwrap_or(-1);
+                let detail = format!(
+                    "Android {} (API {}), {} apps visible{}{}",
+                    v.get("release").and_then(Value::as_str).unwrap_or("?"),
+                    g("sdk"),
+                    g("packages").max(0),
+                    if v.get("iconEncoded").and_then(Value::as_bool) == Some(true) { ", icon drawing works" } else { "" },
+                    if problems.is_empty() { String::new() } else { format!("; problems: {}", problems.join(" | ")) }
+                );
+                let ok = v.get("context").and_then(Value::as_bool) == Some(true) && g("packages") > 0 && problems.is_empty();
+                steps.push(step("Start the helper", ok, detail));
+            }
+        },
+    }
+    // Names.
+    let mut first_pkgs: Vec<String> = Vec::new();
+    if steps.iter().all(|s| s.ok) {
+        match run(adb, serial, &remote, "apps", &[], Duration::from_secs(90)).await {
+            Err(e) => steps.push(step("Read app names", false, e.to_string())),
+            Ok(res) => {
+                let apps: Vec<&BridgeApp> = res.parsed.lines.iter().filter_map(|l| if let Line::App(a) = l { Some(a) } else { None }).collect();
+                let named = apps.iter().filter(|a| !a.label.trim().is_empty() && a.label != a.package).count();
+                first_pkgs = apps.iter().filter(|a| !a.system && a.launchable).map(|a| a.package.clone()).chain(apps.iter().filter(|a| a.launchable).map(|a| a.package.clone())).take(3).collect();
+                let errs = res.errors().len();
+                let ok = !apps.is_empty() && named * 10 >= apps.len() * 9;
+                let detail = if apps.is_empty() { res.failure_reason() } else { format!("{} apps, {} with a real name{}{}", apps.len(), named, if errs > 0 { format!(", {errs} could not be read") } else { String::new() }, if res.parsed.complete { "" } else { "; the list was cut short" }) };
+                steps.push(step("Read app names", ok, detail));
+            }
+        }
+    }
+    // Icons.
+    if steps.iter().all(|s| s.ok) && !first_pkgs.is_empty() {
+        match run(adb, serial, &remote, "icons", &first_pkgs, Duration::from_secs(60)).await {
+            Err(e) => steps.push(step("Read icons", false, e.to_string())),
+            Ok(res) => {
+                let got = res.parsed.lines.iter().filter(|l| matches!(l, Line::Icon { .. })).count();
+                let detail = if got > 0 { format!("{} of {} sample icons read", got, first_pkgs.len()) } else { format!("no icons came back: {}", res.errors().first().cloned().unwrap_or_else(|| res.failure_reason())) };
+                steps.push(step("Read icons", got > 0, detail));
+            }
+        }
+    }
+    cleanup(adb, serial, &remote).await;
+    let (verdict, works) = summarize(&steps);
+    CheckReport { steps, verdict, works }
 }
 
 #[cfg(test)]
@@ -263,6 +439,36 @@ mod tests {
         assert!(r(vec![], "app_process: not found\nsecond", Some(127)).failure_reason().contains("not found"));
         assert_eq!(r(vec![], "", Some(0)).failure_reason(), "the helper printed nothing");
         assert_eq!(r(vec![], "", Some(2)).failure_reason(), "the helper exited with code 2");
+    }
+
+    #[test]
+    fn details_lines_carry_permissions_and_the_apps_own_description() {
+        let l = r#"ACB1 {"p":"com.chat","perms":[{"n":"android.permission.CAMERA","g":1},{"n":"android.permission.INTERNET","g":1},{"n":"bad name!","g":1},{"n":"com.chat.permission.C2D_MESSAGE","g":0}],"d":"Chat with friends","c":4,"src":"/data/app/x/base.apk"}"#;
+        let Some(Line::Details(d)) = parse_line(l) else { panic!("not details") };
+        assert_eq!(d.permissions.len(), 3, "the badly named permission is dropped");
+        assert!(d.permissions[0].1 && !d.permissions[2].1);
+        assert_eq!((d.description.as_str(), d.category), ("Chat with friends", 4));
+        assert_eq!(parse_line(r#"ACB1 {"p":"bad name","perms":[]}"#), None);
+    }
+
+    #[test]
+    fn permissions_from_dumpsys_when_the_helper_is_unavailable() {
+        let t = "Packages:\n  Package [com.chat] (abc):\n    requested permissions:\n      android.permission.CAMERA\n      android.permission.INTERNET\n      android.permission.RECORD_AUDIO\n    install permissions:\n      android.permission.INTERNET: granted=true\n    User 0: ceDataInode=5\n      runtime permissions:\n        android.permission.CAMERA: granted=true, flags=[ USER_SET]\n        android.permission.RECORD_AUDIO: granted=false, flags=[ ]\n";
+        let p = parse_dumpsys_permissions(t);
+        assert_eq!(p, vec![("android.permission.CAMERA".to_string(), true), ("android.permission.INTERNET".to_string(), true), ("android.permission.RECORD_AUDIO".to_string(), false)]);
+        assert!(parse_dumpsys_permissions("nothing useful").is_empty());
+    }
+
+    #[test]
+    fn verdicts_name_the_failing_step_and_give_a_hint() {
+        let ok = |n: &str| CheckStep { name: n.into(), ok: true, detail: "fine".into() };
+        let (v, works) = summarize(&[ok("a"), ok("b")]);
+        assert!(works && v.starts_with("Works"));
+        let bad = CheckStep { name: "Start the helper".into(), ok: false, detail: "java.lang.SecurityException: nope".into() };
+        let (v, works) = summarize(&[ok("a"), bad]);
+        assert!(!works && v.contains("Start the helper") && v.contains("USB debugging (Security settings)"), "{v}");
+        assert!(hint_for("error: device unauthorized").contains("Accept the USB debugging prompt"));
+        assert!(hint_for("something odd").contains("device report"));
     }
 
     #[test]

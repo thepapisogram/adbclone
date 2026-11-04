@@ -1,6 +1,6 @@
 //! Drives the real code paths against a fake `adb` (tests/fixtures/fake_adb.py): no device needed.
 #![cfg(unix)]
-use adb_core::{mirror, storage, wakelocks, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
+use adb_core::{icons_apk, mirror, storage, wakelocks, backup, install, protect, bridge, log, report, tuning, deviceinfo, health, labels, packages::{self, PkgState}, processes, snapshot, wireless, AdbRunner};
 use std::{collections::HashMap, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 const SNAP1: &str = "@@STAT\ncpu  1000 0 500 8500 0 0 0 0\ncpu0 250 0 125 2125 0 0 0 0\ncpu1 250 0 125 2125 0 0 0 0\n\
@@ -14,7 +14,7 @@ fn setup(name: &str, no_unzip: bool) -> (AdbRunner, PathBuf) {
     let _ = fs::remove_dir_all(&dir);
     fs::create_dir_all(&dir).unwrap();
     let fx = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    for f in ["literal.apk", "reference.apk", "entities.apk", "nolabel.apk", "activityref.apk", "activityliteral.apk"] {
+    for f in ["literal.apk", "reference.apk", "entities.apk", "nolabel.apk", "activityref.apk", "activityliteral.apk", "withicon.apk", "xmlicon.apk"] {
         fs::copy(fx.join(f), dir.join(f)).unwrap();
     }
     fs::write(dir.join("snap1.txt"), SNAP1).unwrap();
@@ -577,4 +577,50 @@ async fn screenshot_returns_a_png_or_a_clear_error() {
     fs::remove_file(d.join("screen.png")).unwrap();
     let e = mirror::screenshot(&adb, "SER").await.unwrap_err().to_string();
     assert!(e.contains("did not return a picture"), "{e}");
+}
+
+#[tokio::test]
+async fn icons_are_read_from_the_apk_with_or_without_unzip_on_the_phone() {
+    let (adb, _d) = setup("icons-apk", false);
+    let a = icons_apk::resolve(&adb, "SER", "/system/app/withicon.apk").await.unwrap();
+    assert_eq!(a.mime, "image/png");
+    // The manifest icon is a drawing, so the launcher PNG found in the file listing is used.
+    let b = icons_apk::resolve(&adb, "SER", "/system/app/xmlicon.apk").await.unwrap();
+    assert_eq!(b.bytes.len(), 80);
+    assert!(icons_apk::resolve(&adb, "SER", "/system/app/literal.apk").await.unwrap_err().contains("no launcher picture"));
+    let (adb2, _d2) = setup("icons-apk-nounzip", true);
+    assert_eq!(icons_apk::resolve(&adb2, "SER", "/system/app/withicon.apk").await.unwrap().mime, "image/png");
+}
+
+#[tokio::test]
+async fn check_reports_each_step_and_names_the_one_that_fails() {
+    let (adb, d) = setup("check-ok", false);
+    fs::write(d.join("helper_selftest.txt"), "ACB1 {\"sdk\":34,\"release\":\"14\",\"uid\":2000,\"context\":true,\"packages\":2,\"iconEncoded\":true,\"problems\":[]}\nACB1 DONE\n").unwrap();
+    fs::write(d.join("helper_apps.txt"), APPS_OUT).unwrap();
+    fs::write(d.join("helper_icons.txt"), "ACB1 {\"p\":\"com.google.android.gm\",\"png\":\"AAAA\"}\nACB1 DONE\n").unwrap();
+    let r = bridge::check(&adb, "SER").await;
+    assert!(r.works, "{}", r.verdict);
+    assert_eq!(r.steps.iter().map(|s| s.name.as_str()).collect::<Vec<_>>(), ["Copy the helper to the phone", "Start the helper", "Read app names", "Read icons"]);
+    assert!(r.steps[1].detail.contains("Android 14") && r.steps[3].detail.contains("1 of 1"));
+    assert!(fs::read_to_string(d.join("removed")).unwrap().contains("adbclone-helper-"), "the temporary file is always deleted");
+
+    // The phone refuses to start the helper: the first failing step is named, with a hint, and nothing later runs.
+    let (adb2, d2) = setup("check-bad", false);
+    let _ = d2;
+    let r = bridge::check(&adb2, "SER").await;
+    assert!(!r.works);
+    assert_eq!(r.steps.last().unwrap().name, "Start the helper");
+    assert!(r.verdict.contains("Start the helper") && r.verdict.contains("app_process"), "{}", r.verdict);
+    assert_eq!(r.steps.len(), 2);
+}
+
+#[tokio::test]
+async fn details_mode_returns_permissions() {
+    let (adb, d) = setup("details", false);
+    fs::write(d.join("helper_details.txt"), "ACB1 {\"p\":\"com.chat\",\"perms\":[{\"n\":\"android.permission.CAMERA\",\"g\":1}],\"d\":\"\",\"c\":4,\"src\":\"/data/app/x/base.apk\"}\nACB1 DONE\n").unwrap();
+    let remote = bridge::push(&adb, "SER").await.unwrap();
+    let r = bridge::run(&adb, "SER", &remote, "details", &["com.chat".to_string()], std::time::Duration::from_secs(20)).await.unwrap();
+    let Some(bridge::Line::Details(x)) = r.parsed.lines.first() else { panic!("no details") };
+    assert_eq!(x.permissions, vec![("android.permission.CAMERA".to_string(), true)]);
+    bridge::cleanup(&adb, "SER", &remote).await;
 }

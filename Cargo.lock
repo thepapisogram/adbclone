@@ -24,6 +24,7 @@ name = "adb-manager"
 version = "0.1.0"
 dependencies = [
  "adb-core",
+ "base64 0.22.1",
  "serde",
  "serde_json",
  "tauri",

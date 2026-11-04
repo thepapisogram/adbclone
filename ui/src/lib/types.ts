@@ -115,7 +115,7 @@ export interface ReportSection { name: string; ok: boolean; bytes: number }
 export interface ReportOut { text: string; sections: ReportSection[] }
 
 export interface Unresolved { name: string; reason: string }
-export interface NamesStatusInfo { helper: number; file: number; cached: number; unresolved: Unresolved[]; helperMessage?: string | null; finished: boolean }
+export interface NamesStatusInfo { helper: number; file: number; cached: number; unresolved: Unresolved[]; helperMessage?: string | null; finished: boolean; iconsHelper?: number; iconsFile?: number; iconsMissing?: number }
 export interface DetailItem extends AppDetails { name: string }
 export interface IconItem { name: string; png: string; mime?: string }
 export interface LabelHandlers {
@@ -150,3 +150,8 @@ export interface CommunityFile { file: string; entries: number }
 export interface UserRating { id: string; risk: "recommended" | "advanced" | "unsafe"; desc: string }
 export interface RatingsOverview { community: CommunityFile[]; user: UserRating[] }
 export interface ImportOut { file: string; accepted: number; skipped: number }
+
+export interface CheckStep { name: string; ok: boolean; detail: string }
+export interface CheckReport { steps: CheckStep[]; verdict: string; works: boolean }
+export interface PermissionOut { name: string; granted: boolean }
+export interface AppDetailsOut { permissions: PermissionOut[]; description: string; category: number; from: "helper" | "dumpsys" }

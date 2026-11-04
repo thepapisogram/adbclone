@@ -2,7 +2,7 @@
 
 mod ratings;
 
-use adb_core::{storage, wakelocks, mirror, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
+use adb_core::{icons_apk, storage, wakelocks, mirror, backup, bridge, install, log as cmdlog, platform_tools, protect, report, tuning, deviceinfo, devices, health, labels, packages, processes, snapshot, wireless, AdbRunner};
 use packages::Filter;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
@@ -281,6 +281,10 @@ struct NamesStatus {
     /// Why the on-device helper could not be used, if it could not.
     helper_message: Option<String>,
     finished: bool,
+    /// Icons: from the phone's own drawing (helper), read from app files, and apps still without one.
+    icons_helper: usize,
+    icons_file: usize,
+    icons_missing: usize,
 }
 
 /// Extra facts the helper reports about each app.
@@ -301,8 +305,10 @@ struct DetailItem {
 #[derive(Serialize, Clone)]
 struct IconItem {
     name: String,
-    /// PNG, base64.
+    /// Image bytes, base64 (PNG from the helper; PNG/WebP/JPEG when read from an app file).
     png: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    mime: Option<String>,
 }
 
 fn save_label_cache(state: &AppState) {
@@ -330,7 +336,8 @@ fn icon_file(dir: &std::path::Path, pkg: &str, last_update: i64) -> Option<std::
 }
 
 /// Fetch icons through the helper (cached on disk), user apps first. Deletes the helper when done.
-async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remote: String, mut apps: Vec<bridge::BridgeApp>) {
+async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remote: String, mut apps: Vec<bridge::BridgeApp>) -> HashSet<String> {
+    let mut delivered: HashSet<String> = HashSet::new();
     let state = app.state::<AppState>();
     let alive = || state.label_generation.load(Ordering::SeqCst) == gen;
     apps.sort_by_key(|x| x.system);
@@ -340,11 +347,12 @@ async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remo
     for x in &apps {
         let hit = dir.as_ref().and_then(|d| icon_file(d, &x.package, x.last_update)).and_then(|f| std::fs::read_to_string(f).ok());
         match hit {
-            Some(png) if !png.is_empty() => cached.push(IconItem { name: x.package.clone(), png }),
+            Some(png) if !png.is_empty() => cached.push(IconItem { name: x.package.clone(), png, mime: None }),
             _ => need.push(x),
         }
     }
     for chunk in cached.chunks(60) {
+        delivered.extend(chunk.iter().map(|i| i.name.clone()));
         let _ = app.emit("icons", chunk.to_vec());
     }
     for batch in need.chunks(40) {
@@ -364,7 +372,8 @@ async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remo
                         let _ = std::fs::write(f, &png_base64);
                     }
                 }
-                out.push(IconItem { name: package, png: png_base64 });
+                delivered.insert(package.clone());
+                out.push(IconItem { name: package, png: png_base64, mime: None });
             }
         }
         if !out.is_empty() {
@@ -372,6 +381,73 @@ async fn icons_task(app: AppHandle, serial: String, gen: u64, a: AdbRunner, remo
         }
     }
     bridge::cleanup(&a, &serial, &remote).await;
+    delivered
+}
+
+/// Where a file-based icon is cached: keyed by the app file's path, size and date, so an update gets a fresh one.
+fn file_icon_cache(dir: &std::path::Path, pkg: &str, key: &str) -> Option<std::path::PathBuf> {
+    packages::valid_name(pkg).then(|| dir.join(format!("{pkg}-f{}.b64", bridge::fnv_hex(key.as_bytes()))))
+}
+
+/// Icons for apps the helper did not draw: read the picture out of each app's file. Returns how many were found.
+async fn file_icons_task(app: &AppHandle, serial: &str, gen: u64, a: &AdbRunner, todo: &[(String, String)], skip: &HashSet<String>) -> usize {
+    use base64::Engine;
+    let state = app.state::<AppState>();
+    let alive = || state.label_generation.load(Ordering::SeqCst) == gen;
+    let dir = data_subdir(&state, "icons").ok();
+    let want: Vec<&(String, String)> = todo.iter().filter(|(n, _)| !skip.contains(n)).collect();
+    let mut found = 0;
+    for batch in want.chunks(60) {
+        if !alive() {
+            return found;
+        }
+        let paths: Vec<&str> = batch.iter().map(|(_, p)| p.as_str()).collect();
+        let stats = labels::stat_files(a, serial, &paths).await.unwrap_or_default();
+        let mut out: Vec<IconItem> = Vec::new();
+        let mut missing: Vec<(&String, &String, Option<String>)> = Vec::new();
+        for (name, path) in batch.iter().map(|x| (&x.0, &x.1)) {
+            let key = stats.get(path.as_str()).map(|(sz, mt)| format!("{path}|{sz}|{mt}"));
+            let hit = key.as_ref().and_then(|k| dir.as_ref().and_then(|d| file_icon_cache(d, name, k))).and_then(|f| std::fs::read_to_string(f).ok());
+            match hit.as_deref().and_then(|t| t.split_once('\n')) {
+                Some((mime, b64)) if !b64.is_empty() => out.push(IconItem { name: name.clone(), png: b64.to_string(), mime: Some(mime.to_string()) }),
+                _ => missing.push((name, path, key)),
+            }
+        }
+        found += out.len();
+        for group in missing.chunks(4) {
+            if !alive() {
+                return found;
+            }
+            let tasks: Vec<_> = group
+                .iter()
+                .map(|(name, path, key)| {
+                    let (a, serial, name, path, key) = (a.clone(), serial.to_string(), (*name).clone(), (*path).clone(), key.clone());
+                    tauri::async_runtime::spawn(async move { (name, key, icons_apk::resolve(&a, &serial, &path).await) })
+                })
+                .collect();
+            for t in tasks {
+                let Ok((name, key, r)) = t.await else { continue };
+                if let Ok(icon) = r {
+                    let b64 = base64::engine::general_purpose::STANDARD.encode(&icon.bytes);
+                    if let Some(f) = key.as_ref().and_then(|k| dir.as_ref().and_then(|d| file_icon_cache(d, &name, k))) {
+                        if let Some(parent) = f.parent() {
+                            let _ = std::fs::create_dir_all(parent);
+                        }
+                        let _ = std::fs::write(f, format!("{}\n{b64}", icon.mime));
+                    }
+                    out.push(IconItem { name, png: b64, mime: Some(icon.mime.to_string()) });
+                    found += 1;
+                }
+            }
+            if !out.is_empty() {
+                let _ = app.emit("icons", std::mem::take(&mut out));
+            }
+        }
+        if !out.is_empty() {
+            let _ = app.emit("icons", out);
+        }
+    }
+    found
 }
 
 /// Names for every app: helper first (all apps, in the phone's own words), then reading the app files for
@@ -380,6 +456,7 @@ async fn names_pipeline(app: AppHandle, serial: String, gen: u64, a: AdbRunner, 
     let state = app.state::<AppState>();
     let alive = || state.label_generation.load(Ordering::SeqCst) == gen;
     let total = all_names.len();
+    let icon_todo = todo.clone();
     let mut status = NamesStatus::default();
     let mut named: HashSet<String> = HashSet::new();
 
@@ -508,12 +585,21 @@ async fn names_pipeline(app: AppHandle, serial: String, gen: u64, a: AdbRunner, 
         }
         save_label_cache(&state);
     }
-    if let Some(h) = icons_handle {
-        let _ = h.await;
-    }
     status.finished = true;
-    let _ = app.emit("names-status", status);
+    let _ = app.emit("names-status", status.clone());
     let _ = app.emit("labels-progress", LabelProgress { done: total, total });
+
+    // 3. Icons the helper did not draw (or all of them, if the helper was unavailable): from the app files.
+    let helper_icons: HashSet<String> = match icons_handle {
+        Some(h) => h.await.unwrap_or_default(),
+        None => HashSet::new(),
+    };
+    status.icons_helper = helper_icons.len();
+    status.icons_file = file_icons_task(&app, &serial, gen, &a, &icon_todo, &helper_icons).await;
+    status.icons_missing = total.saturating_sub(status.icons_helper + status.icons_file);
+    if alive() {
+        let _ = app.emit("names-status", status);
+    }
 }
 
 /// Starts finding real names (and icons) for every app in the background. Results arrive as events:
@@ -1113,9 +1199,69 @@ async fn device_report(serial: String) -> Result<ReportOut, String> {
         let text = format!("{} preinstalled apps have no rating yet:\n{}", names.len(), names.join("\n"));
         sections.push(report::Section { name: "preinstalled apps without a rating".into(), command: "(computed from the app list and the built-in ratings)".into(), ok: true, output: report::truncate(&text, 40_000) });
     }
+    let check = bridge::check(&a, &serial).await;
+    let check_text = std::iter::once(check.verdict.clone())
+        .chain(check.steps.iter().map(|s| format!("[{}] {}: {}", if s.ok { "ok" } else { "FAILED" }, s.name, s.detail)))
+        .collect::<Vec<_>>()
+        .join("\n");
+    sections.push(report::Section { name: "app info access check".into(), command: "(pushes the helper, runs its self-test, names, icons; deletes it)".into(), ok: check.works, output: report::truncate(&report::scrub(&check_text, &serial), 8_000) });
     let text = report::render(&report::Meta { app_version: env!("CARGO_PKG_VERSION"), unix_time: now_secs() }, &sections);
     let sections = sections.iter().map(|s| ReportSection { name: s.name.clone(), ok: s.ok, bytes: s.output.len() }).collect();
     Ok(ReportOut { text, sections })
+}
+
+/// Try the whole on-device helper path on this phone and report each step.
+#[tauri::command]
+async fn bridge_check(serial: String) -> bridge::CheckReport {
+    bridge::check(&adb(), &serial).await
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PermissionOut {
+    name: String,
+    granted: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AppDetailsOut {
+    permissions: Vec<PermissionOut>,
+    /// The developer's own description from the app's manifest (usually empty).
+    description: String,
+    category: i64,
+    /// Which method answered: `helper` or `dumpsys`.
+    from: &'static str,
+}
+
+/// Permissions and the app's own description, straight from the phone. Uses the helper, and falls back to
+/// `dumpsys package` when the helper cannot run.
+#[tauri::command]
+async fn app_details(serial: String, package: String) -> Result<AppDetailsOut, String> {
+    if !packages::valid_name(&package) {
+        return Err("Not a valid package name.".into());
+    }
+    let a = adb();
+    if let Ok(remote) = bridge::push(&a, &serial).await {
+        let res = bridge::run(&a, &serial, &remote, "details", std::slice::from_ref(&package), Duration::from_secs(40)).await;
+        bridge::cleanup(&a, &serial, &remote).await;
+        if let Ok(res) = res {
+            if let Some(bridge::Line::Details(d)) = res.parsed.lines.into_iter().find(|l| matches!(l, bridge::Line::Details(_))) {
+                return Ok(AppDetailsOut {
+                    permissions: d.permissions.into_iter().map(|(name, granted)| PermissionOut { name, granted }).collect(),
+                    description: d.description,
+                    category: d.category,
+                    from: "helper",
+                });
+            }
+        }
+    }
+    let text = a.shell(&serial, &[&format!("dumpsys package {package}")]).await.map_err(|e| e.to_string())?;
+    let permissions: Vec<PermissionOut> = bridge::parse_dumpsys_permissions(&text).into_iter().map(|(name, granted)| PermissionOut { name, granted }).collect();
+    if permissions.is_empty() && !text.contains(&package) {
+        return Err("The phone gave no information about this app.".into());
+    }
+    Ok(AppDetailsOut { permissions, description: String::new(), category: -1, from: "dumpsys" })
 }
 
 /// Write text the user chose to save (from the save dialog). Limited in size.
@@ -1521,7 +1667,7 @@ fn main() {
             tuning_status, tuning_toggle, tuning_animations, tuning_undo, tuning_restrict, tuning_trim_caches, tuning_cooldown,
             device_report, save_text_file, get_log, clear_log, adb_status, adb_download, get_protections,
             install_inspect, install_item, install_discard, backup_one,
-            storage_report, usage_report, wake_report,
+            storage_report, usage_report, wake_report, bridge_check, app_details,
             screenshot_save, mirror_available, mirror_start,
             ratings_overview, ratings_import, ratings_community_remove, ratings_user_set, ratings_user_remove, ratings_user_export])
         .run(tauri::generate_context!())

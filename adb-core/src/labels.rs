@@ -9,7 +9,7 @@ use std::{
 
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
-fn temp_path(ext: &str) -> PathBuf {
+pub(crate) fn temp_path(ext: &str) -> PathBuf {
     let n = COUNTER.fetch_add(1, Ordering::Relaxed);
     std::env::temp_dir().join(format!("adbm-{}-{n}.{ext}", std::process::id()))
 }
@@ -53,8 +53,9 @@ pub fn label_from_apk_file(path: &Path) -> Option<String> {
     apk.get_application_label().as_deref().and_then(usable).or_else(|| launcher_label(&apk))
 }
 
-/// Label from just the two files that matter. Rebuilds a tiny stored ZIP so the same parser can be used.
-pub fn label_from_parts(manifest: &[u8], arsc: Option<&[u8]>) -> Option<String> {
+/// Rebuild a tiny stored ZIP holding just the manifest (and resources) so the full APK parser can read it.
+/// The caller deletes the returned file.
+pub(crate) fn write_parts_apk(manifest: &[u8], arsc: Option<&[u8]>) -> Option<PathBuf> {
     let mut buf = Cursor::new(Vec::new());
     {
         let mut w = zip::ZipWriter::new(&mut buf);
@@ -69,6 +70,12 @@ pub fn label_from_parts(manifest: &[u8], arsc: Option<&[u8]>) -> Option<String> 
     }
     let tmp = temp_path("apk");
     std::fs::write(&tmp, buf.into_inner()).ok()?;
+    Some(tmp)
+}
+
+/// Label from just the two files that matter.
+pub fn label_from_parts(manifest: &[u8], arsc: Option<&[u8]>) -> Option<String> {
+    let tmp = write_parts_apk(manifest, arsc)?;
     let label = label_from_apk_file(&tmp);
     let _ = std::fs::remove_file(&tmp);
     label
@@ -79,7 +86,7 @@ pub fn valid_device_path(p: &str) -> bool {
     p.starts_with('/') && !p.contains("..") && p.chars().all(|c| c.is_ascii_alphanumeric() || "/._~=+-".contains(c))
 }
 
-async fn unzip_entry(adb: &AdbRunner, serial: &str, apk: &str, entry: &str) -> Result<Vec<u8>, AdbError> {
+pub(crate) async fn unzip_entry(adb: &AdbRunner, serial: &str, apk: &str, entry: &str) -> Result<Vec<u8>, AdbError> {
     adb.run_bytes(&["-s", serial, "exec-out", "unzip", "-p", apk, entry]).await
 }
 

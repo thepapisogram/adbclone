@@ -26,3 +26,22 @@ mk literal com.test.literal 'android:label="Literal App"' '<string name="x">x</s
 mk reference com.test.reference 'android:label="@string/app_name"' '<string name="app_name">Referenced App</string>' '<string name="app_name">Referenzierte App</string>'
 mk entities com.test.entities 'android:label="@string/app_name"' '<string name="app_name">Fish &amp; Chips</string>'
 mk nolabel com.test.nolabel '' '<string name="x">x</string>'
+
+# Apps with icons. withicon: a plain PNG mipmap in two densities. xmlicon: the manifest icon is an XML drawable
+# (adaptive/vector style) and the real pictures are the legacy launcher PNGs next to it.
+png() { python3 -c "
+import struct,sys,zlib
+n=int(sys.argv[1]); raw=b''.join(b'\x00'+bytes([(i*37+j*11+k*5)%256 for i in range(n) for k in range(3)]) for j in range(n))
+def ch(t,d): c=struct.pack('>I',len(d))+t+d; return c+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
+sys.stdout.buffer.write(b'\x89PNG\r\n\x1a\n'+ch(b'IHDR',struct.pack('>IIBBBBB',n,n,8,2,0,0,0))+ch(b'IDAT',zlib.compress(raw))+ch(b'IEND',b''))" "$1" > "$2"; }
+mkicon() { # name package icon_ref with_xml
+  d=$(mktemp -d); mkdir -p "$d/res/values" "$d/res/mipmap-hdpi" "$d/res/mipmap-xxhdpi"
+  printf '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="%s"><application android:label="Icon App" android:icon="%s"/></manifest>' "$2" "$3" > "$d/AndroidManifest.xml"
+  printf '<resources><string name="x">x</string></resources>' > "$d/res/values/strings.xml"
+  png 6 "$d/res/mipmap-hdpi/ic_launcher.png"; png 12 "$d/res/mipmap-xxhdpi/ic_launcher.png"
+  if [ -n "$4" ]; then mkdir -p "$d/res/drawable"; printf '<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="#ff0000"/></shape>' > "$d/res/drawable/ic_adaptive.xml"; fi
+  aapt package -f -M "$d/AndroidManifest.xml" -S "$d/res" -I "$JAR" -F "$1.apk"
+  rm -rf "$d"
+}
+mkicon withicon com.test.withicon '@mipmap/ic_launcher' ''
+mkicon xmlicon com.test.xmlicon '@drawable/ic_adaptive' yes

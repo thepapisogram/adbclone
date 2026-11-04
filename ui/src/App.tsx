@@ -25,6 +25,7 @@ import { Guide } from "./features/guide/Guide";
 import { Storage } from "./features/storage/Storage";
 import { Wake } from "./features/wake/Wake";
 import { useT } from "./lib/i18n";
+import { AppDetails } from "./features/apps/AppDetails";
 import { Phones } from "./features/phones/Phones";
 import { appliesTo, otherReady, repeatable } from "./lib/multi";
 import { Ratings } from "./features/ratings/Ratings";
@@ -198,6 +199,8 @@ export default function App() {
   const selectedApps = apps.filter((a) => selected.has(a.name));
   const unsafeCount = (names: string[]) => apps.filter((a) => names.includes(a.name) && a.risk === "unsafe").length;
 
+  const [detailsFor, setDetailsFor] = useState<string | null>(null);
+  useEffect(() => { setDetailsFor(null); }, [serial, tab]);
   const [alsoOn, setAlsoOn] = useState<Set<string>>(new Set());
   useEffect(() => { setAlsoOn(new Set()); }, [pending]);
 
@@ -352,7 +355,7 @@ export default function App() {
 
       <div className="actions">
         <span>{selected.size} selected · {visible.length} shown · {counts.total} total · {counts.disabled} disabled · {counts.removed} uninstalled</span>
-        <NamesStatus status={namesStatus} progress={labelProgress} onRetry={() => setNamesRun((n) => n + 1)} nameOf={(p) => apps.find((a) => a.name === p)?.label ?? p} />
+        <NamesStatus status={namesStatus} progress={labelProgress} onRetry={() => setNamesRun((n) => n + 1)} nameOf={(p) => apps.find((a) => a.name === p)?.label ?? p} serial={serial} />
         <div className="spacer" />
         {(["disable", "enable", "uninstall", "restore"] as Action[]).map((a) => (
           <button key={a} className={a === "uninstall" ? "danger" : ""} disabled={busy || eligible(a).length === 0}
@@ -382,7 +385,7 @@ export default function App() {
               {visible.map((a) => (
                 <tr key={a.name} className={selected.has(a.name) ? "sel" : ""} onClick={() => toggle(a.name)} title={[a.description, a.details?.versionName && `Version ${a.details.versionName}`, a.details?.installer && `Installed by ${a.details.installer}`, a.details && (a.details.launchable ? "Has a launcher icon" : "No launcher icon")].filter(Boolean).join(" · ") || undefined}>
                   <td className="chk"><input type="checkbox" checked={selected.has(a.name)} onChange={() => toggle(a.name)} onClick={(e) => e.stopPropagation()} /></td>
-                  <td><span className="namecell"><AppIcon name={a.name} /><span><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span>{plain && <span className="reason">{reasonOf(a)}</span>}{duplicateTarget(a, byName) && <span className="reason">Does the same job as {duplicateTarget(a, byName)!.label}, which you also have.</span>}{protections.map.get(a.name) && <span className="reason warn-inline">You use this as {protections.map.get(a.name)}.</span>}</span></span></td>
+                  <td><span className="namecell"><AppIcon name={a.name} /><span><span className={a.nameSource ? "" : "guess"} title={a.nameSource ? undefined : "Not confirmed: guessed from the package name"}>{a.label}</span>{plain && <span className="reason">{reasonOf(a)}</span>}{duplicateTarget(a, byName) && <span className="reason">Does the same job as {duplicateTarget(a, byName)!.label}, which you also have.</span>}{protections.map.get(a.name) && <span className="reason warn-inline">You use this as {protections.map.get(a.name)}.</span>}</span><button className="linklike small infobtn" aria-label={`Details of ${a.label}`} title="Details" onClick={(e) => { e.stopPropagation(); setDetailsFor(a.name); }}>ⓘ</button></span></td>
                   {!plain && <td className="mono">{a.name}</td>}
                   <td>{a.system ? "System" : "User"}</td>
                   <td><span className={`pill ${a.state}`}>{a.state}</span></td>
@@ -427,6 +430,8 @@ export default function App() {
       )}
       {showSettings && <SettingsDialog onClose={() => setShowSettings(false)} />}
       {showConnect && <ConnectDialog devices={devices} onClose={() => setShowConnect(false)} onChanged={onConnectionChanged} />}
+
+      {detailsFor && byName.get(detailsFor) && <AppDetails serial={serial} app={byName.get(detailsFor)!} onClose={() => setDetailsFor(null)} />}
 
       {pending && (
         <div className="modal-bg" onClick={() => !busy && setPending(null)}>

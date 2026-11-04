@@ -17,14 +17,14 @@ const { chromium } = require('playwright');
   console.log('search by package still works:', await p.locator('tbody tr').count() === 1);
   await p.getByPlaceholder(/Search/).fill('');
   // Technical details on.
-  await p.getByRole('button', { name: 'Settings' }).click();
+  await p.getByRole('button', { name: 'Settings', exact: true }).click();
   const dlg = p.getByRole('dialog', { name: 'Settings' });
   await dlg.getByRole('switch', { name: 'Show technical details' }).click();
   await dlg.getByRole('button', { name: 'Done' }).click();
   console.log('package column appears:', await p.locator('thead th', { hasText: 'Package' }).count() === 1 && (await p.locator('tbody').innerText()).includes('com.samsung.android.bixby.agent'));
   // Theme.
   const theme = () => p.evaluate(() => ({ attr: document.documentElement.dataset.theme || null, bg: getComputedStyle(document.body).backgroundColor }));
-  await p.getByRole('button', { name: 'Settings' }).click();
+  await p.getByRole('button', { name: 'Settings', exact: true }).click();
   await dlg.getByLabel('Theme').selectOption('dark');
   let t = await theme(); console.log('dark theme applied:', t.attr === 'dark' && t.bg === 'rgb(21, 23, 26)');
   await dlg.getByLabel('Theme').selectOption('light');
@@ -33,12 +33,12 @@ const { chromium } = require('playwright');
   await dlg.getByRole('button', { name: 'Done' }).click();
   await p.reload(); await p.waitForFunction(() => document.querySelectorAll('tbody tr').length > 5);
   t = await theme(); console.log('choices survive a reload:', t.attr === 'dark' && (await p.locator('thead th', { hasText: 'Package' }).count()) === 1);
-  await p.getByRole('button', { name: 'Settings' }).click();
+  await p.getByRole('button', { name: 'Settings', exact: true }).click();
   await dlg.getByLabel('Theme').selectOption('system');
   console.log('system removes the override:', (await theme()).attr === null);
   // Plain mode also applies to the confirmation dialog.
   await dlg.getByRole('button', { name: 'Done' }).click();
-  await p.getByRole('button', { name: 'Settings' }).click();
+  await p.getByRole('button', { name: 'Settings', exact: true }).click();
   await dlg.getByRole('switch', { name: 'Show technical details' }).click(); await dlg.getByRole('button', { name: 'Done' }).click();
   await p.locator('tbody tr', { hasText: 'Bixby Voice' }).click();
   await p.getByRole('button', { name: /^Disable \(/ }).click();

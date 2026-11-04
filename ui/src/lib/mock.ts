@@ -1,4 +1,4 @@
-import type { RatingsOverview, ImportOut, UserRating, CommunityFile, WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
+import type { CheckReport, AppDetailsOut, RatingsOverview, ImportOut, UserRating, CommunityFile, WakeReport, StorageReport, UsageReport, ExportResult, InspectOut, InstallItem, InstallOptions, Protection, Action, ActionResult, AdbCheck, AdbDownloadEvent, AdbStatus, CommandLog, CommandLogEntry, LabelHandlers, ReportOut, StepResult, TuningInfo, TuningRecord, DeviceInfo, HealthSample, Change, PlanResponse, RestoreResponse, SnapshotMeta, AppInfo, Device, MdnsService, QrStart, RunningResponse, Safety, SavedDevice } from "./types";
 
 const IMPACT: Record<string, string> = {
   "ads-telemetry": "Stops usage reports, ads or diagnostics. Nothing you use directly.",
@@ -128,7 +128,7 @@ export const mock = {
         h.onProgress({ done: Math.min(total, (i + 1) * size), total });
       }, 500 + i * 450);
     }
-    setTimeout(() => h.onStatus({ helper: total - 6 - 1, file: 6, cached: 0, unresolved: [{ name: "com.vendor.unknownservice", reason: "the app declares no name" }], helperMessage: null, finished: true }), 500 + batches * 450);
+    setTimeout(() => h.onStatus({ helper: total - 6 - 1, file: 6, cached: 0, unresolved: [{ name: "com.vendor.unknownservice", reason: "the app declares no name" }], helperMessage: null, finished: true, iconsHelper: total - 8, iconsFile: 5, iconsMissing: 3 }), 500 + batches * 450);
     apps.forEach((a, i) => setTimeout(() => h.onIcons([icon(a.name, a.label)]), 700 + i * 60));
   },
   _tick: 0,
@@ -459,6 +459,21 @@ export const mock = {
       this.user = this.user.filter((u) => u.id !== id).concat({ id, risk: risk as UserRating["risk"], desc });
     },
     async removeUser(id: string) { this.user = this.user.filter((u) => u.id !== id); },
+  },
+  async bridgeCheck(_serial: string): Promise<CheckReport> {
+    await delay(600);
+    const steps = [
+      { name: "Copy the helper to the phone", ok: true, detail: "copied" },
+      { name: "Start the helper", ok: true, detail: "Android 14 (API 34), 312 apps visible, icon drawing works" },
+      { name: "Read app names", ok: true, detail: "312 apps, 309 with a real name" },
+      { name: "Read icons", ok: true, detail: "3 of 3 sample icons read" },
+    ];
+    return { steps, verdict: "Works: Coolant can read names, icons and details straight from this phone.", works: true };
+  },
+  async appDetails(_serial: string, pkg: string): Promise<AppDetailsOut> {
+    await delay(300);
+    const perms = ["android.permission.INTERNET", "android.permission.CAMERA", "android.permission.ACCESS_FINE_LOCATION", "android.permission.READ_CONTACTS", "android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.WAKE_LOCK", "com.vendor.permission.PUSH", "android.permission.POST_NOTIFICATIONS"];
+    return { permissions: perms.map((name, i) => ({ name, granted: i % 3 !== 1 })), description: pkg.includes("gm") ? "Send and receive email." : "", category: 4, from: "helper" };
   },
   async wake(_serial: string): Promise<WakeReport> {
     await delay(300);

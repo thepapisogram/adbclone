@@ -5,6 +5,7 @@ pub mod deviceinfo;
 pub mod devices;
 pub mod error;
 pub mod health;
+pub mod icons_apk;
 pub mod install;
 pub mod labels;
 pub mod log;

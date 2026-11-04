@@ -76,6 +76,14 @@ elif args[:2] == ["mdns", "services"]:
     sys.stdout.write("List of discovered mdns services\n" + read("mdns.txt"))
 elif args[:1] == ["tcpip"]:
     print(f"restarting in TCP mode port: {args[1]}")
+elif args[:3] == ["exec-out", "unzip", "-l"]:
+    import zipfile
+    if no_unzip:
+        sys.stderr.write("unzip: not found\n"); sys.exit(127)
+    z = zipfile.ZipFile(fixture(args[3]))
+    print("Archive:  " + args[3]); print("  Length      Date    Time    Name"); print("---------  ---------- -----   ----")
+    for i in z.infolist():
+        print(f"{i.file_size:9d}  2024-01-01 00:00   {i.filename}")
 elif args[:3] == ["exec-out", "unzip", "-p"]:
     import zipfile
     if no_unzip:
